@@ -30,8 +30,22 @@ npm start              # http://127.0.0.1:3000 (loopback only)
 
 `POST /api/analyze` sends the tracks to the Mistral API (`mistral-large-latest`, JSON mode) and returns a strict JSON reading (energy/valence/darkness/aggression, tempo, scene, palette, era, character, movie, quote candidates, summary). Without `MISTRAL_API_KEY` it returns a local keyword-based analysis and the UI shows a "demo mode" note.
 
+<<<<<<< HEAD
 `GET /api/quote?artist=&title=` returns one short line (max 12 words) from the keyless lyrics.ovh API. The frontend tries the 3 quote candidates in order; if none works it shows just song title + artist. Lyrics are never invented.
 
 ## Secrets
 
 Only `MISTRAL_API_KEY` in `.env` (server-side only, git-ignored). No Spotify credentials, no OAuth.
+=======
+- `index.html` — landing + journey panels + finale
+- `assets/css/style.css` — deep green theme, responsive, ball-shrink & cat animations
+- `assets/js/app.js` — flow: tap-the-ball unravel animation, analysis, render panels, step tracking
+- `assets/js/spotify.js` — client-side reading on static hosting: playlist name via oEmbed, track list from the public playlist page, real lyric via lyrics.ovh
+- `assets/js/mood.js` — mood analysis (tempo/aggressive/dark/sunny/lush…), palettes, era/character/film/quote banks
+- `assets/js/scenes.js` — 12 seeded SVG scenery families (ship, river, forest, desert, mountains, volcano…) × mood palettes
+- `assets/js/portraits.js` — This-Is-The-Police-style SVG portraits, film posters, era icons
+- `assets/js/yarn.js` — yarn ball, thread pile, cats
+- `assets/js/rng.js` — seeded RNG (same playlist → same reading)
+- `api/vibe.js` — analysis engine (Spotify + lyrics.ovh + demo fallback), also the Vercel function
+- `server.js` — zero-dep dev server, binds 127.0.0.1 only
+>>>>>>> origin/vibe/unravelled-rebuild-ed694c
