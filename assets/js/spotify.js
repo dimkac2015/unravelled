@@ -1,12 +1,16 @@
 // client-side playlist reading for static hosting (no server keys needed):
-// playlist name via Spotify oEmbed, track list from the public playlist page
-// (read through a CORS proxy), and a real lyric line via the keyless lyrics.ovh API
+// playlist name via Spotify oEmbed, track list scraped from the public playlist /
+// embed pages through free CORS relays, and a real lyric line via keyless lyrics.ovh
 
 import { MOOD_KEYWORDS } from "./mood.js";
 
 const OEMBED = "https://open.spotify.com/oembed?url=";
-const PROXY = "https://api.allorigins.win/raw?url=";
 const LYRICS = "https://api.lyrics.ovh/v1";
+const RELAYS = [
+  (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+  (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+];
 
 async function fetchText(url, timeoutMs = 12000) {
   const ctrl = new AbortController();
@@ -35,11 +39,20 @@ export async function clientAnalyze(parsed) {
     playlist.name = j.title || null;
   } catch { /* name stays null */ }
 
+  const pages = [
+    parsed.url,
+    `https://open.spotify.com/embed/playlist/${parsed.id}`,
+  ];
   let tracks = [];
-  try {
-    const html = await fetchText(PROXY + encodeURIComponent(parsed.url), 15000);
-    tracks = extractTracks(html);
-  } catch { /* no tracks */ }
+  outer: for (const page of pages) {
+    for (const relay of RELAYS) {
+      try {
+        const html = await fetchText(relay(page), 14000);
+        tracks = extractTracks(html);
+        if (tracks.length) break outer;
+      } catch { /* try next relay */ }
+    }
+  }
 
   let quote = null;
   if (tracks.length) quote = await clientQuote(tracks);
@@ -68,9 +81,10 @@ export function extractTracks(html) {
       out.push({ name: o.name, artist });
     }
   };
-  try {
-    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (m) {
+  // every embedded JSON blob ( __NEXT_DATA__ and friends )
+  const scripts = html.matchAll(/<script[^>]*type="application\/json"[^>]*>([\s\S]*?)<\/script>/g);
+  for (const m of scripts) {
+    try {
       const data = JSON.parse(m[1]);
       (function walk(o) {
         if (!o || typeof o !== "object") return;
@@ -78,10 +92,10 @@ export function extractTracks(html) {
         push(o);
         for (const k of Object.keys(o)) walk(o[k]);
       })(data);
-    }
-  } catch { /* fall through to regex */ }
+    } catch { /* skip malformed blob */ }
+  }
   if (!out.length) {
-    // best-effort regex fallback: track uri followed by a name field nearby
+    // best-effort regex fallback on the raw markup
     const re = /"uri":"spotify:track:[A-Za-z0-9]{22}"[\s\S]{0,700}?"name":"((?:[^"\\]|\\.){2,100})"[\s\S]{0,700}?"artists":\[\{"uri":"spotify:artist:[A-Za-z0-9]{22}"[^}]*?"name":"((?:[^"\\]|\\.){1,80})"/g;
     let m;
     while ((m = re.exec(html)) && out.length < 60) {
@@ -116,7 +130,7 @@ async function clientQuote(tracks) {
     .filter(t => t.name.length <= 60)
     .map(t => ({ t, s: trackMoodScore(t) }))
     .sort((a, b) => b.s - a.s);
-  for (const { t } of scored.slice(0, 12)) {
+  for (const { t } of scored.slice(0, 20)) {
     const artist = (t.artist.split(/,| feat\.| ft\.| & /i)[0] || "").trim();
     if (!artist) continue;
     try {
