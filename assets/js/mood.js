@@ -11,7 +11,7 @@ export function parseSpotifyUrl(input) {
   return null;
 }
 
-const MOOD_KEYWORDS = {
+export const MOOD_KEYWORDS = {
   aggressive: ["metal", "screamo", "hardcore", "thrash", "death metal", "black metal", "punk", "rage", "fight", "kill", "war", "heavy", "scream", "breakdown", "enemy", "burn", "riot", "venom", "doom"],
   dark: ["dark", "night", "midnight", "black", "shadow", "ghost", "death", "die", "alone", "rain", "storm", "witch", "demon", "hell", "goth", "halloween", "haunted", "abyss", "void", "bury"],
   sunny: ["sun", "summer", "happy", "dance", "party", "joy", "smile", "golden", "beach", "shine", "love", "sweet", "fun", "upbeat", "disco", "holiday", "sunshine", "la la", "hello", "good vibes"],

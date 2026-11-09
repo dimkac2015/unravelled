@@ -23,11 +23,9 @@
 
   <!-- ============ LANDING ============ -->
   <section id="landing" class="screen active">
-    <header class="top">
-      <h1 class="logo">unravelled</h1>
-    </header>
     <div class="landing-center">
-      <p class="tagline">paste a spotify playlist.<br>pull the thread. see what it was hiding.</p>
+      <h1 class="logo big">unravelled</h1>
+      <p class="tagline">paste a spotify playlist,<br>then tap the ball to pull the thread.</p>
       <form id="link-form" class="board" autocomplete="off">
         <input id="playlist-input" type="text" inputmode="url"
                placeholder="https://open.spotify.com/playlist/…">
@@ -35,7 +33,10 @@
       </form>
       <p id="landing-error" class="error" role="alert"></p>
     </div>
-    <div class="landing-ball" aria-hidden="true"><div class="landing-ball-svg" id="landing-ball"></div></div>
+    <button id="landing-ball" class="landing-ball" aria-label="unravel the playlist">
+      <span id="landing-ball-svg"></span>
+    </button>
+    <svg id="unravel-fx" class="hidden" aria-hidden="true"><path id="unravel-thread" fill="none"/></svg>
     <p class="foot-note">works on phones and computers · public playlists only</p>
   </section>
 
@@ -113,7 +114,7 @@
     </div>
   </div>
 
-  <!-- loading overlay while the ball spins -->
+  <!-- loading overlay while reading the playlist -->
   <div id="loading" class="hidden">
     <div id="loading-ball"></div>
     <p id="loading-line">listening…</p>
