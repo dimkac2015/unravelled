@@ -114,9 +114,9 @@ export function renderCharacter(character, palette) {
     ${lightPoly}
     ${shadowPoly}
     <g transform="translate(${lean},0)">
+      <rect x="${cx - 16}" y="${cy + headRy - 26}" width="32" height="${390 - (cy + headRy - 26)}" fill="${skin}"/>
       ${coat}
-      <rect x="${cx - 16}" y="${cy + headRy - 20}" width="32" height="34" fill="${skin}"/>
-      <polygon points="${cx - 16},${cy + headRy - 20} ${cx + 16},${cy + headRy - 20} ${cx},${cy + headRy + 8}" fill="${d}"/>
+      <polygon points="${cx - 22},${cy + headRy + 2} ${cx + 22},${cy + headRy + 2} ${cx},${cy + headRy + 26}" fill="${d}"/>
       ${head}
       ${hair}
       ${headgear(arch, p, cx, cy, headRx, headRy)}
