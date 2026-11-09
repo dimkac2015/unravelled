@@ -32,10 +32,10 @@ function catHead(eyeColor, opts = {}) {
     <circle cx="60" cy="46" r="27" fill="${opts.body}"/>
     <circle cx="60" cy="46" r="27" fill="none" stroke="${RIM}" stroke-width="2" opacity="0.55"/>
     ${brows}
-    <ellipse cx="49" cy="${opts.eyeY ?? 46}" rx="6" ry="${opts.sleepy ? 3.4 : 6.4}" fill="${eyeColor}"/>
-    <ellipse cx="71" cy="${opts.eyeY ?? 46}" rx="6" ry="${opts.sleepy ? 3.4 : 6.4}" fill="${eyeColor}"/>
-    <ellipse cx="49" cy="${opts.eyeY ?? 46}" rx="2" ry="${opts.sleepy ? 2.6 : 5}" fill="#0a0c10"/>
-    <ellipse cx="71" cy="${opts.eyeY ?? 46}" rx="2" ry="${opts.sleepy ? 2.6 : 5}" fill="#0a0c10"/>
+    <ellipse cx="49" cy="${opts.eyeY ?? 46}" rx="${opts.bigEyes ? 9 : 6}" ry="${opts.bigEyes ? (opts.sleepy ? 4.6 : 9) : (opts.sleepy ? 3.4 : 6.4)}" fill="${eyeColor}"/>
+    <ellipse cx="71" cy="${opts.eyeY ?? 46}" rx="${opts.bigEyes ? 9 : 6}" ry="${opts.bigEyes ? (opts.sleepy ? 4.6 : 9) : (opts.sleepy ? 3.4 : 6.4)}" fill="${eyeColor}"/>
+    <ellipse cx="49" cy="${opts.eyeY ?? 46}" rx="${opts.bigEyes ? 3 : 2}" ry="${opts.bigEyes ? 7 : (opts.sleepy ? 2.6 : 5)}" fill="#0a0c10"/>
+    <ellipse cx="71" cy="${opts.eyeY ?? 46}" rx="${opts.bigEyes ? 3 : 2}" ry="${opts.bigEyes ? 7 : (opts.sleepy ? 2.6 : 5)}" fill="#0a0c10"/>
     ${lid}
     <path d="M 56 58 L 60 62 L 64 58 Z" fill="${opts.nose || "#c97b7b"}"/>
   </g>`;
@@ -56,7 +56,7 @@ export function renderCat(id) {
         <path d="M 40 116 L 46 102 L 52 116 L 58 100 L 64 116 L 70 102 L 76 116 Z" fill="#1d212b"/>
         ${catHead("#d8e86a", { body: "#14171f" })}</svg>`;
     case "ryzhik":
-      return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="--swish:3.8s">${catBody("#d98a3d", { bodyTop: 66, bodyRight: 98, tailW: 11, stripeColor: "#b56a24", stripes: true })}${catHead("#e8c85a", { body: "#d98a3d", sleepy: true, nose: "#a35a3a" })}</svg>`;
+      return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="--swish:3.8s">${catBody("#d98a3d", { bodyTop: 66, bodyRight: 98, tailW: 11, stripeColor: "#b56a24", stripes: true })}${catHead("#e8c85a", { body: "#d98a3d", sleepy: true, nose: "#a35a3a", bigEyes: true })}</svg>`;
     case "mysh":
       return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="--swish:2.9s">${catBody("#8b93a3", { tailC: 112 })}${catHead("#ffb02e", { body: "#8b93a3", serious: true, nose: "#7a6a70" })}</svg>`;
     default:

@@ -593,6 +593,17 @@ $("btn-next").addEventListener("click", () => {
   if (state.step < N_PAGES) showPage(state.step + 1);
 });
 
+/* dock layout: the SVG uses xMinYMax meet, so 1000 viewBox units = 5 x dock height
+   in px — size the cats row and pile to the same space so thread loops land on cats */
+function layoutDock() {
+  const h = $("dock").clientHeight || 150;
+  $("cats-row").style.width = h * 5 + "px";
+  const pile = $("pile-wrap");
+  pile.style.left = (BALL.cx - 70) / 200 * h + "px";
+  pile.style.width = 140 / 200 * h + "px";
+}
+window.addEventListener("resize", layoutDock);
+
 /* ================= init ================= */
 
 (function init() {
@@ -604,6 +615,7 @@ $("btn-next").addEventListener("click", () => {
   buildBall();
   buildPile();
   buildCats();
+  layoutDock();
   applyLang();
   showPage(0);
 })();
