@@ -276,3 +276,25 @@ export function renderScene(sceneId, palette) {
   const rng = makeRng(sceneId + "|" + JSON.stringify(p));
   return fn(p, rng, Math.abs([...sceneId].reduce((a, c) => a + c.charCodeAt(0), 0)) % 9999);
 }
+
+/* ---------------- era icons (Stage 3): 12 simple line icons ---------------- */
+
+const ICON_FNS = {
+  top_hat: `<rect x="28" y="52" width="44" height="34" rx="4"/><rect x="14" y="82" width="72" height="10" rx="5"/><rect x="28" y="70" width="44" height="8" opacity="0.5"/>`,
+  pickaxe: `<path d="M 20 34 Q 50 12 80 34 M 50 24 L 50 88 M 36 88 L 64 88" fill="none"/>`,
+  rocket: `<path d="M 50 10 Q 66 32 62 60 L 38 60 Q 34 32 50 10 Z M 38 60 L 24 76 M 62 60 L 76 76 M 44 60 L 44 72 L 56 72 L 56 60" fill="none"/><circle cx="50" cy="38" r="6" fill="none"/>`,
+  gramophone: `<path d="M 30 78 L 58 78 L 58 66 Q 78 60 80 34 Q 60 44 44 50 L 30 56 Z M 36 78 L 36 88 L 52 88 L 52 78" fill="none"/>`,
+  sailing_ship: `<path d="M 18 70 L 82 70 L 70 86 L 30 86 Z M 50 66 L 50 18 M 52 20 Q 74 36 52 62 M 48 24 Q 30 38 48 60" fill="none"/>`,
+  castle: `<path d="M 22 88 L 22 40 L 32 40 L 32 30 L 40 30 L 40 40 L 48 40 L 48 30 L 56 30 L 56 40 L 64 40 L 64 30 L 72 30 L 72 40 L 78 40 L 78 88 M 44 88 L 44 64 Q 50 56 56 64 L 56 88" fill="none"/>`,
+  lantern: `<path d="M 38 20 L 62 20 M 50 20 L 50 28 M 34 28 L 66 28 L 70 66 L 30 66 Z M 40 66 L 40 78 Q 50 86 60 78 L 60 66" fill="none"/><circle cx="50" cy="47" r="7"/>`,
+  steam_train: `<rect x="16" y="52" width="46" height="26" rx="4" fill="none"/><path d="M 62 60 L 80 60 L 80 78 L 62 78 Z M 22 78 L 22 88 M 56 78 L 56 88 M 70 78 L 70 88" fill="none"/><circle cx="30" cy="66" r="4"/><circle cx="48" cy="66" r="4"/><path d="M 30 44 Q 24 34 30 26 Q 36 34 32 44 M 44 44 Q 40 32 46 24" fill="none"/>`,
+  crown: `<path d="M 18 68 L 14 30 L 34 46 L 50 22 L 66 46 L 86 30 L 82 68 Z M 18 78 L 82 78" fill="none"/>`,
+  compass: `<circle cx="50" cy="50" r="34" fill="none"/><path d="M 50 26 L 58 50 L 50 74 L 42 50 Z M 26 50 L 50 42 L 74 50 L 50 58 Z" fill="none" opacity="0.6"/>`,
+  key: `<circle cx="34" cy="40" r="14" fill="none"/><path d="M 44 50 L 78 84 M 66 72 L 76 62 M 74 80 L 84 70" fill="none"/>`,
+  hourglass: `<path d="M 28 16 L 72 16 M 28 84 L 72 84 M 32 16 Q 32 50 50 50 Q 68 50 68 16 M 32 84 Q 32 50 50 50 Q 68 50 68 84" fill="none"/>`,
+};
+
+export function renderIcon(iconId, color = "#f4efe3") {
+  const body = ICON_FNS[iconId] || ICON_FNS.lantern;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${body}</svg>`;
+}

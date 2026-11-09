@@ -166,12 +166,39 @@ button:hover { filter: brightness(1.08); }
 }
 #cats-row svg { display: block; }
 
+/* ---- cats: flat silhouettes, own tail-swish speed each ---- */
+.cat { flex: 0 0 auto; }
+.cat svg { width: clamp(44px, 9vw, 78px); height: auto; }
+.cat .tail {
+  transform-box: fill-box;
+  transform-origin: 15% 90%;
+  animation: tail-swish var(--swish, 2.6s) ease-in-out infinite;
+}
+@keyframes tail-swish {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(9deg); }
+}
+/* ball is rolling: fluffy bats it, grey leans forward, ginger only lifts its head */
+#cats-row.reacting .cat-black_fluffy .paw { animation: bat 0.9s ease-in-out; }
+@keyframes bat { 0%,100% { transform: translate(0,0); } 40% { transform: translate(10px,-16px) rotate(-14deg); } }
+#cats-row.reacting .cat-grey .head { animation: lean 0.9s ease-in-out; }
+@keyframes lean { 0%,100% { transform: translateX(0); } 40% { transform: translateX(8px); } }
+#cats-row.reacting .cat-ginger .head { animation: lift 0.9s ease-in-out; }
+@keyframes lift { 0%,100% { transform: rotate(0deg); } 40% { transform: rotate(-6deg); } }
+.cat .head, .cat .paw { transform-box: fill-box; transform-origin: 50% 80%; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cat .tail, #cats-row.reacting .cat-black_fluffy .paw,
+  #cats-row.reacting .cat-grey .head, #cats-row.reacting .cat-ginger .head { animation: none; }
+}
+
 /* ---- responsive: keep every element inside its own layer ---- */
 @media (max-width: 500px) {
   #shell { grid-template-rows: auto 1fr auto clamp(120px, 20vh, 170px); }
   #link-form { flex-direction: column; }
   #btn-unravel { width: 100%; }
   .panel { padding: 20px 16px; }
+  .cat svg { width: clamp(34px, 8vw, 50px); } /* all 5 cats fit one row on phones */
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
