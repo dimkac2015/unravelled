@@ -15,7 +15,7 @@ html, body { height: 100%; }
 
 body {
   font-family: Georgia, "Times New Roman", serif;
-  background: var(--green);
+  background: var(--green); /* one single deep-green canvas, no separate bands */
   color: #fff;
   overflow: hidden;
 }
@@ -35,7 +35,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: var(--green-deep);
+  background: transparent;
 }
 #site-name { font-size: clamp(1.3rem, 3.5vw, 1.9rem); font-weight: 600; letter-spacing: 0.04em; }
 
@@ -83,7 +83,13 @@ body {
 #btn-retry { margin-top: 10px; background: transparent; color: var(--cream); border: 1.5px solid rgba(244, 239, 227, 0.6); }
 
 /* ---- stage scrolls internally; art is absolute z-0, text is flow z-10 ---- */
-#stage { position: relative; overflow: auto; z-index: 0; }
+#stage {
+  position: relative;
+  overflow: hidden; /* pages fit the grid; no scrollbar on the right */
+  z-index: 0;
+  scrollbar-width: none;
+}
+#stage::-webkit-scrollbar { display: none; }
 
 .page { display: none; position: relative; min-height: 100%; }
 .page.active { display: block; animation: page-in 500ms ease both; }
@@ -171,7 +177,7 @@ button:hover { filter: brightness(1.08); }
   justify-content: space-between;
   gap: 12px;
   padding: 10px 20px;
-  background: var(--green-deep);
+  background: transparent;
 }
 #controls button { min-width: 110px; }
 #controls button:disabled { opacity: 0.4; cursor: default; }
@@ -180,18 +186,16 @@ button:hover { filter: brightness(1.08); }
 #dock {
   z-index: 30;
   position: relative;
-  background: var(--green-dock);
-  border-top: 1px solid rgba(244, 239, 227, 0.15);
+  background: transparent; /* same deep green as everything else */
   overflow: hidden;
 }
 #dock-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-#ball-body { fill: var(--cream); stroke: #8f8468; stroke-width: 3; }
-#ball-strands { stroke: #a3946f; stroke-width: 2.4; opacity: 0.85; stroke-linecap: round; }
 #dock-thread { stroke: var(--cream); stroke-width: 4; stroke-linecap: round; }
 #pull-hit { stroke: rgba(0, 0, 0, 0); stroke-width: 34; fill: none; pointer-events: stroke; cursor: grab; touch-action: none; }
+#ball-spin { cursor: pointer; }
 
 /* outer wrapper: position+scale, origin at bottom-centre (stays on the dock baseline) */
-#ball-pos { transform-box: fill-box; transform-origin: 50% 100%; }
+#ball-pos { transform-box: fill-box; transform-origin: 50% 100%; cursor: pointer; }
 /* inner group: rotation only, around the exact centre of the ball */
 #ball-spin { transform-box: fill-box; transform-origin: 50% 50%; }
 

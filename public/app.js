@@ -90,19 +90,40 @@ let state = {
 const BALL = { cx: 95, cy: 138, r: 62 };
 const CAT_X = [250, 395, 540, 685, 830];
 
-function buildBallStrands() {
-  const g = $("ball-strands");
-  let s = "";
-  for (let i = 0; i < 9; i++) {
-    const y = BALL.cy - 52 + i * 12;
-    const wob = (i % 3) * 8 - 8;
-    s += `<path d="M ${BALL.cx - 58 + i * 2} ${y} C ${BALL.cx - 20} ${y - 12 + wob}, ${BALL.cx + 20} ${y + 10 - wob}, ${BALL.cx + 58 - i * 2} ${y + 2}"/>`;
+// the ball, drawn properly: radial-shaded sphere, many organic winding strands
+// clipped to the sphere, a specular highlight, and a soft contact shadow (not rotating)
+function buildBall() {
+  const svg = $("dock-svg");
+  if (!document.getElementById("ball-grad")) {
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    defs.innerHTML = `<radialGradient id="ball-grad" cx="0.35" cy="0.28" r="0.95">
+        <stop offset="0" stop-color="#fbf6e9"/><stop offset="0.55" stop-color="#ece2c8"/>
+        <stop offset="0.85" stop-color="#cfc0a0"/><stop offset="1" stop-color="#b3a37f"/>
+      </radialGradient>
+      <clipPath id="ball-clip"><circle cx="${BALL.cx}" cy="${BALL.cy}" r="59"/></clipPath>`;
+    svg.insertBefore(defs, svg.firstChild);
   }
-  for (let i = 0; i < 6; i++) {
-    const x = BALL.cx - 40 + i * 16;
-    s += `<path d="M ${x} ${BALL.cy - 58} Q ${x + 14} ${BALL.cy} ${x - 8} ${BALL.cy + 58}"/>`;
+  let seed = 987654321;
+  const rnd = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
+  let strands = "";
+  for (let i = 0; i < 16; i++) {
+    const y = BALL.cy - 52 + i * 6.8;
+    const wob = rnd() * 14 - 7;
+    strands += `<path d="M ${BALL.cx - 56 - rnd() * 4} ${y} C ${BALL.cx - 20} ${y - 10 + wob}, ${BALL.cx + 20} ${y + 8 - wob}, ${BALL.cx + 56 + rnd() * 4} ${y + 2}" stroke-width="${1.8 + rnd() * 1.2}" opacity="${0.5 + rnd() * 0.35}"/>`;
   }
-  g.innerHTML = s;
+  for (let i = 0; i < 8; i++) {
+    const x = BALL.cx - 42 + i * 12;
+    strands += `<path d="M ${x} ${BALL.cy - 56} Q ${x + 12 + rnd() * 10} ${BALL.cy} ${x - 8 + rnd() * 8} ${BALL.cy + 56}" stroke-width="${1.6 + rnd()}" opacity="${0.4 + rnd() * 0.35}"/>`;
+  }
+  const hx = BALL.cx - 24, hy = BALL.cy - 30;
+  $("ball-spin").innerHTML = `
+    <circle cx="${BALL.cx}" cy="${BALL.cy}" r="62" fill="url(#ball-grad)" stroke="#8f8468" stroke-width="2.5"/>
+    <g clip-path="url(#ball-clip)" fill="none" stroke="#a89468" stroke-linecap="round">${strands}</g>
+    <g clip-path="url(#ball-clip)" fill="none" stroke="#f8f1de" stroke-width="1.6" opacity="0.8">
+      <path d="M ${BALL.cx - 50} ${BALL.cy - 30} Q ${BALL.cx} ${BALL.cy - 46} ${BALL.cx + 50} ${BALL.cy - 28}"/>
+      <path d="M ${BALL.cx - 54} ${BALL.cy - 12} Q ${BALL.cx} ${BALL.cy - 28} ${BALL.cx + 54} ${BALL.cy - 10}"/>
+    </g>
+    <ellipse cx="${hx}" cy="${hy}" rx="24" ry="13" fill="#ffffff" opacity="0.35" transform="rotate(-25 ${hx} ${hy})"/>`;
 }
 
 /* ball: outer wrapper = position+scale (origin bottom-centre); inner g = rotation (centre) */
@@ -177,20 +198,23 @@ function threadPathD(upto) {
   return d;
 }
 
-function drawThread(upto, animate) {
+// px of thread visible when it reaches cat `upto` (0 = front page loose end)
+function threadLenFor(upto) {
+  if (upto <= 0) return state.step === 0 ? state.threadLen : 0;
+  const tmp = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  tmp.setAttribute("d", threadPathD(upto));
+  $("dock-svg").appendChild(tmp);
+  const len = tmp.getTotalLength();
+  tmp.remove();
+  return len;
+}
+
+function drawThreadVisible(px, animate) {
   const p = $("dock-thread");
   p.setAttribute("d", threadPathD(5));
   const total = p.getTotalLength();
-  let visible = total;
-  if (upto < 5) {
-    const tmp = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    tmp.setAttribute("d", threadPathD(Math.max(upto, 0)));
-    $("dock-svg").appendChild(tmp);
-    visible = upto > 0 ? tmp.getTotalLength() : 0;
-    tmp.remove();
-  }
   p.style.strokeDasharray = String(total);
-  const targetOffset = total - visible;
+  const targetOffset = Math.max(0, total - px);
   if (animate && !REDUCED) {
     p.style.transition = "none";
     p.style.strokeDashoffset = String(total);
@@ -201,6 +225,7 @@ function drawThread(upto, animate) {
     p.style.transition = "none";
     p.style.strokeDashoffset = String(targetOffset);
   }
+  // grabbable loose end on the front page, extending to the RIGHT
   let hit = $("pull-hit");
   if (!hit) {
     hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -209,8 +234,13 @@ function drawThread(upto, animate) {
     hit.addEventListener("pointerdown", onPullStart);
   }
   const a = ballAttach();
-  hit.setAttribute("d", `M ${a.x} ${a.y} Q ${a.x + 50} ${a.y + 40} ${Math.min(980, a.x + 150)} 190`);
+  const endX = Math.min(985, a.x + Math.max(px, 60));
+  hit.setAttribute("d", `M ${a.x} ${a.y} Q ${a.x + (endX - a.x) / 2} ${a.y + 26} ${endX} 188`);
   hit.classList.toggle("hidden", state.step !== 0);
+}
+
+function drawThread(upto, animate) {
+  drawThreadVisible(threadLenFor(upto), animate);
 }
 
 /* ================= cats ================= */
@@ -308,14 +338,18 @@ function catsLeave() {
       if (s.dir === -1) el.classList.add("back-lane");
       const walkMs = s.yawn ? CONFIG.durations.catLeaveWalk + 500 : CONFIG.durations.catLeaveWalk;
       setTimeout(() => {
-        if (REDUCED) { el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }); return; }
+        const gone = () => el.classList.add("hidden"); // fully gone, only the pile stays
+        if (REDUCED) {
+          el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }).onfinish = gone;
+          return;
+        }
         el.animate(
           [
             { transform: s.dir === -1 ? "translate(-50%, -14px) scale(0.9)" : "translateX(-50%)", opacity: 1 },
-            { transform: s.dir === -1 ? `translate(calc(-50% + ${s.dir * 260}px), -14px) scale(0.9)` : `translateX(calc(-50% + ${s.dir * 260}px))`, opacity: 0.2 },
+            { transform: s.dir === -1 ? `translate(calc(-50% + ${s.dir * 260}px), -14px) scale(0.9)` : `translateX(calc(-50% + ${s.dir * 260}px))`, opacity: 0 },
           ],
           { duration: walkMs, easing: "ease-in", fill: "forwards" }
-        );
+        ).onfinish = gone;
       }, s.yawn ? 600 : 0);
     }, s.at);
   }
@@ -324,26 +358,41 @@ function catsLeave() {
 /* ================= front page ================= */
 
 let pullStart = null;
+let ballTap = null;
 
 function onPullStart(e) {
   if (state.step !== 0) return;
-  pullStart = { y: e.clientY, len: state.threadLen };
+  pullStart = { x: e.clientX, y: e.clientY, len: state.threadLen };
   $("pull-hit").setPointerCapture(e.pointerId);
   e.preventDefault();
 }
 
+// tapping the ball itself also unravels
+$("dock-svg").addEventListener("pointerdown", (e) => {
+  if (state.step !== 0 || e.target.id === "pull-hit") return;
+  ballTap = { x: e.clientX, y: e.clientY, t: performance.now() };
+});
+
+// pull the thread to the RIGHT to unravel
 document.addEventListener("pointermove", (e) => {
   if (!pullStart) return;
-  const dy = e.clientY - pullStart.y;
-  state.threadLen = Math.max(150, Math.min(420, pullStart.len + dy));
-  drawThread(0, false);
+  const dx = e.clientX - pullStart.x;
+  state.threadLen = Math.max(150, Math.min(620, pullStart.len + dx * 1.6));
+  drawThreadVisible(state.threadLen, false);
 });
-document.addEventListener("pointerup", () => {
-  if (!pullStart) return;
-  const pulled = state.threadLen - 150;
-  pullStart = null;
-  if (pulled >= CONFIG.pullThreshold) startUnravel();
-  else { state.threadLen = 150; drawThread(0, true); }
+document.addEventListener("pointerup", (e) => {
+  if (pullStart) {
+    const pulled = state.threadLen - 150;
+    pullStart = null;
+    if (pulled >= CONFIG.pullThreshold) { startUnravel(); return; }
+    state.threadLen = 150;
+    drawThreadVisible(150, true);
+  }
+  if (ballTap && state.step === 0) {
+    const moved = Math.hypot(e.clientX - ballTap.x, e.clientY - ballTap.y);
+    if (moved < 14 && performance.now() - ballTap.t < 600) startUnravel();
+  }
+  ballTap = null;
 });
 
 $("link-form").addEventListener("submit", (e) => { e.preventDefault(); startUnravel(); });
@@ -538,7 +587,7 @@ $("btn-next").addEventListener("click", () => {
     d.className = "dot";
     $("dots").appendChild(d);
   }
-  buildBallStrands();
+  buildBall();
   buildPile();
   buildCats();
   applyLang();
