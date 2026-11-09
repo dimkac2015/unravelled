@@ -8,6 +8,8 @@ import { PALETTES } from "./scenes.js";
 export const ACTIVITIES = [
   "night_drive", "cooking", "reading_by_window", "running", "walking_in_rain", "road_trip",
   "cleaning_to_music", "painting", "fishing", "coffee_in_cafe", "stargazing", "working_late",
+  "hiking", "baking", "gaming", "journaling", "gardening", "photography",
+  "dancing", "studying", "biking", "swimming", "board_games", "karaoke",
 ];
 
 function rngFor(seed) {
@@ -155,6 +157,102 @@ const FN = {
     <circle cx="330" cy="130" r="34" fill="none" stroke="${p.light}" stroke-width="6"/>
     <path d="M 330 130 L 330 108 M 330 130 L 346 138" stroke="${p.light}" stroke-width="5" stroke-linecap="round"/>
     <rect x="70" y="270" width="60" height="32" fill="${p.mid}"/>`;
+  },
+  hiking(p) {
+    return `<circle cx="310" cy="110" r="36" fill="${p.accent}"/>
+    <path d="M -20 340 L 150 150 L 240 290 L 300 210 L 420 340 Z" fill="${p.mid}"/>
+    <path d="M 150 150 L 124 190 L 176 190 Z" fill="${p.highlight}"/>
+    <g fill="${p.dark}"><circle cx="200" cy="330" r="18"/><path d="M 192 348 L 184 430 L 176 470 L 194 472 L 202 400 L 212 472 L 228 470 L 218 430 L 210 348 Z"/></g>
+    <line x1="214" y1="360" x2="248" y2="440" stroke="${p.light}" stroke-width="6" stroke-linecap="round"/>
+    <rect x="188" y="360" width="26" height="34" rx="6" fill="${p.accent}"/>`;
+  },
+  baking(p) {
+    return `<rect x="80" y="300" width="240" height="110" fill="${p.mid}"/>
+    <rect x="96" y="316" width="90" height="60" rx="8" fill="${p.dark}"/>
+    <ellipse cx="255" cy="270" rx="46" ry="14" fill="${p.light}"/>
+    <path d="M 220 262 Q 255 230 290 262 L 290 270 L 220 270 Z" fill="${p.accent}"/>
+    <path d="M 130 300 Q 122 284 130 270 M 150 300 Q 144 280 152 266" stroke="${p.highlight}" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="120" cy="180" r="26" fill="${p.light}"/><path d="M 108 172 Q 120 160 132 172" stroke="${p.dark}" stroke-width="4" fill="none"/>`;
+  },
+  gaming(p) {
+    return `<rect x="110" y="220" width="180" height="100" rx="10" fill="${p.dark}"/>
+    <rect x="122" y="232" width="156" height="76" rx="6" fill="${p.mid}"/>
+    <polygon points="160,250 190,270 160,290" fill="${p.accent}"/>
+    <rect x="215" y="252" width="40" height="8" fill="${p.highlight}"/><rect x="215" y="268" width="28" height="8" fill="${p.highlight}" opacity="0.6"/>
+    <path d="M 150 320 L 130 380 M 250 320 L 270 380 M 200 320 L 200 390" stroke="${p.light}" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="330" cy="140" r="8" fill="${p.accent}"/><circle cx="60" cy="160" r="6" fill="${p.highlight}" opacity="0.7"/>`;
+  },
+  journaling(p) {
+    return `<rect x="40" y="60" width="140" height="200" fill="${p.highlight}" opacity="0.14"/>
+    <rect x="230" y="200" width="110" height="150" rx="8" fill="${p.light}"/>
+    <line x1="246" y1="226" x2="324" y2="226" stroke="${p.mid}" stroke-width="5"/>
+    <line x1="246" y1="246" x2="324" y2="246" stroke="${p.mid}" stroke-width="5"/>
+    <line x1="246" y1="266" x2="300" y2="266" stroke="${p.mid}" stroke-width="5"/>
+    <line x1="246" y1="286" x2="324" y2="286" stroke="${p.accent}" stroke-width="5"/>
+    <path d="M 320 320 L 352 288 L 360 296 L 328 328 Z" fill="${p.accent}"/>`;
+  },
+  gardening(p) {
+    return `<rect x="0" y="380" width="400" height="120" fill="${p.mid}"/>
+    <g fill="${p.dark}"><circle cx="120" cy="300" r="34"/><circle cx="90" cy="330" r="22"/><circle cx="152" cy="332" r="20"/>
+    <rect x="114" y="330" width="12" height="60"/></g>
+    <g fill="${p.dark}"><circle cx="290" cy="320" r="28"/><rect x="285" y="344" width="10" height="46"/></g>
+    ${[80, 180, 240, 340].map(x => `<circle cx="${x}" cy="${400 + (x % 40)}" r="6" fill="${p.accent}"/>`).join("")}
+    <path d="M 200 380 L 200 300 M 200 320 L 230 300 M 200 330 L 172 312" stroke="${p.light}" stroke-width="6" stroke-linecap="round"/>`;
+  },
+  photography(p) {
+    return `<rect x="130" y="200" width="140" height="90" rx="12" fill="${p.mid}"/>
+    <circle cx="200" cy="245" r="30" fill="${p.dark}"/><circle cx="200" cy="245" r="18" fill="${p.accent}"/>
+    <rect x="230" y="182" width="34" height="20" rx="4" fill="${p.dark}"/>
+    <g fill="${p.dark}"><circle cx="200" cy="180" r="16"/><path d="M 190 196 L 182 300 L 172 340 L 192 344 L 200 280 L 210 344 L 230 340 L 220 300 L 212 196 Z"/></g>
+    <line x1="222" y1="230" x2="260" y2="180" stroke="${p.light}" stroke-width="6" stroke-linecap="round"/>`;
+  },
+  dancing(p) {
+    return `<g fill="${p.mid}">
+      <circle cx="200" cy="170" r="26"/>
+      <path d="M 192 196 L 160 260 L 120 300 L 136 316 L 180 276 L 200 320 L 224 316 L 214 268 L 226 200 Z"/>
+      <path d="M 190 210 L 130 240 L 122 258 L 186 232 Z"/>
+      <path d="M 214 206 L 280 180 L 288 198 L 222 224 Z"/>
+    </g>
+    <ellipse cx="200" cy="400" rx="150" ry="14" fill="${p.accent}" opacity="0.25"/>
+    <circle cx="310" cy="120" r="7" fill="${p.accent}"/><circle cx="90" cy="100" r="5" fill="${p.highlight}" opacity="0.7"/>`;
+  },
+  studying(p) {
+    return `<rect x="60" y="320" width="280" height="14" fill="${p.mid}"/>
+    <rect x="90" y="240" width="70" height="90" fill="${p.light}"/><rect x="96" y="248" width="58" height="6" fill="${p.mid}"/>
+    <rect x="96" y="262" width="58" height="6" fill="${p.mid}"/><rect x="96" y="276" width="40" height="6" fill="${p.accent}"/>
+    <path d="M 250 320 L 250 250 Q 250 236 264 236 L 300 236 Q 314 236 314 250 L 314 320 Z" fill="${p.dark}"/>
+    <circle cx="282" cy="286" r="10" fill="${p.highlight}"/>
+    <polygon points="150,320 210,220 260,320" fill="${p.accent}" opacity="0.18"/>
+    <circle cx="330" cy="130" r="30" fill="none" stroke="${p.light}" stroke-width="5" opacity="0.6"/>`;
+  },
+  biking(p) {
+    return `<g fill="none" stroke="${p.light}" stroke-width="8"><circle cx="110" cy="360" r="46"/><circle cx="290" cy="360" r="46"/></g>
+    <path d="M 110 360 L 180 280 L 250 360 L 290 360 M 180 280 L 200 360 L 110 360" stroke="${p.mid}" stroke-width="8" fill="none" stroke-linejoin="round"/>
+    <g fill="${p.dark}"><circle cx="215" cy="200" r="20"/><path d="M 208 220 L 190 300 L 250 300 L 240 220 Z"/><path d="M 196 240 L 150 260 M 236 236 L 282 250" stroke="${p.dark}" stroke-width="10" stroke-linecap="round"/></g>
+    <path d="M 60 300 L 340 300" stroke="${p.accent}" stroke-width="5" opacity="0.5" stroke-dasharray="20 16"/>`;
+  },
+  swimming(p) {
+    return `<rect x="0" y="300" width="400" height="200" fill="${p.mid}"/>
+    ${[330, 360, 390, 420, 450].map((y, i) => `<path d="M -20 ${y} q 50 ${i % 2 ? 14 : -14} 100 0 t 100 0 t 100 0 t 100 0 t 100 0" stroke="${p.light}" stroke-width="5" fill="none" opacity="${0.7 - i * 0.1}"/>`).join("")}
+    <g fill="${p.dark}"><circle cx="200" cy="240" r="22"/><path d="M 120 280 Q 200 250 280 280 L 280 296 Q 200 268 120 296 Z"/></g>
+    <path d="M 150 210 Q 200 190 250 210" stroke="${p.accent}" stroke-width="10" fill="none" stroke-linecap="round"/>`;
+  },
+  board_games(p) {
+    return `<rect x="80" y="260" width="240" height="120" rx="10" fill="${p.mid}"/>
+    <rect x="96" y="276" width="60" height="88" rx="6" fill="${p.light}"/>
+    <g fill="${p.accent}"><circle cx="126" cy="300" r="6"/><circle cx="126" cy="324" r="6"/><circle cx="126" cy="348" r="6"/></g>
+    <rect x="180" y="276" width="60" height="88" rx="6" fill="${p.dark}"/>
+    <path d="M 210 300 L 226 316 L 210 332 L 194 316 Z" fill="${p.highlight}"/>
+    <circle cx="290" cy="300" r="12" fill="${p.accent}"/><circle cx="316" cy="330" r="12" fill="${p.light}"/>`;
+  },
+  karaoke(p) {
+    return `<rect x="60" y="120" width="280" height="180" rx="10" fill="${p.dark}"/>
+    <rect x="76" y="136" width="248" height="110" rx="6" fill="${p.mid}"/>
+    <path d="M 100 200 L 100 170 Q 100 160 108 164 L 130 176 Q 138 180 138 190 L 138 200 Z" fill="${p.accent}"/>
+    <line x1="119" y1="176" x2="119" y2="210" stroke="${p.accent}" stroke-width="6"/>
+    <path d="M 200 180 Q 215 160 230 180 T 260 180" stroke="${p.highlight}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <circle cx="320" cy="200" r="20" fill="${p.light}"/><line x1="320" y1="220" x2="320" y2="260" stroke="${p.light}" stroke-width="6"/>
+    <g fill="${p.dark}"><circle cx="200" cy="330" r="22"/><path d="M 192 352 L 180 440 L 172 470 L 192 474 L 202 400 L 214 474 L 232 470 L 222 440 L 210 352 Z"/></g>`;
   },
 };
 
