@@ -1,0 +1,9 @@
+{
+  "name": "unravelled",
+  "version": "1.0.0",
+  "description": "Paste a Spotify playlist link, pull the thread, watch it unravel",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

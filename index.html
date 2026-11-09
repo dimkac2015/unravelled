@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>unravelled — unravel your playlist</title>
-<link rel="stylesheet" href="style.css">
+<title>unravelled</title>
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
@@ -24,14 +24,19 @@
 
 <main id="app">
 
-  <section id="screen-home" class="screen active">
+  <section id="screen-landing" class="screen active">
     <h1 class="logo">unravelled</h1>
+    <p class="tagline" data-i18n="tagline"></p>
     <div class="board">
       <input id="playlist-input" type="text" data-i18n-ph="inputPlaceholder" placeholder="">
-      <button id="btn-unravel" data-i18n="btnUnravel"></button>
+      <button id="btn-pull" data-i18n="pull"></button>
     </div>
-    <p id="home-error" class="error"></p>
-    <div id="yarn-ball" role="button" tabindex="0" aria-label="pull the thread">
+    <p id="landing-error" class="error"></p>
+    <p class="demo-hint" data-i18n="demoHint"></p>
+  </section>
+
+  <section id="screen-loading" class="screen">
+    <div id="yarn-ball" role="button" tabindex="0">
       <svg viewBox="0 0 200 200" width="240" height="240">
         <circle cx="100" cy="100" r="78" class="yarn-body"/>
         <path class="yarn-line" d="M30 80 Q100 40 170 85"/>
@@ -44,49 +49,46 @@
         <path id="yarn-tail" class="yarn-tail" d="M170 130 Q195 150 188 178"/>
       </svg>
     </div>
-    <p class="hint" data-i18n="pullHint"></p>
+    <p class="hint" data-i18n="pullTail"></p>
+    <p id="loading-line" class="loading-line"></p>
   </section>
 
-  <section id="screen-scene" class="screen">
-    <div id="scene-wrap"></div>
-    <div class="scene-caption">
-      <h2 id="scene-name"></h2>
-      <blockquote id="scene-quote"></blockquote>
-      <p id="quote-note" class="quote-note" data-i18n="quoteNote"></p>
-      <div id="ocean-controls" class="hidden">
-        <span data-i18n="oceanLabel"></span>
-        <div id="ocean-swatches" class="swatches"></div>
-        <span data-i18n="skyLabel"></span>
-        <div id="sky-swatches" class="swatches"></div>
-      </div>
-      <button class="thread-btn" data-i18n="pullThread"></button>
+  <section id="screen-thread" class="screen">
+    <div class="cards">
+      <article class="card" id="card-1">
+        <p class="kicker" data-i18n="cardScene"></p>
+        <div id="card-scene-art" class="scene-art"></div>
+        <h2 id="card-scene-title" class="card-title"></h2>
+        <p id="card-scene-verdict" class="verdict"></p>
+      </article>
+      <article class="card" id="card-2">
+        <p class="kicker" data-i18n="cardWords"></p>
+        <h2 id="card-words" class="card-title"></h2>
+      </article>
+      <article class="card" id="card-3">
+        <p class="kicker" data-i18n="cardCharacter"></p>
+        <h2 id="card-character" class="card-title"></h2>
+      </article>
+      <article class="card" id="card-4">
+        <p class="kicker" data-i18n="cardFilm"></p>
+        <h2 id="card-film" class="card-title"></h2>
+        <p class="kicker" data-i18n="cardPersona"></p>
+        <p id="card-persona" class="persona"></p>
+      </article>
     </div>
-  </section>
-
-  <section id="screen-character" class="screen">
-    <p class="kicker" data-i18n="characterKicker"></p>
-    <div id="character-icon" class="result-icon"></div>
-    <h2 id="character-result" class="big-result"></h2>
-    <p id="character-desc"></p>
-    <button class="thread-btn" data-i18n="pullThread"></button>
-  </section>
-
-  <section id="screen-movie" class="screen">
-    <p class="kicker" data-i18n="movieKicker"></p>
-    <div id="movie-icon" class="result-icon"></div>
-    <h2 id="movie-result" class="big-result"></h2>
-    <p id="movie-desc"></p>
-    <button class="thread-btn" data-i18n="pullThread"></button>
-  </section>
-
-  <section id="screen-reading" class="screen">
-    <p class="kicker" data-i18n="readingKicker"></p>
-    <div id="reading-text" class="reading"></div>
-    <button id="btn-restart" data-i18n="restart"></button>
+    <button id="pull-more" class="thread-btn" data-i18n="pullMore"></button>
+    <div class="actions">
+      <button id="btn-share" class="ghost-btn" data-i18n="share"></button>
+      <button id="btn-again" class="ghost-btn" data-i18n="again"></button>
+    </div>
+    <div id="curious">
+      <button id="curious-toggle" class="ghost-btn" data-i18n="curious"></button>
+      <p id="curious-text" class="hidden"></p>
+    </div>
   </section>
 
 </main>
 
-<script src="app.js"></script>
+<script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
