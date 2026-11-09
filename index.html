@@ -3,89 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>unravelled</title>
+<title>unravelled — what your playlist is hiding</title>
+<meta name="description" content="Paste a Spotify playlist link and watch the music unravel into a scenery, an era, a character and a film.">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body data-step="landing">
 
-<div id="lang-bar">
-  <button id="lang-btn" aria-haspopup="listbox">EN ▾</button>
-  <div id="lang-menu" role="listbox">
-    <button data-lang="en">English</button>
-    <button data-lang="ru">Русский</button>
-    <button data-lang="be">Беларуская</button>
-    <button data-lang="fr">Français</button>
-  </div>
+<!-- fixed yarn ball: stays on every page, shrinks as the thread unravels -->
+<div id="ball-dock" class="hidden" aria-hidden="true">
+  <div id="yarn-ball"></div>
+  <div id="thread-pile" class="hidden"></div>
+  <div id="cats"></div>
 </div>
 
-<svg id="thread-layer" aria-hidden="true">
-  <path id="thread-path" d="" fill="none"/>
-</svg>
+<!-- thin thread running up the side, grows with progress -->
+<svg id="thread-rail" aria-hidden="true"><line id="thread-rail-line" x1="0" y1="0" x2="0" y2="0"/></svg>
 
 <main id="app">
 
-  <section id="screen-landing" class="screen active">
-    <h1 class="logo">unravelled</h1>
-    <p class="tagline" data-i18n="tagline"></p>
-    <div class="board">
-      <input id="playlist-input" type="text" data-i18n-ph="inputPlaceholder" placeholder="">
-      <button id="btn-pull" data-i18n="pull"></button>
+  <!-- ============ LANDING ============ -->
+  <section id="landing" class="screen active">
+    <header class="top">
+      <h1 class="logo">unravelled</h1>
+    </header>
+    <div class="landing-center">
+      <p class="tagline">paste a spotify playlist.<br>pull the thread. see what it was hiding.</p>
+      <form id="link-form" class="board" autocomplete="off">
+        <input id="playlist-input" type="text" inputmode="url"
+               placeholder="https://open.spotify.com/playlist/…">
+        <button id="btn-unravel" type="submit">unravel</button>
+      </form>
+      <p id="landing-error" class="error" role="alert"></p>
     </div>
-    <p id="landing-error" class="error"></p>
-    <p class="demo-hint" data-i18n="demoHint"></p>
+    <div class="landing-ball" aria-hidden="true"><div class="landing-ball-svg" id="landing-ball"></div></div>
+    <p class="foot-note">works on phones and computers · public playlists only</p>
   </section>
 
-  <section id="screen-loading" class="screen">
-    <div id="yarn-ball" role="button" tabindex="0">
-      <svg viewBox="0 0 200 200" width="240" height="240">
-        <circle cx="100" cy="100" r="78" class="yarn-body"/>
-        <path class="yarn-line" d="M30 80 Q100 40 170 85"/>
-        <path class="yarn-line" d="M25 110 Q100 70 175 115"/>
-        <path class="yarn-line" d="M30 140 Q100 105 168 145"/>
-        <path class="yarn-line" d="M45 60 Q90 100 60 160"/>
-        <path class="yarn-line" d="M80 35 Q120 100 95 170"/>
-        <path class="yarn-line" d="M120 38 Q150 100 135 168"/>
-        <path class="yarn-line" d="M155 62 Q130 105 162 150"/>
-        <path id="yarn-tail" class="yarn-tail" d="M170 130 Q195 150 188 178"/>
-      </svg>
-    </div>
-    <p class="hint" data-i18n="pullTail"></p>
-    <p id="loading-line" class="loading-line"></p>
-  </section>
+  <!-- ============ JOURNEY ============ -->
+  <div id="journey" class="hidden">
+    <header class="top journey-top">
+      <span class="logo small">unravelled</span>
+      <span id="journey-playlist" class="journey-playlist"></span>
+      <div id="progress" class="progress" aria-hidden="true">
+        <span class="dot" data-i="0"></span><span class="dot" data-i="1"></span><span class="dot" data-i="2"></span><span class="dot" data-i="3"></span>
+      </div>
+    </header>
 
-  <section id="screen-thread" class="screen">
-    <div class="cards">
-      <article class="card" id="card-1">
-        <p class="kicker" data-i18n="cardScene"></p>
-        <div id="card-scene-art" class="scene-art"></div>
-        <h2 id="card-scene-title" class="card-title"></h2>
-        <p id="card-scene-verdict" class="verdict"></p>
-      </article>
-      <article class="card" id="card-2">
-        <p class="kicker" data-i18n="cardWords"></p>
-        <h2 id="card-words" class="card-title"></h2>
-      </article>
-      <article class="card" id="card-3">
-        <p class="kicker" data-i18n="cardCharacter"></p>
-        <h2 id="card-character" class="card-title"></h2>
-      </article>
-      <article class="card" id="card-4">
-        <p class="kicker" data-i18n="cardFilm"></p>
-        <h2 id="card-film" class="card-title"></h2>
-        <p class="kicker" data-i18n="cardPersona"></p>
-        <p id="card-persona" class="persona"></p>
-      </article>
+    <div id="scroller">
+
+      <!-- 1 · scenery + song quote -->
+      <section class="panel" id="panel-scene" data-ball="0.92">
+        <div class="scene-wrap"><div id="scene-art"></div></div>
+        <div class="panel-card">
+          <p class="kicker">the scenery</p>
+          <h2 id="scene-title"></h2>
+          <blockquote class="quote">
+            <p id="quote-text"></p>
+            <cite id="quote-cite"></cite>
+          </blockquote>
+          <button class="pull-btn" data-next>pull the thread ↓</button>
+        </div>
+      </section>
+
+      <!-- 2 · era -->
+      <section class="panel" id="panel-era" data-ball="0.62">
+        <div class="panel-card center">
+          <p class="kicker">the era it belongs to</p>
+          <div id="era-icon" class="big-icon"></div>
+          <h2 id="era-name"></h2>
+          <p id="era-feel" class="feel"></p>
+          <button class="pull-btn" data-next>pull the thread ↓</button>
+        </div>
+      </section>
+
+      <!-- 3 · character -->
+      <section class="panel" id="panel-character" data-ball="0.34">
+        <div class="panel-card center">
+          <p class="kicker">the character who owns it</p>
+          <div id="character-art" class="portrait"></div>
+          <h2 id="character-name"></h2>
+          <p id="character-line" class="feel"></p>
+          <button class="pull-btn" data-next>pull the thread ↓</button>
+        </div>
+      </section>
+
+      <!-- 4 · film -->
+      <section class="panel" id="panel-film" data-ball="0.14">
+        <div class="panel-card center">
+          <p class="kicker">the film with this soundtrack</p>
+          <div id="film-art" class="poster"></div>
+          <h2 id="film-name"></h2>
+          <p id="film-line" class="feel"></p>
+          <button class="pull-btn" data-next>pull the thread ↓</button>
+        </div>
+      </section>
+
+      <!-- finale · thread pile + cats -->
+      <section class="panel finale" id="panel-finale" data-ball="0">
+        <div class="panel-card center">
+          <p class="kicker">unravelled</p>
+          <h2 class="finale-title">the thread lies in a pile.<br>the cats have lost interest.</h2>
+          <p id="finale-note" class="feel"></p>
+          <div class="actions">
+            <button id="btn-again" class="pull-btn">unravel another playlist</button>
+          </div>
+        </div>
+      </section>
+
     </div>
-    <button id="pull-more" class="thread-btn" data-i18n="pullMore"></button>
-    <div class="actions">
-      <button id="btn-share" class="ghost-btn" data-i18n="share"></button>
-      <button id="btn-again" class="ghost-btn" data-i18n="again"></button>
-    </div>
-    <div id="curious">
-      <button id="curious-toggle" class="ghost-btn" data-i18n="curious"></button>
-      <p id="curious-text" class="hidden"></p>
-    </div>
-  </section>
+  </div>
+
+  <!-- loading overlay while the ball spins -->
+  <div id="loading" class="hidden">
+    <div id="loading-ball"></div>
+    <p id="loading-line">listening…</p>
+  </div>
 
 </main>
 

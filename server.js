@@ -16,7 +16,7 @@ const MIME = {
 
 const server = http.createServer(async (req, res) => {
   try {
-    if (req.method === "POST" && req.url === "/api/vibe") {
+    if (req.method === "POST" && req.url === "/api/analyze") {
       let body = "";
       for await (const chunk of req) body += chunk;
       const data = await analyze(JSON.parse(body || "{}"));
