@@ -24,7 +24,8 @@ Vercel (free): import this repo, optionally add the env vars, deploy. `api/vibe.
 
 - `index.html` — landing + journey panels + finale
 - `assets/css/style.css` — deep green theme, responsive, ball-shrink & cat animations
-- `assets/js/app.js` — flow: validate link, call API, render panels, step tracking
+- `assets/js/app.js` — flow: tap-the-ball unravel animation, analysis, render panels, step tracking
+- `assets/js/spotify.js` — client-side reading on static hosting: playlist name via oEmbed, track list from the public playlist page, real lyric via lyrics.ovh
 - `assets/js/mood.js` — mood analysis (tempo/aggressive/dark/sunny/lush…), palettes, era/character/film/quote banks
 - `assets/js/scenes.js` — 12 seeded SVG scenery families (ship, river, forest, desert, mountains, volcano…) × mood palettes
 - `assets/js/portraits.js` — This-Is-The-Police-style SVG portraits, film posters, era icons
