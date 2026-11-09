@@ -146,6 +146,7 @@ body {
   padding: 0;
   width: 280px;
   height: 280px;
+  touch-action: none; /* let the finger drag the thread instead of scrolling */
   animation: idle-bob 5s ease-in-out infinite;
   transition: filter 0.2s;
 }
@@ -179,10 +180,11 @@ body {
 }
 #pull-thread-hit {
   stroke: rgba(0, 0, 0, 0);
-  stroke-width: 30;
+  stroke-width: 40;
   fill: none;
   pointer-events: stroke;
   cursor: grab;
+  touch-action: none;
 }
 #pull-thread-hit:active { cursor: grabbing; }
 .foot-note {
@@ -194,12 +196,11 @@ body {
   opacity: 0.55;
 }
 
-/* ---------- fixed ball dock (all journey pages), bottom middle ---------- */
+/* ---------- fixed ball dock (journey pages): bottom-right corner, clear of the text ---------- */
 #ball-dock {
   position: fixed;
   z-index: 40;
-  left: 50%;
-  transform: translateX(-50%);
+  right: clamp(10px, 4vw, 44px);
   bottom: clamp(8px, 3vh, 30px);
   width: 150px;
   height: 150px;
@@ -271,7 +272,7 @@ body[data-step="finale"] .cat:nth-child(2) { animation-delay: 0.9s; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 90px 18px 180px; /* bottom room for the ball */
+  padding: 90px 18px 120px;
   position: relative;
   overflow: hidden;
 }
@@ -311,6 +312,7 @@ body[data-step="finale"] .cat:nth-child(2) { animation-delay: 0.9s; }
   opacity: 0.85;
 }
 .feel { font-size: clamp(1rem, 2.6vw, 1.2rem); line-height: 1.6; opacity: 0.92; max-width: 56ch; }
+.from-line { font-style: italic; opacity: 0.75; margin-top: -10px; font-size: 1rem; }
 .pull-btn { margin-top: 26px; font-size: 1rem; }
 
 /* scene panel: art as full-bleed backdrop */
@@ -378,10 +380,10 @@ body[data-step="finale"] .cat:nth-child(2) { animation-delay: 0.9s; }
   #landing { padding-bottom: 26vh; }
   .landing-ball { width: 230px; height: 230px; }
   #pull-layer { width: 230px; height: 230px; }
-  #ball-dock { width: 104px; height: 104px; bottom: 10px; }
-  #cats { left: -86px; }
+  #ball-dock { width: 96px; height: 96px; bottom: 10px; right: 10px; }
+  #cats { left: -78px; }
   .journey-playlist { display: none; }
   #thread-rail { left: 8px; }
-  .panel { padding: 80px 16px 150px; }
+  .panel { padding: 80px 16px 110px; }
   #panel-scene .panel-card { padding: 36vh 18px 56px; }
 }

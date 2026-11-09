@@ -72,20 +72,21 @@ function validParsed() {
   return parsed;
 }
 
-/* grab the thread on the ball and pull it */
-$("pull-thread-hit").addEventListener("pointerdown", (e) => {
+/* grab the thread on the ball and pull it — or just tap it / tap the ball / press the button */
+let dragStart = null;
+
+$("landing-ball").addEventListener("pointerdown", (e) => {
   const parsed = validParsed();
   if (!parsed || finishing) return;
   pendingParsed = parsed;
+  dragStart = { x: e.clientX, y: e.clientY, t: performance.now(), onThread: e.target.id === "pull-thread-hit" };
   dragging = true;
-  finishing = false;
-  $("landing-ball").classList.add("spin-slow");
-  $("pull-layer").setPointerCapture(e.pointerId);
+  $("landing-ball").setPointerCapture(e.pointerId);
   e.preventDefault();
 });
 
-$("pull-layer").addEventListener("pointermove", (e) => {
-  if (!dragging || finishing) return;
+$("landing-ball").addEventListener("pointermove", (e) => {
+  if (!dragging || finishing || !dragStart || !dragStart.onThread) return;
   const pt = layerPoint(e);
   setThread(pt);
   const dist = Math.hypot(pt.x - ANCHOR.x, pt.y - ANCHOR.y);
@@ -95,21 +96,28 @@ $("pull-layer").addEventListener("pointermove", (e) => {
 function endDrag(e) {
   if (!dragging || finishing) return;
   dragging = false;
-  $("landing-ball").classList.remove("spin-slow");
-  animateThreadTo(CURL_END, 350); // spring back
-  setThread(CURL_END);
+  const moved = dragStart ? Math.hypot(e.clientX - dragStart.x, e.clientY - dragStart.y) : 999;
+  const dt = performance.now() - (dragStart ? dragStart.t : 0);
+  if (moved < 14 && dt < 600) {
+    autoPull(); // a tap on the thread (or the ball) unravels
+  } else if (dragStart && dragStart.onThread) {
+    animateThreadTo(CURL_END, 350); // not pulled far enough — spring back
+  }
+  dragStart = null;
 }
-$("pull-layer").addEventListener("pointerup", endDrag);
-$("pull-layer").addEventListener("pointercancel", endDrag);
+$("landing-ball").addEventListener("pointerup", endDrag);
+$("landing-ball").addEventListener("pointercancel", endDrag);
+
+function autoPull() {
+  if (finishing) return;
+  animateThreadTo({ x: ANCHOR.x - 30, y: -90 }, 1100, finishPull);
+}
 
 /* the unravel button pulls the thread for you */
 $("link-form").addEventListener("submit", (e) => {
   e.preventDefault();
-  const parsed = validParsed();
-  if (!parsed || finishing) return;
-  pendingParsed = parsed;
-  $("landing-ball").classList.add("spin-slow");
-  animateThreadTo({ x: ANCHOR.x - 30, y: -90 }, 1300, finishPull);
+  if (!validParsed() || finishing) return;
+  autoPull();
 });
 
 /* enough thread pulled: ball unwinds and shrinks, thread flies off, then we read */
@@ -227,6 +235,7 @@ function renderJourney(r) {
 
   $("character-art").innerHTML = renderPortrait(r.character.style);
   $("character-name").textContent = r.character.name;
+  $("character-from").textContent = "from “" + r.character.from + "”";
   $("character-line").textContent = r.character.line;
 
   $("film-art").innerHTML = renderPoster(r.film, r.palette);

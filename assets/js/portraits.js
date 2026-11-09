@@ -79,76 +79,58 @@ export function renderPortrait(style) {
   </svg>`;
 }
 
-/* ---------- film posters: bold flat geometric scenes, same ink ---------- */
+/* ---------- film posters: minimalist flat-poster style (like the reference):
+   light speckled background, one big flat central shape, dark banner with a
+   bold sans-serif title ---------- */
+
+function speckles(n = 46) {
+  return [...Array(n)].map((_, i) =>
+    `<circle cx="${(i * 67 + 23) % 300}" cy="${(i * 97 + 41) % 356}" r="${1.6 + (i % 3)}" fill="${INK}" opacity="0.85"/>`
+  ).join("");
+}
+
 const POSTERS = {
-  paris: (p) => `<rect width="300" height="420" fill="${p.sky[1]}"/>
-    <circle cx="150" cy="118" r="56" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    <path d="M 150 88 L 136 258 L 164 258 Z" fill="none" stroke="${INK}" stroke-width="7"/>
-    <path d="M 124 208 L 176 208 M 116 258 L 184 258" stroke="${INK}" stroke-width="7"/>
-    <rect x="90" y="330" width="120" height="90" fill="${p.land}" stroke="${INK}" stroke-width="5"/>
-    <circle cx="52" cy="300" r="18" fill="${p.accent}" stroke="${INK}" stroke-width="4"/>
-    <circle cx="248" cy="312" r="13" fill="${p.accent}" stroke="${INK}" stroke-width="4"/>`,
-  lalaland: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    <circle cx="150" cy="150" r="72" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    <path d="M 0 300 Q 80 250 160 300 T 300 290 L 300 420 L 0 420 Z" fill="${p.land}" stroke="${INK}" stroke-width="5"/>
-    <path d="M 0 352 Q 100 312 200 352 T 300 346 L 300 420 L 0 420 Z" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
-    <circle cx="66" cy="86" r="4" fill="${p.ink}"/><circle cx="226" cy="64" r="3.5" fill="${p.ink}"/><circle cx="254" cy="120" r="3" fill="${p.ink}"/>`,
-  road: (p) => `<rect width="300" height="420" fill="${p.sky[1]}"/>
-    <circle cx="224" cy="86" r="40" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    <path d="M 0 262 L 128 202 L 172 202 L 300 262 L 300 420 L 0 420 Z" fill="${p.land}" stroke="${INK}" stroke-width="5"/>
-    <path d="M 150 212 L 150 420" stroke="${p.sun}" stroke-width="7" stroke-dasharray="20 18"/>
-    <path d="M 36 420 L 108 302 L 192 302 L 264 420 Z" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>`,
-  hotel: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    <rect x="88" y="122" width="124" height="238" fill="#d9a08c" stroke="${INK}" stroke-width="6"/>
-    <rect x="66" y="100" width="168" height="26" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
-    ${[152, 184, 216, 248, 280, 312].map(y => `<rect x="112" y="${y}" width="26" height="24" fill="${p.land2}" stroke="${INK}" stroke-width="4"/><rect x="162" y="${y}" width="26" height="24" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>`).join("")}
-    <rect x="0" y="360" width="300" height="60" fill="${p.land}"/>`,
-  drive: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    <rect x="0" y="252" width="300" height="168" fill="${p.land2}"/>
-    ${[...Array(36)].map((_, i) => `<rect x="${(i * 37) % 300}" y="${20 + (i * 53) % 200}" width="4" height="4" fill="${p.accent}" opacity="${0.5 + (i % 5) * 0.1}"/>`).join("")}
-    <g transform="translate(66,292)" stroke="${INK}" stroke-width="5" stroke-linejoin="round">
-      <path d="M 0 30 L 22 6 L 122 -4 L 162 18 L 162 34 L 0 34 Z" fill="${p.accent}"/>
-      <circle cx="42" cy="36" r="13" fill="${INK}"/><circle cx="127" cy="36" r="13" fill="${INK}"/>
+  space: (p) => `<circle cx="150" cy="185" r="78" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
+    <ellipse cx="150" cy="185" rx="128" ry="28" fill="none" stroke="${p.sun}" stroke-width="7" transform="rotate(-18 150 185)"/>
+    <rect x="196" y="286" width="46" height="16" rx="3" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>`,
+  paris: (p) => `<path d="M 150 60 L 118 300 L 182 300 Z" fill="none" stroke="${INK}" stroke-width="9" stroke-linejoin="round"/>
+    <line x1="128" y1="220" x2="172" y2="220" stroke="${INK}" stroke-width="9"/>
+    <line x1="118" y1="300" x2="182" y2="300" stroke="${INK}" stroke-width="9"/>
+    <circle cx="238" cy="96" r="26" fill="${p.sun}"/>`,
+  lalaland: (p) => `<circle cx="150" cy="150" r="80" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
+    <path d="M -10 330 Q 80 280 160 322 T 310 316 L 310 366 L -10 366 Z" fill="${p.land2}"/>`,
+  road: (p) => `<circle cx="222" cy="92" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
+    <path d="M 118 366 L 142 150 L 158 150 L 182 366 Z" fill="${p.land2}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+    <line x1="150" y1="160" x2="150" y2="360" stroke="#e9e2cf" stroke-width="6" stroke-dasharray="18 16"/>`,
+  hotel: (p) => `<rect x="92" y="110" width="116" height="256" fill="${p.accent}" stroke="${INK}" stroke-width="7"/>
+    <rect x="78" y="88" width="144" height="24" fill="${p.land2}" stroke="${INK}" stroke-width="6"/>
+    ${[140, 176, 212, 248, 284, 320].map(y => `<rect x="112" y="${y}" width="24" height="22" fill="#e9e2cf"/><rect x="164" y="${y}" width="24" height="22" fill="#e9e2cf"/>`).join("")}`,
+  drive: (p) => `<g stroke="${INK}" stroke-width="7" stroke-linejoin="round">
+      <path d="M 40 268 L 72 232 L 190 218 L 240 252 L 244 278 L 40 278 Z" fill="${p.accent}"/>
+      <circle cx="92" cy="282" r="17" fill="${INK}"/><circle cx="204" cy="282" r="17" fill="${INK}"/>
     </g>
-    <line x1="0" y1="332" x2="300" y2="332" stroke="${p.sun}" stroke-width="4" opacity="0.6"/>`,
-  summer: (p) => `<rect width="300" height="420" fill="${p.sky[1]}"/>
-    <circle cx="150" cy="168" r="92" fill="none" stroke="${p.land2}" stroke-width="9"/>
-    <g stroke="${p.land2}" stroke-width="6">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="150" y1="168" x2="${150 + 92 * Math.cos(a * Math.PI / 180)}" y2="${168 + 92 * Math.sin(a * Math.PI / 180)}"/>`).join("")}</g>
-    <circle cx="150" cy="168" r="16" fill="${p.accent}" stroke="${INK}" stroke-width="4"/>
-    <rect x="0" y="330" width="300" height="90" fill="${p.land}" stroke="${INK}" stroke-width="5"/>`,
-  ghibli: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    <circle cx="70" cy="80" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    ${[120, 200, 262].map((x, i) => `<circle cx="${x}" cy="${58 + i * 30}" r="${18 - i * 4}" fill="${p.land2}" stroke="${INK}" stroke-width="4" opacity="0.9"/>`).join("")}
-    <rect x="0" y="300" width="300" height="120" fill="${p.land}"/>
-    <rect x="58" y="238" width="184" height="48" rx="8" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
-    ${[80, 122, 164, 206].map(x => `<rect x="${x}" y="248" width="24" height="18" fill="${p.sun}" stroke="${INK}" stroke-width="3"/>`).join("")}
-    <circle cx="92" cy="290" r="10" fill="${INK}"/><circle cx="208" cy="290" r="10" fill="${INK}"/>
-    <line x1="0" y1="312" x2="300" y2="312" stroke="${INK}" stroke-width="5"/>`,
-  bench: (p) => `<rect width="300" height="420" fill="${p.sky[1]}"/>
-    <circle cx="232" cy="80" r="36" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    <path d="M 0 300 Q 150 258 300 300 L 300 420 L 0 420 Z" fill="${p.land}" stroke="${INK}" stroke-width="5"/>
-    <circle cx="150" cy="222" r="32" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
-    <rect x="145" y="244" width="10" height="52" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
-    ${[[64, 322], [104, 312], [238, 332]].map(([x, y]) => `<g stroke="${INK}" stroke-width="4"><rect x="${x - 18}" y="${y - 28}" width="36" height="9" fill="#8a6a42"/><line x1="${x - 11}" y1="${y - 19}" x2="${x - 11}" y2="${y + 16}"/><line x1="${x + 11}" y1="${y - 19}" x2="${x + 11}" y2="${y + 16}"/></g>`).join("")}`,
-  mountain: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    <circle cx="150" cy="108" r="44" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    <path d="M -10 340 L 90 180 L 150 280 L 210 160 L 310 340 Z" fill="${p.land}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
-    <path d="M 210 160 L 188 200 L 232 200 Z" fill="${p.sun}" stroke="${INK}" stroke-width="4"/>
-    <path d="M 90 180 L 74 210 L 106 210 Z" fill="${p.sun}" stroke="${INK}" stroke-width="4" opacity="0.9"/>
-    <rect x="0" y="340" width="300" height="80" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>`,
-  space: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    ${[...Array(46)].map((_, i) => `<circle cx="${(i * 61) % 300}" cy="${(i * 97) % 420}" r="${1.5 + (i % 3)}" fill="${p.ink}" opacity="${0.5 + (i % 4) * 0.12}"/>`).join("")}
-    <circle cx="150" cy="180" r="72" fill="${p.land}" stroke="${p.accent}" stroke-width="7"/>
-    <ellipse cx="150" cy="180" rx="122" ry="26" fill="none" stroke="${p.accent}" stroke-width="6" transform="rotate(-18 150 180)"/>
-    <rect x="118" y="330" width="64" height="90" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>`,
-  diner: (p) => `<rect width="300" height="420" fill="${p.sky[0]}"/>
-    <circle cx="60" cy="70" r="28" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
-    <rect x="40" y="180" width="220" height="112" rx="14" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
-    <rect x="60" y="206" width="80" height="52" fill="${p.sky[1]}" stroke="${INK}" stroke-width="5"/>
-    <rect x="160" y="206" width="80" height="52" fill="${p.sky[1]}" stroke="${INK}" stroke-width="5"/>
-    <rect x="28" y="160" width="244" height="24" rx="12" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
-    <rect x="0" y="292" width="300" height="128" fill="${p.land}" stroke="${INK}" stroke-width="5"/>
-    <line x1="0" y1="322" x2="300" y2="322" stroke="${p.sun}" stroke-width="4" opacity="0.6"/>`,
+    <line x1="0" y1="316" x2="300" y2="316" stroke="${p.sun}" stroke-width="6"/>`,
+  summer: (p) => `<circle cx="150" cy="180" r="96" fill="none" stroke="${p.land2}" stroke-width="10"/>
+    <g stroke="${p.land2}" stroke-width="7">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="150" y1="180" x2="${150 + 96 * Math.cos(a * Math.PI / 180)}" y2="${180 + 96 * Math.sin(a * Math.PI / 180)}"/>`).join("")}</g>
+    <circle cx="150" cy="180" r="18" fill="${p.accent}" stroke="${INK}" stroke-width="5"/>`,
+  ghibli: (p) => `<circle cx="70" cy="86" r="30" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
+    <rect x="70" y="240" width="160" height="60" rx="8" fill="${p.land2}" stroke="${INK}" stroke-width="7"/>
+    ${[92, 128, 164, 200].map(x => `<rect x="${x}" y="254" width="24" height="20" fill="${p.accent}"/>`).join("")}
+    <circle cx="100" cy="306" r="11" fill="${INK}"/><circle cx="200" cy="306" r="11" fill="${INK}"/>
+    <circle cx="150" cy="200" r="16" fill="${p.accent}" opacity="0.8"/><circle cx="176" cy="168" r="11" fill="${p.accent}" opacity="0.6"/>`,
+  bench: (p) => `<circle cx="150" cy="180" r="58" fill="${p.land2}" stroke="${INK}" stroke-width="7"/>
+    <rect x="143" y="230" width="14" height="80" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
+    <g stroke="${INK}" stroke-width="6" stroke-linejoin="round">
+      <rect x="84" y="286" width="132" height="14" fill="${p.accent}"/>
+      <line x1="100" y1="300" x2="100" y2="340"/><line x1="200" y1="300" x2="200" y2="340"/>
+    </g>`,
+  mountain: (p) => `<circle cx="216" cy="96" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
+    <path d="M 30 330 L 130 140 L 190 240 L 230 180 L 290 330 Z" fill="${p.land2}" stroke="${INK}" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M 130 140 L 108 180 L 152 180 Z" fill="#e9e2cf"/>`,
+  diner: (p) => `<rect x="52" y="170" width="196" height="130" rx="12" fill="${p.accent}" stroke="${INK}" stroke-width="7"/>
+    <rect x="40" y="146" width="220" height="26" rx="13" fill="${p.land2}" stroke="${INK}" stroke-width="6"/>
+    <rect x="76" y="200" width="62" height="46" fill="#e9e2cf" stroke="${INK}" stroke-width="5"/>
+    <rect x="162" y="200" width="62" height="46" fill="#e9e2cf" stroke="${INK}" stroke-width="5"/>`,
 };
 
 export function renderPoster(film, palette) {
@@ -156,9 +138,11 @@ export function renderPoster(film, palette) {
   const draw = POSTERS[film.poster] || POSTERS.mountain;
   const title = film.name.split(" (")[0].toUpperCase();
   return `${svgOpen(300, 420)}
+    <rect width="300" height="420" fill="#e9e2cf"/>
+    ${speckles()}
     ${draw(p)}
     <rect x="0" y="366" width="300" height="54" fill="${INK}"/>
-    <text x="150" y="401" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="${title.length > 14 ? 16 : 20}" fill="#f4efe3" letter-spacing="1.5">${title}</text>
+    <text x="150" y="402" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="${title.length > 16 ? 14 : title.length > 11 ? 17 : 20}" fill="#f4efe3" letter-spacing="2">${title}</text>
   </svg>`;
 }
 
