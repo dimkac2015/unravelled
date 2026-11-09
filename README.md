@@ -1,35 +1,37 @@
-# unravelled
+# Unravelled
 
-Paste a public Spotify playlist link, press **unravel**, and pull the thread through four pages — a scenery with a lyric line from your playlist, the era it belongs to, the character who owns it (drawn in the flat style of *This Is The Police*), and the film with that soundtrack. The yarn ball stays in the corner and shrinks with every page until only a pile of thread is left and the cats walk away.
+Paste a link to a public Spotify playlist, pull the thread, and watch it unravel into a short story: a scenery, an era, a character, a movie, and a finale with the cats.
 
-Zero-dependency vanilla project. No build step. Node 18+. Works on phones and computers.
+## Stack
 
-## Run locally
+Node.js + Express backend, plain HTML/CSS/JS frontend. No framework, no build step.
 
-```bash
-cp .env.example .env   # optional — demo mode works without keys
-npm start              # serves http://127.0.0.1:3000 (loopback only)
+```
+server.js               Express server: /api/playlist, /api/analyze, /api/quote
+public/index.html       app shell (header / stage / controls / dock)
+public/style.css        deep-green theme, anti-overlap grid
+public/app.js            flow, CONFIG (durations, cat names), dock ball + thread
+public/art/scenes.js    scene ids, palettes, scene renderer
+public/art/characters.js archetypes, character + movie renderer
+public/art/cats.js      the five cats
 ```
 
-## Keys (optional)
+## Run
 
-- `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` — Spotify dev app, client-credentials flow, no user login. With these the site reads the real track list + audio features (energy, valence, tempo…) and picks a lyric line from an actual song in the playlist via the keyless [lyrics.ovh](https://lyrics.ovh) API.
-- Without keys (or on failure, or on static hosting like GitHub Pages) the site falls back to a deterministic demo reading derived from the playlist URL, so it always works.
+```bash
+cp .env.example .env   # optional: add MISTRAL_API_KEY for the AI analysis
+npm install
+npm start              # http://127.0.0.1:3000 (loopback only)
+```
 
-## Deploy
+## How it reads playlists (no Spotify keys)
 
-Vercel (free): import this repo, optionally add the env vars, deploy. `api/vibe.js` is the serverless function (`POST /api/analyze`); static files are served from the root. Friends just open the URL, no login.
+`POST /api/playlist` fetches `https://open.spotify.com/embed/playlist/{id}` with a normal browser User-Agent, parses the JSON inside `<script id="__NEXT_DATA__">`, and recursively collects every object with a track title and artist names. If that fails or returns fewer than 5 tracks, the front page offers a textarea to paste tracks manually ("Artist – Title" per line), plus three built-in demo playlists.
 
-## Structure
+`POST /api/analyze` sends the tracks to the Mistral API (`mistral-large-latest`, JSON mode) and returns a strict JSON reading (energy/valence/darkness/aggression, tempo, scene, palette, era, character, movie, quote candidates, summary). Without `MISTRAL_API_KEY` it returns a local keyword-based analysis and the UI shows a "demo mode" note.
 
-- `index.html` — landing + journey panels + finale
-- `assets/css/style.css` — deep green theme, responsive, ball-shrink & cat animations
-- `assets/js/app.js` — flow: tap-the-ball unravel animation, analysis, render panels, step tracking
-- `assets/js/spotify.js` — client-side reading on static hosting: playlist name via oEmbed, track list from the public playlist page, real lyric via lyrics.ovh
-- `assets/js/mood.js` — mood analysis (tempo/aggressive/dark/sunny/lush…), palettes, era/character/film/quote banks
-- `assets/js/scenes.js` — 12 seeded SVG scenery families (ship, river, forest, desert, mountains, volcano…) × mood palettes
-- `assets/js/portraits.js` — This-Is-The-Police-style SVG portraits, film posters, era icons
-- `assets/js/yarn.js` — yarn ball, thread pile, cats
-- `assets/js/rng.js` — seeded RNG (same playlist → same reading)
-- `api/vibe.js` — analysis engine (Spotify + lyrics.ovh + demo fallback), also the Vercel function
-- `server.js` — zero-dep dev server, binds 127.0.0.1 only
+`GET /api/quote?artist=&title=` returns one short line (max 12 words) from the keyless lyrics.ovh API. The frontend tries the 3 quote candidates in order; if none works it shows just song title + artist. Lyrics are never invented.
+
+## Secrets
+
+Only `MISTRAL_API_KEY` in `.env` (server-side only, git-ignored). No Spotify credentials, no OAuth.

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unravelled</title>
+<meta name="description" content="Paste a public Spotify playlist link, pull the thread, and watch it unravel into a scenery, an era, a character and a movie.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="shell">
+
+  <header id="header">
+    <h1 id="site-name">Unravelled</h1>
+    <div id="dots" aria-label="page indicator"></div>
+  </header>
+
+  <main id="stage">
+
+    <!-- FRONT PAGE -->
+    <section class="page active" id="page-front">
+      <div class="panel">
+        <p class="tagline">Paste a public Spotify playlist link.<br>Pull the thread — or press Unravel.</p>
+        <form id="link-form" autocomplete="off">
+          <input id="link-input" type="text" inputmode="url"
+                 placeholder="https://open.spotify.com/playlist/…">
+          <button id="btn-unravel" type="submit">Unravel</button>
+        </form>
+        <p id="front-error" class="error" role="alert"></p>
+        <div id="paste-fallback" class="hidden">
+          <p>Couldn't read that playlist automatically — paste the tracks instead, one per line: <em>Artist – Title</em></p>
+          <textarea id="paste-tracks" rows="5" placeholder="Hozier – Take Me to Church&#10;Metallica – Master of Puppets&#10;Dua Lipa – Levitating"></textarea>
+          <button id="btn-paste-go" type="button">Use these tracks</button>
+        </div>
+        <div id="demo-row">
+          <span>Try a demo:</span>
+          <button type="button" class="demo-btn" data-demo="hozier">Hozier-style folk/gothic</button>
+          <button type="button" class="demo-btn" data-demo="metal">Metal</button>
+          <button type="button" class="demo-btn" data-demo="pop">Summer pop</button>
+        </div>
+        <p id="demo-note" class="hidden">demo mode — no MISTRAL_API_KEY configured, using built-in local analysis</p>
+      </div>
+    </section>
+
+    <!-- PAGE 1 · SCENERY -->
+    <section class="page" id="page-1">
+      <div class="art" id="art-1"></div>
+      <div class="panel text-panel" id="panel-1"></div>
+    </section>
+
+    <!-- PAGE 2 · ERA -->
+    <section class="page" id="page-2">
+      <div class="panel text-panel center" id="panel-2"></div>
+    </section>
+
+    <!-- PAGE 3 · CHARACTER -->
+    <section class="page" id="page-3">
+      <div class="panel text-panel center" id="panel-3"></div>
+    </section>
+
+    <!-- PAGE 4 · MOVIE -->
+    <section class="page" id="page-4">
+      <div class="panel text-panel center" id="panel-4"></div>
+    </section>
+
+    <!-- FINALE -->
+    <section class="page" id="page-5">
+      <div class="panel text-panel center" id="panel-5"></div>
+    </section>
+
+  </main>
+
+  <div id="controls">
+    <button id="btn-back" type="button">Back</button>
+    <button id="btn-next" type="button">Next</button>
+  </div>
+
+  <!-- DOCK: yarn ball, thread and cats live only here -->
+  <div id="dock">
+    <div id="cats-row"></div>
+    <svg id="dock-svg" viewBox="0 0 1000 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+      <path id="dock-thread" fill="none"/>
+      <g id="ball-group">
+        <g id="ball-spin">
+          <circle id="ball-body" cx="130" cy="120" r="62"/>
+          <g id="ball-strands" fill="none"></g>
+        </g>
+      </g>
+      <g id="pile-group" class="hidden"></g>
+    </svg>
+  </div>
+
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

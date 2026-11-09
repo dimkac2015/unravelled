@@ -1,0 +1,185 @@
+/* Unravelled — deep green, white text, strict anti-overlap grid shell */
+
+:root {
+  --green: #0b3d2e;
+  --green-deep: #072a20;
+  --green-dock: #062419;
+  --cream: #f4efe3;
+  --accent: #e8b64c;
+  --panel: rgba(6, 30, 22, 0.82);
+  --ball-scale: 1;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  background: var(--green);
+  color: #fff;
+  overflow: hidden;
+}
+
+.hidden { display: none !important; }
+
+/* ---- app shell: header / stage / controls / dock ---- */
+#shell {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr auto clamp(110px, 18vh, 180px);
+}
+
+#header {
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: var(--green-deep);
+}
+#site-name { font-size: clamp(1.3rem, 3.5vw, 1.9rem); font-weight: 600; letter-spacing: 0.04em; }
+
+#dots { display: flex; gap: 8px; }
+#dots .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid var(--cream); opacity: 0.5;
+}
+#dots .dot.on { background: var(--accent); border-color: var(--accent); opacity: 1; }
+
+/* ---- stage scrolls internally; art is absolute z-0, text is flow z-10 ---- */
+#stage { position: relative; overflow: auto; z-index: 0; }
+
+.page { display: none; position: relative; min-height: 100%; }
+.page.active { display: block; animation: page-in 500ms ease both; }
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.art { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.art svg { width: 100%; height: 100%; display: block; }
+
+.panel {
+  position: relative;
+  z-index: 10;
+  margin: 0 auto;
+  padding: 26px 22px;
+  max-width: 640px;
+  text-align: center;
+}
+#page-front .panel { margin-top: 8vh; }
+.text-panel {
+  background: var(--panel);
+  border-radius: 14px;
+  margin-top: 6vh;
+  margin-bottom: 6vh;
+  backdrop-filter: blur(3px);
+}
+.text-panel.center { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+.tagline { font-style: italic; font-size: clamp(1rem, 2.6vw, 1.25rem); line-height: 1.55; margin-bottom: 20px; opacity: 0.95; }
+
+#link-form { display: flex; gap: 10px; max-width: 560px; margin: 0 auto; }
+#link-input {
+  flex: 1; min-width: 0;
+  font: inherit; font-size: 1rem;
+  padding: 12px 14px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(244, 239, 227, 0.6);
+  border-radius: 10px;
+  outline: none;
+}
+#link-input::placeholder { color: rgba(244, 239, 227, 0.5); }
+
+button {
+  font: inherit; font-weight: 600;
+  min-width: 44px; min-height: 44px;
+  padding: 10px 20px;
+  border: none; border-radius: 10px;
+  background: var(--accent); color: #10231c;
+  cursor: pointer;
+}
+button:hover { filter: brightness(1.08); }
+
+.error { color: #ffb4a2; min-height: 1.3em; margin-top: 10px; font-size: 0.95rem; }
+
+#paste-fallback { margin-top: 18px; }
+#paste-fallback p { font-size: 0.95rem; opacity: 0.9; margin-bottom: 8px; }
+#paste-tracks {
+  width: 100%; max-width: 560px;
+  font: inherit; font-size: 0.95rem;
+  padding: 10px; border-radius: 10px;
+  color: #fff; background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(244, 239, 227, 0.6);
+  margin-bottom: 10px;
+}
+
+#demo-row { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; font-size: 0.9rem; opacity: 0.95; }
+.demo-btn { background: transparent; color: var(--cream); border: 1.5px solid rgba(244, 239, 227, 0.6); min-height: 44px; }
+#demo-note { margin-top: 14px; font-size: 0.85rem; font-style: italic; opacity: 0.75; }
+
+.kicker { text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.75rem; color: var(--accent); }
+.panel h2 { font-size: clamp(1.6rem, 4.5vw, 2.6rem); line-height: 1.15; }
+.feel { font-size: clamp(1rem, 2.6vw, 1.2rem); line-height: 1.6; opacity: 0.94; max-width: 52ch; }
+.quote { font-style: italic; font-size: clamp(1.1rem, 3vw, 1.5rem); line-height: 1.5; }
+.quote cite { display: block; margin-top: 8px; font-style: normal; font-size: 0.95rem; opacity: 0.85; }
+.from-line { font-style: italic; opacity: 0.8; }
+.big-icon svg { width: clamp(96px, 20vw, 150px); height: auto; }
+.art-slot svg { width: clamp(200px, 40vw, 300px); height: auto; }
+
+/* ---- controls row: buttons live only here ---- */
+#controls {
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--green-deep);
+}
+#controls button { min-width: 110px; }
+#controls button:disabled { opacity: 0.4; cursor: default; }
+
+/* ---- dock: ball + thread + cats, never covers controls ---- */
+#dock {
+  z-index: 30;
+  position: relative;
+  background: var(--green-dock);
+  border-top: 1px solid rgba(244, 239, 227, 0.15);
+  overflow: hidden;
+}
+#dock-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#ball-body { fill: var(--cream); stroke: #8f8468; stroke-width: 3; }
+#ball-strands { stroke: #a3946f; stroke-width: 2.4; opacity: 0.85; stroke-linecap: round; }
+#dock-thread { stroke: var(--cream); stroke-width: 4; stroke-linecap: round; }
+#pull-hit { stroke: rgba(0, 0, 0, 0); stroke-width: 34; fill: none; pointer-events: stroke; cursor: grab; touch-action: none; }
+
+#cats-row {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+  pointer-events: none;
+}
+#cats-row svg { display: block; }
+
+/* ---- responsive: keep every element inside its own layer ---- */
+@media (max-width: 500px) {
+  #shell { grid-template-rows: auto 1fr auto clamp(120px, 20vh, 170px); }
+  #link-form { flex-direction: column; }
+  #btn-unravel { width: 100%; }
+  .panel { padding: 20px 16px; }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  #shell { grid-template-rows: auto 1fr auto clamp(96px, 26vh, 140px); }
+  #page-front .panel { margin-top: 3vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page.active { animation: fade-only 300ms ease both; }
+  @keyframes fade-only { from { opacity: 0; } to { opacity: 1; } }
+}
