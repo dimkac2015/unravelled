@@ -92,35 +92,10 @@ async function readPlaylist(id) {
 
 app.post("/api/playlist", async (req, res) => {
   try {
-<<<<<<< HEAD
     const id = extractPlaylistId(req.body && req.body.url);
     if (!id) return res.status(400).json({ ok: false, error: "not a spotify playlist link" });
     const data = await readPlaylist(id);
     res.json({ ok: true, id, ...data });
-=======
-    if (req.method === "POST" && req.url === "/api/analyze") {
-      let body = "";
-      for await (const chunk of req) body += chunk;
-      const data = await analyze(JSON.parse(body || "{}"));
-      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Access-Control-Allow-Origin": "*" });
-      res.end(JSON.stringify(data));
-      return;
-    }
-    if (req.method !== "GET") {
-      res.writeHead(405).end();
-      return;
-    }
-    let path = decodeURIComponent(new URL(req.url, "http://x").pathname);
-    if (path === "/") path = "/index.html";
-    const file = normalize(join(root, path));
-    if (!file.startsWith(root)) {
-      res.writeHead(403).end();
-      return;
-    }
-    const content = await readFile(file);
-    res.writeHead(200, { "Content-Type": MIME[extname(file)] || "application/octet-stream", "Cache-Control": "no-cache" });
-    res.end(content);
->>>>>>> origin/vibe/unravelled-rebuild-ed694c
   } catch (e) {
     res.status(502).json({ ok: false, error: String((e && e.message) || e) });
   }
