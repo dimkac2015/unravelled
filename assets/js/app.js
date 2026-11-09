@@ -95,7 +95,7 @@ async function submit() {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ url, lang })
-  }).then(r => r.json());
+  }).then(r => r.json()).catch(() => clientDemo(url, lang));
   const startUnravel = () => {
     clearInterval(lineTimer);
     unravelAnimation(async () => {
@@ -107,6 +107,25 @@ async function submit() {
   const ball = $("yarn-ball");
   ball.onclick = startUnravel;
   ball.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); startUnravel(); } };
+}
+
+function clientDemo(url, lang) {
+  const FAMILY_DEMO = { en: ["The Last Ferry Home", "fog", "patience", "devotion", "a quiet harbour at dusk", "the lighthouse keeper"], ru: ["Последний паром домой", "туман", "терпение", "преданность", "тихая гавань на закате", "смотритель маяка"], be: ["Апошні паром дадому", "туман", "цярпенне", "адданасць", "ціхая гавань на захадзе", "смотрынік маяка"], fr: ["Le Dernier Ferry du Soir", "brouillard", "patience", "dévouement", "un port tranquille au crépuscule", "le gardien du phare"] };
+  const d = FAMILY_DEMO[lang] || FAMILY_DEMO.en;
+  let h = 1779033703 ^ url.length;
+  for (let i = 0; i < url.length; i++) { h = Math.imul(h ^ url.charCodeAt(i), 3432918353); h = (h << 13) | (h >>> 19); }
+  const seed = h >>> 0;
+  return {
+    demo: true,
+    playlist: { name: "november, forever" },
+    scene: { family: FAMILIES[seed % FAMILIES.length], palette: (seed >> 3) % 8, title: d[0] },
+    words: [d[1], d[2], d[3]],
+    verdict: d[4],
+    character: d[5],
+    film: "Cinema Paradiso",
+    persona: { compliment: "", roast: "" },
+    seed
+  };
 }
 
 function buildThread() {
