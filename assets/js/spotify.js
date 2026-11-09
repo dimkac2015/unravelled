@@ -1,6 +1,7 @@
 // client-side playlist reading for static hosting (no server keys needed):
 // playlist name via Spotify oEmbed, track list scraped from the public playlist /
-// embed pages through free CORS relays, and a real lyric line via keyless lyrics.ovh
+// embed pages through free CORS relays (all in parallel, hard time caps),
+// and a real lyric line via the keyless lyrics.ovh API
 
 import { MOOD_KEYWORDS } from "./mood.js";
 
@@ -12,7 +13,7 @@ const RELAYS = [
   (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
 ];
 
-async function fetchText(url, timeoutMs = 12000) {
+async function fetchText(url, timeoutMs = 6000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -22,7 +23,7 @@ async function fetchText(url, timeoutMs = 12000) {
   } finally { clearTimeout(t); }
 }
 
-async function fetchJson(url, timeoutMs = 8000) {
+async function fetchJson(url, timeoutMs = 6000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -32,39 +33,47 @@ async function fetchJson(url, timeoutMs = 8000) {
   } finally { clearTimeout(t); }
 }
 
-export async function clientAnalyze(parsed) {
+// fast path: name + tracks only, everything in parallel, each call hard-capped
+export async function clientTracks(parsed) {
   const playlist = { id: parsed.id, url: parsed.url, name: null };
-  try {
-    const j = await fetchJson(OEMBED + encodeURIComponent(parsed.url), 6000);
-    playlist.name = j.title || null;
-  } catch { /* name stays null */ }
-
-  const pages = [
-    parsed.url,
-    `https://open.spotify.com/embed/playlist/${parsed.id}`,
-  ];
-  let tracks = [];
-  outer: for (const page of pages) {
+  const nameP = fetchJson(OEMBED + encodeURIComponent(parsed.url), 4000)
+    .then((j) => { playlist.name = j.title || null; })
+    .catch(() => {});
+  const pages = [parsed.url, `https://open.spotify.com/embed/playlist/${parsed.id}`];
+  const jobs = [];
+  for (const page of pages) {
     for (const relay of RELAYS) {
-      try {
-        const html = await fetchText(relay(page), 14000);
-        tracks = extractTracks(html);
-        if (tracks.length) break outer;
-      } catch { /* try next relay */ }
+      jobs.push(fetchText(relay(page), 6000).then((html) => extractTracks(html)).catch(() => []));
     }
   }
+  const results = await Promise.all([nameP, ...jobs]);
+  const found = results.find((r) => Array.isArray(r) && r.length > 0);
+  const tracks = (found || []).slice(0, 60);
+  return { ok: true, playlist, tracks, stats: null, quote: null, source: tracks.length ? "client" : "demo" };
+}
 
-  let quote = null;
-  if (tracks.length) quote = await clientQuote(tracks);
+// slow path: a real lyric line from one of the playlist's songs (called after the pages render)
+export async function clientQuote(tracks) {
+  const scored = tracks
+    .filter((t) => t.name.length <= 60)
+    .map((t) => ({ t, s: trackMoodScore(t) }))
+    .sort((a, b) => b.s - a.s);
+  for (const { t } of scored.slice(0, 10)) {
+    const artist = (t.artist.split(/,| feat\.| ft\.| & /i)[0] || "").trim();
+    if (!artist) continue;
+    try {
+      const data = await fetchJson(`${LYRICS}/${encodeURIComponent(artist)}/${encodeURIComponent(t.name)}`, 4000);
+      const line = pickQuoteLine(data.lyrics);
+      if (line) return { text: line, song: t.name, artist: t.artist };
+    } catch { /* try the next song */ }
+  }
+  return null;
+}
 
-  return {
-    ok: true,
-    playlist,
-    tracks,
-    stats: null,
-    quote,
-    source: tracks.length ? (quote ? "client+lyrics" : "client") : "demo",
-  };
+export async function clientAnalyze(parsed) {
+  const base = await clientTracks(parsed);
+  const quote = base.tracks.length ? await clientQuote(base.tracks).catch(() => null) : null;
+  return { ...base, quote, source: base.tracks.length ? (quote ? "client+lyrics" : "client") : "demo" };
 }
 
 export function extractTracks(html) {
@@ -123,21 +132,4 @@ function pickQuoteLine(lyrics) {
     .filter(l => l.length >= 24 && l.length <= 96 && !/^\[.*\]$/.test(l) && !/^(chorus|verse|intro|outro|hook|bridge|pre-chorus)/i.test(l));
   if (!lines.length) return null;
   return lines[Math.floor(lines.length / 2)];
-}
-
-async function clientQuote(tracks) {
-  const scored = tracks
-    .filter(t => t.name.length <= 60)
-    .map(t => ({ t, s: trackMoodScore(t) }))
-    .sort((a, b) => b.s - a.s);
-  for (const { t } of scored.slice(0, 20)) {
-    const artist = (t.artist.split(/,| feat\.| ft\.| & /i)[0] || "").trim();
-    if (!artist) continue;
-    try {
-      const data = await fetchJson(`${LYRICS}/${encodeURIComponent(artist)}/${encodeURIComponent(t.name)}`, 6000);
-      const line = pickQuoteLine(data.lyrics);
-      if (line) return { text: line, song: t.name, artist: t.artist };
-    } catch { /* try the next song */ }
-  }
-  return null;
 }

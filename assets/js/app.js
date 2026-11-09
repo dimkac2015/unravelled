@@ -2,7 +2,7 @@
 // → analyze → 4 panels → finale
 
 import { parseSpotifyUrl, buildReading } from "./mood.js";
-import { clientAnalyze } from "./spotify.js";
+import { clientTracks, clientQuote } from "./spotify.js";
 import { renderScene, SCENE_FAMILIES } from "./scenes.js";
 import { renderPortrait, renderPoster, renderEraIcon } from "./portraits.js";
 import { yarnBallSvg, threadPileSvg, catSvg } from "./yarn.js";
@@ -131,10 +131,12 @@ function finishPull() {
 }
 
 /* ---------- analyze: server API first, then client-side reading ---------- */
+function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
 async function fetchServerAnalysis(url) {
   try {
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 10000);
+    const timer = setTimeout(() => ctrl.abort(), 7000);
     const res = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -150,17 +152,19 @@ async function fetchServerAnalysis(url) {
   }
 }
 
+// both lookups run in parallel with hard caps — the user never waits more than ~8s
 async function getAnalysis(parsed) {
-  const server = await fetchServerAnalysis(parsed.url);
-  if (server && server.tracks && server.tracks.length) return server;
-  const client = await clientAnalyze(parsed).catch(() => null);
-  if (client && client.tracks && client.tracks.length) {
-    if (!client.playlist.name && server && server.playlist) client.playlist.name = server.playlist.name;
-    if (!client.quote && server && server.quote) client.quote = server.quote;
-    return client;
-  }
-  if (server) return server;
-  return client || { ok: true, playlist: { id: parsed.id, url: parsed.url, name: null }, tracks: [], stats: null, quote: null, source: "demo" };
+  const serverP = Promise.race([fetchServerAnalysis(parsed.url), delay(7500).then(() => null)]);
+  const clientP = Promise.race([clientTracks(parsed).catch(() => null), delay(8000).then(() => null)]);
+  const [server, client] = await Promise.all([serverP, clientP]);
+  let api;
+  if (server && server.tracks && server.tracks.length) api = server;
+  else if (client && client.tracks && client.tracks.length) api = client;
+  else api = server || client || { ok: true, playlist: { id: parsed.id, url: parsed.url, name: null }, tracks: [], stats: null, quote: null, source: "demo" };
+  const other = api === server ? client : server;
+  if (api.playlist && !api.playlist.name && other && other.playlist && other.playlist.name) api.playlist.name = other.playlist.name;
+  if (!api.quote && other && other.quote) api.quote = other.quote;
+  return api;
 }
 
 async function unravel(parsed) {
@@ -177,6 +181,15 @@ async function unravel(parsed) {
   $("scroller").scrollTo({ top: 0 });
   const label = reading.playlist.name ? `“${reading.playlist.name}”` : "your playlist";
   $("journey-playlist").textContent = `${label} — ${reading.source === "demo" ? "demo reading" : "analysed"}`;
+  // if we have real tracks but no lyric yet, fetch one in the background and swap it in
+  if (api.tracks && api.tracks.length && !api.quote) {
+    clientQuote(api.tracks).then((q) => {
+      if (!q || !reading) return;
+      reading.quote = q;
+      $("quote-text").textContent = "“" + q.text + "”";
+      $("quote-cite").innerHTML = `— <strong>“${escapeXml(q.song)}”</strong>` + (q.artist ? ` · ${escapeXml(q.artist)}` : "");
+    }).catch(() => {});
+  }
 }
 
 function showLoading() {
@@ -187,7 +200,7 @@ function showLoading() {
   const timer = setInterval(() => {
     i = (i + 1) % LOADING_LINES.length;
     $("loading-line").textContent = LOADING_LINES[i];
-  }, 900);
+  }, 650);
   $("loading").dataset.timer = timer;
 }
 
