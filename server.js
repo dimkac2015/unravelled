@@ -254,6 +254,8 @@ app.get("/api/quote", async (req, res) => {
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, "127.0.0.1", () => {
-  console.log(`unravelled dev server: http://127.0.0.1:${port} (loopback only)`);
+// local dev stays loopback-only; on Render (RENDER env is set) the service must bind 0.0.0.0
+const host = process.env.RENDER ? "0.0.0.0" : "127.0.0.1";
+app.listen(port, host, () => {
+  console.log(`unravelled listening on ${host}:${port}`);
 });
