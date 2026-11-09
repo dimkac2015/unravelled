@@ -37,6 +37,19 @@ function skyFlat(p) {
           <rect x="0" y="250" width="800" height="250" fill="${p.sky[1]}"/>`;
 }
 
+function clouds(rng, p, n = 3) {
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const x = rng.range(60, 700), y = rng.range(50, 180), s = rng.range(0.7, 1.3);
+    out += `<g fill="${p.ink}" opacity="0.16">
+      <ellipse cx="${x}" cy="${y}" rx="${46 * s}" ry="${13 * s}"/>
+      <ellipse cx="${x + 30 * s}" cy="${y - 8 * s}" rx="${30 * s}" ry="${11 * s}"/>
+      <ellipse cx="${x - 32 * s}" cy="${y - 5 * s}" rx="${24 * s}" ry="${9 * s}"/>
+    </g>`;
+  }
+  return out;
+}
+
 function sunOrMoon(p, rng, y) {
   const x = rng.range(140, 660), r = rng.range(34, 50);
   const cy = y ?? rng.range(90, 160);
@@ -101,7 +114,7 @@ function ship(rng, p, x, y, s, dark) {
 
 const GENERATORS = {
   ocean(rng, p) {
-    let s = skyFlat(p) + sunOrMoon(p, rng);
+    let s = skyFlat(p) + clouds(rng, p) + sunOrMoon(p, rng);
     s += `<rect x="0" y="330" width="800" height="170" fill="${p.water}" stroke="${p.ink}" stroke-width="${O}"/>`;
     s += waves(p, rng, 345, p.ink);
     s += ship(rng, p, rng.range(300, 520), 330, rng.range(0.9, 1.3), false);
@@ -110,7 +123,7 @@ const GENERATORS = {
     return svgWrap(s);
   },
   river(rng, p) {
-    let s = skyFlat(p) + sunOrMoon(p, rng, 110);
+    let s = skyFlat(p) + clouds(rng, p, 2) + sunOrMoon(p, rng, 110);
     s += hills(p, rng, 250, 90, p.land, 2);
     const x0 = rng.range(330, 470);
     s += `<path d="M ${x0} 250 C 300 320, 520 360, 430 500 L 560 500 C 640 380, 480 320, ${x0 + 60} 250 Z" fill="${p.water}" stroke="${p.ink}" stroke-width="${O}"/>`;
@@ -120,7 +133,7 @@ const GENERATORS = {
   },
   forest(rng, p) {
     const sx = rng.range(150, 650);
-    let s = skyFlat(p);
+    let s = skyFlat(p) + clouds(rng, p, 2);
     s += `<circle cx="${sx}" cy="115" r="52" fill="${p.sun}" stroke="${p.ink}" stroke-width="${O}"/>`;
     s += `<circle cx="${sx}" cy="115" r="72" fill="none" stroke="${p.sun}" stroke-width="3" opacity="0.4"/>`;
     s += hills(p, rng, 300, 70, p.land, 2);
@@ -128,7 +141,7 @@ const GENERATORS = {
     return svgWrap(s);
   },
   desert(rng, p) {
-    let s = skyFlat(p) + sunOrMoon(p, rng, 120);
+    let s = skyFlat(p) + clouds(rng, p, 2) + sunOrMoon(p, rng, 120);
     s += `<path d="M -20 330 Q 200 260 420 330 T 820 320 L 820 520 L -20 520 Z" fill="${p.land}" stroke="${p.ink}" stroke-width="${O}"/>`;
     s += `<path d="M -20 400 Q 260 340 520 400 T 820 390 L 820 520 L -20 520 Z" fill="${p.land2}" stroke="${p.ink}" stroke-width="${O}"/>`;
     for (let i = 0; i < 3; i++) {
@@ -142,7 +155,7 @@ const GENERATORS = {
     return svgWrap(s);
   },
   mountains(rng, p) {
-    let s = skyFlat(p) + sunOrMoon(p, rng, 100);
+    let s = skyFlat(p) + clouds(rng, p, 2) + sunOrMoon(p, rng, 100);
     const peaks = [[120, 300], [300, 210], [470, 290], [640, 200], [760, 310]];
     s += `<path d="M -20 340 L 120 300 L 300 210 L 470 290 L 640 200 L 760 310 L 820 280 L 820 520 L -20 520 Z" fill="${p.land}" stroke="${p.ink}" stroke-width="${O}" stroke-linejoin="round"/>`;
     for (const [x, y] of peaks) s += `<path d="M ${x} ${y} L ${x - 26} ${y + 42} L ${x + 26} ${y + 42} Z" fill="${p.sun}" stroke="${p.ink}" stroke-width="${O}" stroke-linejoin="round"/>`;
@@ -162,7 +175,7 @@ const GENERATORS = {
     return svgWrap(s);
   },
   meadow(rng, p) {
-    let s = skyFlat(p) + sunOrMoon(p, rng, 105);
+    let s = skyFlat(p) + clouds(rng, p, 3) + sunOrMoon(p, rng, 105);
     s += hills(p, rng, 300, 80, p.land, 3);
     for (let i = 0; i < 26; i++) {
       const x = rng.range(20, 780), y = rng.range(320, 480), c = rng.pick([p.accent, p.sun, p.ink]);
@@ -193,7 +206,7 @@ const GENERATORS = {
     return svgWrap(s);
   },
   canyon(rng, p) {
-    let s = skyFlat(p) + sunOrMoon(p, rng, 110);
+    let s = skyFlat(p) + clouds(rng, p, 2) + sunOrMoon(p, rng, 110);
     s += `<path d="M -20 520 L -20 300 L 140 300 L 170 380 L 300 380 L 320 300 L 460 300 L 500 400 L 640 400 L 660 320 L 820 320 L 820 520 Z" fill="${p.land}" stroke="${p.ink}" stroke-width="${O}" stroke-linejoin="round"/>`;
     s += `<path d="M -20 520 L -20 400 L 200 400 L 240 460 L 420 460 L 460 410 L 820 410 L 820 520 Z" fill="${p.land2}" stroke="${p.ink}" stroke-width="${O}"/>`;
     s += `<path d="M 60 330 L 780 330" stroke="${p.accent}" stroke-width="4" opacity="0.6"/>`;

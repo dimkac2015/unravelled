@@ -58,24 +58,45 @@ function hatShape(style) {
 
 export function renderPortrait(style) {
   const s = style;
+  const eye = s.eyeColor || "#4a3428";
+  const eyeWhite = "#f6f1e4";
   const eyes = s.glasses
-    ? `<g fill="none" stroke="${INK}" stroke-width="5">
-        <rect x="86" y="118" width="26" height="24" rx="6"/><rect x="128" y="118" width="26" height="24" rx="6"/>
-        <line x1="112" y1="130" x2="128" y2="130"/>
+    ? `<g>
+        <ellipse cx="99" cy="130" rx="13" ry="10.5" fill="${eyeWhite}" stroke="${INK}" stroke-width="4"/>
+        <ellipse cx="141" cy="130" rx="13" ry="10.5" fill="${eyeWhite}" stroke="${INK}" stroke-width="4"/>
+        <circle cx="100" cy="131" r="5" fill="${eye}"/><circle cx="100" cy="131" r="2.4" fill="${INK}"/><circle cx="98" cy="128" r="1.4" fill="#fff"/>
+        <circle cx="142" cy="131" r="5" fill="${eye}"/><circle cx="142" cy="131" r="2.4" fill="${INK}"/><circle cx="140" cy="128" r="1.4" fill="#fff"/>
+        <rect x="83" y="115" width="31" height="29" rx="7" fill="none" stroke="${INK}" stroke-width="5"/>
+        <rect x="126" y="115" width="31" height="29" rx="7" fill="none" stroke="${INK}" stroke-width="5"/>
+        <line x1="114" y1="128" x2="126" y2="128" stroke="${INK}" stroke-width="5"/>
       </g>
-      <circle cx="99" cy="130" r="4" fill="${INK}"/><circle cx="141" cy="130" r="4" fill="${INK}"/>`
-    : `<circle cx="99" cy="130" r="5.5" fill="${INK}"/><circle cx="141" cy="130" r="5.5" fill="${INK}"/>`;
+      <path d="M 85 110 Q 99 104 113 110 M 127 110 Q 141 104 155 110" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`
+    : `<g>
+        <ellipse cx="99" cy="130" rx="12" ry="10" fill="${eyeWhite}" stroke="${INK}" stroke-width="4"/>
+        <ellipse cx="141" cy="130" rx="12" ry="10" fill="${eyeWhite}" stroke="${INK}" stroke-width="4"/>
+        <circle cx="100" cy="131" r="5.5" fill="${eye}"/><circle cx="100" cy="131" r="2.6" fill="${INK}"/><circle cx="97.5" cy="128" r="1.5" fill="#fff"/>
+        <circle cx="142" cy="131" r="5.5" fill="${eye}"/><circle cx="142" cy="131" r="2.6" fill="${INK}"/><circle cx="139.5" cy="128" r="1.5" fill="#fff"/>
+      </g>
+      <path d="M 86 112 Q 99 106 112 112 M 128 112 Q 141 106 154 112" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
   return `${svgOpen(240, 300)}
     <rect width="240" height="300" fill="${s.bg}"/>
-    <circle cx="120" cy="140" r="104" fill="${s.bgShape || s.bg}"/>
-    <path d="M 28 300 L 28 272 Q 28 232 120 232 Q 212 232 212 272 L 212 300 Z" fill="${s.shirt}" stroke="${INK}" stroke-width="${W}" stroke-linejoin="round"/>
-    <rect x="106" y="204" width="28" height="34" fill="${s.skin}" stroke="${INK}" stroke-width="5"/>
+    <circle cx="120" cy="142" r="104" fill="${s.bgShape || s.bg}"/>
+    <path d="M 24 300 L 24 274 Q 24 230 120 230 Q 216 230 216 274 L 216 300 Z" fill="${s.shirt}" stroke="${INK}" stroke-width="${W}" stroke-linejoin="round"/>
+    <path d="M 97 231 L 120 253 L 143 231 L 143 240 L 120 262 L 97 240 Z" fill="${s.shirt}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="120" cy="272" r="3.5" fill="${INK}"/><circle cx="120" cy="289" r="3.5" fill="${INK}"/>
+    <rect x="106" y="200" width="28" height="38" fill="${s.skin}" stroke="${INK}" stroke-width="5"/>
+    <path d="M 106 208 Q 120 219 134 208 L 134 217 Q 120 228 106 217 Z" fill="${s.shade || "#b39a7c"}" opacity="0.65"/>
+    <ellipse cx="55" cy="142" rx="9" ry="14" fill="${s.skin}" stroke="${INK}" stroke-width="5"/>
+    <ellipse cx="185" cy="142" rx="9" ry="14" fill="${s.skin}" stroke="${INK}" stroke-width="5"/>
     <ellipse cx="120" cy="136" rx="64" ry="70" fill="${s.skin}" stroke="${INK}" stroke-width="${W}"/>
     ${hairShape(s)}
+    <path d="M 84 84 Q 100 74 118 76 M 128 74 Q 148 74 160 86" fill="none" stroke="${INK}" stroke-width="3" opacity="0.35" stroke-linecap="round"/>
     ${hatShape(s)}
     ${eyes}
-    <path d="M 120 140 L 111 160 Q 120 167 130 160 Z" fill="none" stroke="${INK}" stroke-width="5" stroke-linejoin="round"/>
-    <path d="M 102 184 Q 120 191 138 184" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 120 140 C 119 152 115 160 110 165 Q 118 171 129 166" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 112 168 Q 116 170 120 168" fill="none" stroke="${INK}" stroke-width="3.5" opacity="0.7" stroke-linecap="round"/>
+    <path d="M 100 186 Q 120 195 140 186" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 106 191 Q 120 197 134 191" fill="none" stroke="${INK}" stroke-width="3" opacity="0.45" stroke-linecap="round"/>
   </svg>`;
 }
 
@@ -90,47 +111,96 @@ function speckles(n = 46) {
 }
 
 const POSTERS = {
-  space: (p) => `<circle cx="150" cy="185" r="78" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
-    <ellipse cx="150" cy="185" rx="128" ry="28" fill="none" stroke="${p.sun}" stroke-width="7" transform="rotate(-18 150 185)"/>
-    <rect x="196" y="286" width="46" height="16" rx="3" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>`,
-  paris: (p) => `<path d="M 150 60 L 118 300 L 182 300 Z" fill="none" stroke="${INK}" stroke-width="9" stroke-linejoin="round"/>
-    <line x1="128" y1="220" x2="172" y2="220" stroke="${INK}" stroke-width="9"/>
-    <line x1="118" y1="300" x2="182" y2="300" stroke="${INK}" stroke-width="9"/>
-    <circle cx="238" cy="96" r="26" fill="${p.sun}"/>`,
-  lalaland: (p) => `<circle cx="150" cy="150" r="80" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
-    <path d="M -10 330 Q 80 280 160 322 T 310 316 L 310 366 L -10 366 Z" fill="${p.land2}"/>`,
-  road: (p) => `<circle cx="222" cy="92" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
-    <path d="M 118 366 L 142 150 L 158 150 L 182 366 Z" fill="${p.land2}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
-    <line x1="150" y1="160" x2="150" y2="360" stroke="#e9e2cf" stroke-width="6" stroke-dasharray="18 16"/>`,
+  space: (p) => `<circle cx="150" cy="180" r="80" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
+    <path d="M 96 150 Q 150 128 204 152 Q 150 168 96 150 Z" fill="${p.sun}" opacity="0.5"/>
+    <ellipse cx="150" cy="180" rx="130" ry="28" fill="none" stroke="${p.sun}" stroke-width="7" transform="rotate(-18 150 180)"/>
+    <circle cx="246" cy="80" r="14" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
+    <g transform="translate(190,292) rotate(-8)">
+      <rect x="0" y="0" width="52" height="18" rx="4" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
+      <rect x="18" y="-8" width="16" height="8" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
+      <circle cx="12" cy="18" r="3" fill="${p.sun}"/><circle cx="40" cy="18" r="3" fill="${p.sun}"/>
+    </g>`,
+  paris: (p) => `<path d="M 150 56 L 116 302 L 184 302 Z" fill="none" stroke="${INK}" stroke-width="9" stroke-linejoin="round"/>
+    <line x1="127" y1="218" x2="173" y2="218" stroke="${INK}" stroke-width="9"/>
+    <line x1="116" y1="302" x2="184" y2="302" stroke="${INK}" stroke-width="9"/>
+    <line x1="150" y1="56" x2="150" y2="34" stroke="${INK}" stroke-width="7"/>
+    <circle cx="240" cy="92" r="26" fill="${p.sun}" stroke="${INK}" stroke-width="5"/>
+    <g fill="${p.land2}" stroke="${INK}" stroke-width="4">
+      <rect x="28" y="286" width="40" height="80"/><rect x="228" y="272" width="46" height="94"/>
+      <rect x="36" y="296" width="8" height="12" fill="#e9e2cf"/><rect x="52" y="296" width="8" height="12" fill="#e9e2cf"/>
+      <rect x="238" y="284" width="8" height="12" fill="#e9e2cf"/><rect x="254" y="284" width="8" height="12" fill="#e9e2cf"/>
+    </g>
+    <circle cx="70" cy="330" r="10" fill="${p.accent}" stroke="${INK}" stroke-width="4"/>`,
+  lalaland: (p) => `<circle cx="150" cy="148" r="82" fill="${p.accent}" stroke="${INK}" stroke-width="6"/>
+    <path d="M -10 330 Q 80 278 160 322 T 310 314 L 310 366 L -10 366 Z" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
+    <g fill="${INK}">
+      <circle cx="132" cy="300" r="5"/><path d="M 132 305 L 132 320 L 126 332 M 132 320 L 138 332 M 128 312 L 136 312" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <circle cx="166" cy="304" r="5"/><path d="M 166 309 L 166 324 L 161 335 M 166 324 L 171 335 M 162 315 L 170 315" stroke="${INK}" stroke-width="4" fill="none" stroke-linecap="round"/>
+    </g>`,
+  road: (p) => `<circle cx="224" cy="90" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
+    <line x1="0" y1="150" x2="300" y2="150" stroke="${INK}" stroke-width="5"/>
+    <path d="M 118 366 L 142 158 L 158 158 L 182 366 Z" fill="${p.land2}" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+    <line x1="150" y1="168" x2="150" y2="360" stroke="#e9e2cf" stroke-width="6" stroke-dasharray="18 16"/>
+    <g stroke="${INK}" stroke-width="4" fill="${p.accent}">
+      <rect x="52" y="300" width="10" height="40"/><path d="M 52 314 L 36 314 L 36 326 M 62 322 L 78 322 L 78 310" fill="none"/>
+      <rect x="242" y="292" width="10" height="44"/><path d="M 242 306 L 258 306 L 258 318 M 252 314 L 236 314 L 236 302" fill="none"/>
+    </g>`,
   hotel: (p) => `<rect x="92" y="110" width="116" height="256" fill="${p.accent}" stroke="${INK}" stroke-width="7"/>
-    <rect x="78" y="88" width="144" height="24" fill="${p.land2}" stroke="${INK}" stroke-width="6"/>
-    ${[140, 176, 212, 248, 284, 320].map(y => `<rect x="112" y="${y}" width="24" height="22" fill="#e9e2cf"/><rect x="164" y="${y}" width="24" height="22" fill="#e9e2cf"/>`).join("")}`,
+    <rect x="78" y="86" width="144" height="26" fill="${p.land2}" stroke="${INK}" stroke-width="6"/>
+    ${[140, 176, 212, 248, 284, 320].map(y => `<rect x="112" y="${y}" width="24" height="22" fill="#e9e2cf" stroke="${INK}" stroke-width="3"/><rect x="164" y="${y}" width="24" height="22" fill="#e9e2cf" stroke="${INK}" stroke-width="3"/>`).join("")}
+    <rect x="138" y="336" width="24" height="30" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
+    <line x1="0" y1="366" x2="300" y2="366" stroke="${INK}" stroke-width="5"/>
+    <g fill="${p.land2}" stroke="${INK}" stroke-width="4"><rect x="30" y="330" width="34" height="36"/><rect x="240" y="324" width="38" height="42"/></g>`,
   drive: (p) => `<g stroke="${INK}" stroke-width="7" stroke-linejoin="round">
       <path d="M 40 268 L 72 232 L 190 218 L 240 252 L 244 278 L 40 278 Z" fill="${p.accent}"/>
-      <circle cx="92" cy="282" r="17" fill="${INK}"/><circle cx="204" cy="282" r="17" fill="${INK}"/>
+      <path d="M 84 234 L 108 226 L 178 220 L 206 246 L 84 246 Z" fill="#e9e2cf" stroke-width="5"/>
+      <circle cx="92" cy="282" r="17" fill="${INK}"/><circle cx="92" cy="282" r="7" fill="#e9e2cf"/>
+      <circle cx="204" cy="282" r="17" fill="${INK}"/><circle cx="204" cy="282" r="7" fill="#e9e2cf"/>
     </g>
-    <line x1="0" y1="316" x2="300" y2="316" stroke="${p.sun}" stroke-width="6"/>`,
-  summer: (p) => `<circle cx="150" cy="180" r="96" fill="none" stroke="${p.land2}" stroke-width="10"/>
-    <g stroke="${p.land2}" stroke-width="7">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="150" y1="180" x2="${150 + 96 * Math.cos(a * Math.PI / 180)}" y2="${180 + 96 * Math.sin(a * Math.PI / 180)}"/>`).join("")}</g>
-    <circle cx="150" cy="180" r="18" fill="${p.accent}" stroke="${INK}" stroke-width="5"/>`,
+    <circle cx="238" cy="262" r="5" fill="#c23b2e"/>
+    <line x1="0" y1="316" x2="300" y2="316" stroke="${p.sun}" stroke-width="6"/>
+    <line x1="20" y1="330" x2="280" y2="330" stroke="${INK}" stroke-width="4" stroke-dasharray="16 14" opacity="0.7"/>`,
+  summer: (p) => `<circle cx="150" cy="176" r="96" fill="none" stroke="${p.land2}" stroke-width="10"/>
+    <g stroke="${p.land2}" stroke-width="7">${[0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="150" y1="176" x2="${150 + 96 * Math.cos(a * Math.PI / 180)}" y2="${176 + 96 * Math.sin(a * Math.PI / 180)}"/>`).join("")}</g>
+    ${[0, 45, 90, 135, 180, 225, 270, 315].map(a => { const x = 150 + 96 * Math.cos(a * Math.PI / 180), y = 176 + 96 * Math.sin(a * Math.PI / 180); return `<rect x="${x - 7}" y="${y - 5}" width="14" height="12" fill="${p.accent}" stroke="${INK}" stroke-width="3"/>`; }).join("")}
+    <circle cx="150" cy="176" r="18" fill="${p.accent}" stroke="${INK}" stroke-width="5"/>
+    <line x1="150" y1="272" x2="150" y2="330" stroke="${INK}" stroke-width="7"/>
+    <line x1="0" y1="330" x2="300" y2="330" stroke="${INK}" stroke-width="5"/>`,
   ghibli: (p) => `<circle cx="70" cy="86" r="30" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
-    <rect x="70" y="240" width="160" height="60" rx="8" fill="${p.land2}" stroke="${INK}" stroke-width="7"/>
-    ${[92, 128, 164, 200].map(x => `<rect x="${x}" y="254" width="24" height="20" fill="${p.accent}"/>`).join("")}
+    <circle cx="150" cy="196" r="16" fill="${p.land2}" opacity="0.85"/><circle cx="178" cy="162" r="11" fill="${p.land2}" opacity="0.65"/><circle cx="198" cy="136" r="8" fill="${p.land2}" opacity="0.5"/>
+    <rect x="70" y="238" width="160" height="62" rx="8" fill="${p.land2}" stroke="${INK}" stroke-width="7"/>
+    ${[92, 128, 164, 200].map(x => `<rect x="${x}" y="252" width="24" height="20" fill="${p.accent}" stroke="${INK}" stroke-width="3"/>`).join("")}
     <circle cx="100" cy="306" r="11" fill="${INK}"/><circle cx="200" cy="306" r="11" fill="${INK}"/>
-    <circle cx="150" cy="200" r="16" fill="${p.accent}" opacity="0.8"/><circle cx="176" cy="168" r="11" fill="${p.accent}" opacity="0.6"/>`,
-  bench: (p) => `<circle cx="150" cy="180" r="58" fill="${p.land2}" stroke="${INK}" stroke-width="7"/>
-    <rect x="143" y="230" width="14" height="80" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
+    <line x1="0" y1="318" x2="300" y2="318" stroke="${INK}" stroke-width="6"/>
+    <line x1="0" y1="328" x2="300" y2="328" stroke="${INK}" stroke-width="4" opacity="0.6"/>`,
+  bench: (p) => `<circle cx="150" cy="172" r="56" fill="${p.land2}" stroke="${INK}" stroke-width="7"/>
+    <path d="M 110 150 Q 150 120 190 152" fill="none" stroke="${INK}" stroke-width="4" opacity="0.5"/>
+    <rect x="143" y="222" width="14" height="88" fill="${p.land2}" stroke="${INK}" stroke-width="5"/>
     <g stroke="${INK}" stroke-width="6" stroke-linejoin="round">
-      <rect x="84" y="286" width="132" height="14" fill="${p.accent}"/>
-      <line x1="100" y1="300" x2="100" y2="340"/><line x1="200" y1="300" x2="200" y2="340"/>
-    </g>`,
-  mountain: (p) => `<circle cx="216" cy="96" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
+      <rect x="84" y="284" width="132" height="14" fill="${p.accent}"/>
+      <rect x="92" y="266" width="116" height="10" fill="${p.accent}"/>
+      <line x1="100" y1="298" x2="100" y2="342"/><line x1="200" y1="298" x2="200" y2="342"/>
+    </g>
+    <line x1="0" y1="342" x2="300" y2="342" stroke="${INK}" stroke-width="5"/>
+    <path d="M 40 342 q 4 -12 8 0 M 250 342 q 4 -12 8 0 M 262 342 q 4 -10 7 0" stroke="${p.land2}" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+  mountain: (p) => `<circle cx="218" cy="92" r="34" fill="${p.sun}" stroke="${INK}" stroke-width="6"/>
     <path d="M 30 330 L 130 140 L 190 240 L 230 180 L 290 330 Z" fill="${p.land2}" stroke="${INK}" stroke-width="7" stroke-linejoin="round"/>
-    <path d="M 130 140 L 108 180 L 152 180 Z" fill="#e9e2cf"/>`,
-  diner: (p) => `<rect x="52" y="170" width="196" height="130" rx="12" fill="${p.accent}" stroke="${INK}" stroke-width="7"/>
-    <rect x="40" y="146" width="220" height="26" rx="13" fill="${p.land2}" stroke="${INK}" stroke-width="6"/>
-    <rect x="76" y="200" width="62" height="46" fill="#e9e2cf" stroke="${INK}" stroke-width="5"/>
-    <rect x="162" y="200" width="62" height="46" fill="#e9e2cf" stroke="${INK}" stroke-width="5"/>`,
+    <path d="M 130 140 L 108 180 L 152 180 Z" fill="#e9e2cf"/>
+    <path d="M 230 180 L 214 208 L 246 208 Z" fill="#e9e2cf" opacity="0.9"/>
+    <line x1="0" y1="330" x2="300" y2="330" stroke="${INK}" stroke-width="5"/>
+    <g stroke="${INK}" stroke-width="4" fill="${p.accent}">
+      <path d="M 60 330 L 66 306 L 72 330 Z"/><path d="M 84 330 L 89 312 L 94 330 Z"/><path d="M 250 330 L 255 310 L 260 330 Z"/>
+    </g>`,
+  diner: (p) => `<rect x="52" y="170" width="196" height="132" rx="12" fill="${p.accent}" stroke="${INK}" stroke-width="7"/>
+    <rect x="40" y="144" width="220" height="28" rx="14" fill="${p.land2}" stroke="${INK}" stroke-width="6"/>
+    <rect x="76" y="200" width="62" height="48" fill="#e9e2cf" stroke="${INK}" stroke-width="5"/>
+    <line x1="107" y1="200" x2="107" y2="248" stroke="${INK}" stroke-width="3"/>
+    <rect x="162" y="200" width="62" height="48" fill="#e9e2cf" stroke="${INK}" stroke-width="5"/>
+    <line x1="193" y1="200" x2="193" y2="248" stroke="${INK}" stroke-width="3"/>
+    <rect x="136" y="256" width="28" height="46" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
+    <line x1="0" y1="302" x2="300" y2="302" stroke="${INK}" stroke-width="5"/>
+    <rect x="262" y="230" width="10" height="72" fill="${p.land2}" stroke="${INK}" stroke-width="4"/>
+    <circle cx="267" cy="222" r="12" fill="${p.sun}" stroke="${INK}" stroke-width="4"/>`,
 };
 
 export function renderPoster(film, palette) {
