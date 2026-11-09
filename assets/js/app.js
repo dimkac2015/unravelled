@@ -226,8 +226,10 @@ function renderJourney(r) {
   $("scene-art").innerHTML = scene.svg;
   $("scene-title").textContent = scene.name;
   $("quote-text").textContent = "“" + r.quote.text + "”";
-  const artist = r.quote.artist && !r.quote.artist.includes("fallback") ? r.quote.artist : "";
-  $("quote-cite").innerHTML = `— <strong>“${escapeXml(r.quote.song)}”</strong>` + (artist ? ` · ${escapeXml(artist)}` : "");
+  const isFallback = /fallback/.test(r.quote.artist || "");
+  $("quote-cite").innerHTML = isFallback
+    ? "— in the mood of your playlist"
+    : `— <strong>“${escapeXml(r.quote.song)}”</strong>` + (r.quote.artist ? ` · ${escapeXml(r.quote.artist)}` : "");
 
   $("era-icon").innerHTML = renderEraIcon(r.era.icon);
   $("era-name").textContent = r.era.name;

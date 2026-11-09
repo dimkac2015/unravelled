@@ -33,8 +33,6 @@ export function yarnBallSvg(size = 150) {
       <path d="M 28 66 C 70 50, 132 52, 172 68"/>
     </g>
     <ellipse cx="72" cy="62" rx="26" ry="16" fill="#ffffff" opacity="0.28" transform="rotate(-24 72 62)"/>
-    <path d="M 170 128 Q 194 148 187 176 Q 184 189 171 187 Q 164 185 167 178" fill="none" stroke="${CREAM}" stroke-width="5" stroke-linecap="round"/>
-    <path d="M 170 128 Q 194 148 187 176" fill="none" stroke="#8f8468" stroke-width="1.6" stroke-linecap="round" opacity="0.6"/>
   </svg>`;
 }
 
