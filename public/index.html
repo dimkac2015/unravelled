@@ -12,7 +12,18 @@
 
   <header id="header">
     <h1 id="site-name">Unravelled</h1>
-    <div id="dots" aria-label="page indicator"></div>
+    <div id="header-right">
+      <div id="dots" aria-label="page indicator"></div>
+      <div id="lang-wrap" class="hidden">
+        <button id="lang-btn" type="button" aria-haspopup="listbox">EN</button>
+        <div id="lang-menu" class="hidden" role="listbox">
+          <button type="button" data-lang="en">English</button>
+          <button type="button" data-lang="ru">Русский</button>
+          <button type="button" data-lang="be">Беларуская</button>
+          <button type="button" data-lang="fr">Français</button>
+        </div>
+      </div>
+    </div>
   </header>
 
   <main id="stage">
@@ -27,18 +38,12 @@
           <button id="btn-unravel" type="submit">Unravel</button>
         </form>
         <p id="front-error" class="error" role="alert"></p>
+        <button id="btn-retry" type="button" class="hidden">Try again</button>
         <div id="paste-fallback" class="hidden">
-          <p>Couldn't read that playlist automatically — paste the tracks instead, one per line: <em>Artist – Title</em></p>
+          <p id="paste-text"></p>
           <textarea id="paste-tracks" rows="5" placeholder="Hozier – Take Me to Church&#10;Metallica – Master of Puppets&#10;Dua Lipa – Levitating"></textarea>
-          <button id="btn-paste-go" type="button">Use these tracks</button>
+          <button id="btn-paste-go" type="button">Continue</button>
         </div>
-        <div id="demo-row">
-          <span>Try a demo:</span>
-          <button type="button" class="demo-btn" data-demo="hozier">Hozier-style folk/gothic</button>
-          <button type="button" class="demo-btn" data-demo="metal">Metal</button>
-          <button type="button" class="demo-btn" data-demo="pop">Summer pop</button>
-        </div>
-        <p id="demo-note" class="hidden">demo mode — no MISTRAL_API_KEY configured, using built-in local analysis</p>
       </div>
     </section>
 

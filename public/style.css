@@ -46,6 +46,42 @@ body {
 }
 #dots .dot.on { background: var(--accent); border-color: var(--accent); opacity: 1; }
 
+#header-right { display: flex; align-items: center; gap: 16px; }
+
+/* language switch — top-right of the front page only */
+#lang-wrap { position: relative; }
+#lang-btn {
+  min-width: 44px; min-height: 44px;
+  background: transparent;
+  color: var(--cream);
+  border: 1.5px solid rgba(244, 239, 227, 0.6);
+  border-radius: 10px;
+  font-size: 0.85rem;
+}
+#lang-menu {
+  position: absolute;
+  right: 0; top: 50px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--green-deep);
+  border: 1px solid rgba(244, 239, 227, 0.4);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 150px;
+}
+#lang-menu button {
+  background: transparent;
+  color: var(--cream);
+  border: none;
+  border-radius: 0;
+  text-align: left;
+  min-height: 44px;
+}
+#lang-menu button:hover { background: rgba(255, 255, 255, 0.08); }
+
+#btn-retry { margin-top: 10px; background: transparent; color: var(--cream); border: 1.5px solid rgba(244, 239, 227, 0.6); }
+
 /* ---- stage scrolls internally; art is absolute z-0, text is flow z-10 ---- */
 #stage { position: relative; overflow: auto; z-index: 0; }
 

@@ -1,22 +1,23 @@
-// Unravelled — front-end flow (change request Stage 1: flow, ball, thread, cats).
-// Front page -> page 1 scenery -> 2 era -> 3 character -> 4 movie -> 5 impression -> 6 finale.
-// All durations, angles, cat names/order live in CONFIG.
+// Unravelled — front-end (change request Stages 2+3: page 5 activity, i18n, no demo).
+// Front page -> 1 scenery -> 2 era -> 3 character -> 4 movie -> 5 impression -> 6 finale.
 
 import { PALETTES, renderScene, renderIcon } from "./art/scenes.js";
 import { renderCharacter, renderMovie } from "./art/characters.js";
+import { renderActivity } from "./art/activities.js";
 import { renderCat, CAT_ROSTER } from "./art/cats.js";
+import { I18N, LANGS } from "./i18n.js";
 
 const CONFIG = {
   durations: {
     pageTurn: 500,
-    ballMove: 900,      // ball scale change AND thread draw AND ball turn share 900 ms
+    ballMove: 900,
     threadGrow: 900,
-    catWalk: 650,       // one cat walking in
-    catLeaveGap: 600,   // cats leave one by one, 0.6 s apart
-    catLeaveWalk: 1200, // each walks off-screen in ~1.2 s
+    catWalk: 650,
+    catLeaveGap: 600,
+    catLeaveWalk: 1200,
     regrow: 600,
   },
-  ballTurnDeg: 50,      // calm clockwise rotation per page change (40-60 deg)
+  ballTurnDeg: 50,
   ballScales: { front: 1, p1: 0.85, p2: 0.68, p3: 0.51, p4: 0.34, p5: 0.17, finale: 0 },
   pullThreshold: 110,
   cats: {
@@ -32,31 +33,44 @@ const STEP_KEYS = ["front", "p1", "p2", "p3", "p4", "p5", "finale"];
 const PAGE_IDS = ["page-front", "page-1", "page-2", "page-3", "page-4", "page-5", "page-6"];
 const N_PAGES = 6;
 
-const DEMO_PLAYLISTS = {
-  hozier: [
-    { title: "Take Me to Church", artist: "Hozier" },
-    { title: "Work Song", artist: "Hozier" },
-    { title: "Cherry Wine", artist: "Hozier" },
-    { title: "From Eden", artist: "Hozier" },
-    { title: "Like Real People Do", artist: "Hozier" },
-    { title: "In the Woods Somewhere", artist: "Hozier" },
-  ],
-  metal: [
-    { title: "Master of Puppets", artist: "Metallica" },
-    { title: "Raining Blood", artist: "Slayer" },
-    { title: "War Ensemble", artist: "Slayer" },
-    { title: "Battery", artist: "Metallica" },
-    { title: "Holy Wars", artist: "Megadeth" },
-  ],
-  pop: [
-    { title: "Levitating", artist: "Dua Lipa" },
-    { title: "Blinding Lights", artist: "The Weeknd" },
-    { title: "As It Was", artist: "Harry Styles" },
-    { title: "Flowers", artist: "Miley Cyrus" },
-    { title: "Dance Monkey", artist: "Tones and I" },
-  ],
-};
+/* ---------- language ---------- */
+let lang = localStorage.getItem("unravelled-lang");
+if (!LANGS.includes(lang)) {
+  const nav = (navigator.language || "en").slice(0, 2).toLowerCase();
+  lang = LANGS.includes(nav) ? nav : "en";
+}
+const t = (k) => (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k;
 
+function applyLang() {
+  document.documentElement.lang = lang;
+  $("lang-btn").textContent = lang.toUpperCase();
+  $("link-input").placeholder = t("placeholder");
+  $("btn-unravel").textContent = t("unravel");
+  $("btn-back").textContent = t("back");
+  $("btn-next").textContent = state.step === 0 ? t("unravel") : state.step === N_PAGES ? "Done" : t("next");
+  $("btn-paste-go").textContent = t("continue");
+  $("paste-text").textContent = t("manual");
+  $("btn-retry").textContent = t("retry");
+  if (state.analysis) renderAllPages();
+}
+
+function setLang(l) {
+  if (!LANGS.includes(l)) return;
+  lang = l;
+  localStorage.setItem("unravelled-lang", l);
+  applyLang();
+}
+
+$("lang-btn").addEventListener("click", (e) => {
+  e.stopPropagation();
+  $("lang-menu").classList.toggle("hidden");
+});
+document.addEventListener("click", () => $("lang-menu").classList.add("hidden"));
+document.querySelectorAll("#lang-menu button").forEach((b) => {
+  b.addEventListener("click", () => { setLang(b.dataset.lang); $("lang-menu").classList.add("hidden"); });
+});
+
+/* ---------- state ---------- */
 let state = {
   step: 0,
   analysis: null,
@@ -68,14 +82,13 @@ let state = {
   ballScale: 1,
   catsAppeared: 0,
   catsGone: false,
+  lastUrl: null,
+  lastTracks: null,
 };
 
 /* ================= dock geometry ================= */
-// viewBox 1000x200, baseline y=200. Ball sits at the LEFT end, bottom on the baseline.
 const BALL = { cx: 95, cy: 138, r: 62 };
-const CAT_X = [250, 395, 540, 685, 830]; // cat slots along the dock baseline
-
-/* ================= dock: ball ================= */
+const CAT_X = [250, 395, 540, 685, 830];
 
 function buildBallStrands() {
   const g = $("ball-strands");
@@ -92,8 +105,7 @@ function buildBallStrands() {
   g.innerHTML = s;
 }
 
-// outer wrapper #ball-pos: position+scale, origin bottom-centre (stays sitting on baseline).
-// inner #ball-spin: rotation only, around the exact centre of the ball.
+/* ball: outer wrapper = position+scale (origin bottom-centre); inner g = rotation (centre) */
 function setBall(stepIdx, animate) {
   const key = STEP_KEYS[stepIdx];
   const scale = CONFIG.ballScales[key];
@@ -108,7 +120,6 @@ function setBall(stepIdx, animate) {
     return;
   }
   if (stepIdx === 0) {
-    // regrow with a small bounce
     state.ballDeg += CONFIG.ballTurnDeg;
     spin.animate(
       [{ transform: `rotate(${state.ballDeg - CONFIG.ballTurnDeg}deg)` }, { transform: `rotate(${state.ballDeg}deg)` }],
@@ -121,7 +132,6 @@ function setBall(stepIdx, animate) {
     state.ballScale = 1;
     return;
   }
-  // calm clockwise turn around the ball's own centre, same 900 ms as the shrink
   const fromDeg = state.ballDeg;
   state.ballDeg += CONFIG.ballTurnDeg;
   spin.animate(
@@ -137,7 +147,6 @@ function setBall(stepIdx, animate) {
 }
 
 function buildPile() {
-  // loose curly pile where the ball was (ball centre 95,138 in a 140x160 wrap)
   let s = `<svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">`;
   for (let i = 0; i < 8; i++) {
     const rx = 58 - i * 6, ry = 19 - i * 2, rot = (i * 47) % 60 - 30;
@@ -147,14 +156,12 @@ function buildPile() {
   $("pile-wrap").innerHTML = s;
 }
 
-/* ================= dock: one continuous thread, looped around cat paws ================= */
+/* ================= thread: one continuous path, paw-loop per cat ================= */
 
 function ballAttach() {
-  // single point on the ball's surface (right side), follows the ball scale
   return { x: BALL.cx + BALL.r * state.ballScale * 0.92, y: BALL.cy - 6 };
 }
 
-// path from the ball along the baseline, small paw-loop at each cat up to `upto` (1..5)
 function threadPathD(upto) {
   const a = ballAttach();
   let d = `M ${a.x} ${a.y}`;
@@ -162,9 +169,7 @@ function threadPathD(upto) {
   const base = 190;
   for (let i = 0; i < upto; i++) {
     const cx = CAT_X[i];
-    // sagging curve along the baseline to just before the cat
     d += ` C ${x + 40} ${y + 8}, ${cx - 60} ${base + 4}, ${cx - 22} ${base - 2}`;
-    // one small loop around the cat's front paws (never near the face), then continue
     d += ` c -12 -2 -14 -14 -4 -16 c 10 -2 16 8 8 14 c -5 4 -12 2 -12 -4`;
     x = cx + 4; y = base - 6;
     if (i < upto - 1) d += ` C ${cx + 40} ${base - 8}, ${CAT_X[i + 1] - 80} ${base + 5}, ${CAT_X[i + 1] - 30} ${base - 2}`;
@@ -174,23 +179,21 @@ function threadPathD(upto) {
 
 function drawThread(upto, animate) {
   const p = $("dock-thread");
-  const full = threadPathD(5);
-  p.setAttribute("d", full);
+  p.setAttribute("d", threadPathD(5));
   const total = p.getTotalLength();
-  // measure how much path reaches cat N
   let visible = total;
   if (upto < 5) {
     const tmp = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    tmp.setAttribute("d", threadPathD(upto));
+    tmp.setAttribute("d", threadPathD(Math.max(upto, 0)));
     $("dock-svg").appendChild(tmp);
-    visible = tmp.getTotalLength();
+    visible = upto > 0 ? tmp.getTotalLength() : 0;
     tmp.remove();
   }
   p.style.strokeDasharray = String(total);
   const targetOffset = total - visible;
   if (animate && !REDUCED) {
     p.style.transition = "none";
-    p.style.strokeDashoffset = String(total); // hide all, then draw progressively
+    p.style.strokeDashoffset = String(total);
     void p.getBoundingClientRect();
     p.style.transition = `stroke-dashoffset ${CONFIG.durations.threadGrow}ms ease`;
     p.style.strokeDashoffset = String(targetOffset);
@@ -198,7 +201,6 @@ function drawThread(upto, animate) {
     p.style.transition = "none";
     p.style.strokeDashoffset = String(targetOffset);
   }
-  // grabbable loose end on the front page only
   let hit = $("pull-hit");
   if (!hit) {
     hit = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -208,13 +210,12 @@ function drawThread(upto, animate) {
   }
   const a = ballAttach();
   hit.setAttribute("d", `M ${a.x} ${a.y} Q ${a.x + 50} ${a.y + 40} ${Math.min(980, a.x + 150)} 190`);
-  hit.classList.toggle("hidden", state.step !== 0 || upto > 0);
+  hit.classList.toggle("hidden", state.step !== 0);
 }
 
 /* ================= cats ================= */
 
 let catsBuilt = false;
-let lang = "en"; // real language switch lands in Stage 3
 
 function catName(id) {
   const n = CONFIG.cats.names[id];
@@ -226,7 +227,6 @@ function buildCats() {
   catsBuilt = true;
   const row = $("cats-row");
   CONFIG.cats.order.forEach((id, i) => {
-    const c = CAT_ROSTER.find((x) => x.id === id);
     const d = document.createElement("div");
     d.className = "cat cat-" + id + " hidden";
     d.dataset.id = id;
@@ -247,7 +247,7 @@ function showCatTip(el, id) {
   tip.classList.remove("hidden");
   const dock = $("dock").getBoundingClientRect();
   const r = el.getBoundingClientRect();
-  tip.style.left = Math.min(dock.width - 90, Math.max(4, r.left - dock.left + r.width / 2 - 30)) + "px";
+  tip.style.left = Math.min(dock.width - 100, Math.max(4, r.left - dock.left + r.width / 2 - 34)) + "px";
   tip.style.bottom = (dock.height - (r.top - dock.top)) + 6 + "px";
 }
 function hideCatTip() { $("cat-tip").classList.add("hidden"); }
@@ -256,31 +256,27 @@ function walkCatIn(el, done) {
   el.classList.remove("hidden");
   if (REDUCED) { el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250, fill: "forwards" }); done && setTimeout(done, 250); return; }
   el.animate(
-    [{ transform: "translateX(170px)", opacity: 0.3 }, { transform: "translateX(0)", opacity: 1 }],
+    [{ transform: "translateX(170px)", opacity: 0.3 }, { transform: "translateX(-50%)", opacity: 1 }],
     { duration: CONFIG.durations.catWalk, easing: "ease-out", fill: "forwards" }
   ).onfinish = done || null;
 }
 
-// page N shows cats 1..N; the new one walks in from the right edge of the dock
 function syncCatsForPage(pageIdx) {
   buildCats();
-  const want = Math.max(0, Math.min(5, pageIdx)); // pages 1..5 -> cats 1..5
+  const want = Math.max(0, Math.min(5, pageIdx));
   for (let i = 0; i < 5; i++) {
     const el = catEl(CONFIG.cats.order[i]);
+    if (!el) continue;
     if (i < want && el.classList.contains("hidden") && state.catsAppeared === i) {
       state.catsAppeared = i + 1;
       walkCatIn(el, () => reactCat(CONFIG.cats.order[i]));
     } else if (i >= want) {
       el.classList.add("hidden");
+      if (i < state.catsAppeared) state.catsAppeared = i;
     }
-  }
-  if (want < state.catsAppeared && state.catsAppeared > 0 && pageIdx >= 1) {
-    // going back: hide cats beyond the page
-    state.catsAppeared = want;
   }
 }
 
-// the cat the thread just reached reacts
 function reactCat(id) {
   const row = $("cats-row");
   row.classList.add("reacting");
@@ -288,7 +284,6 @@ function reactCat(id) {
   setTimeout(() => { row.classList.remove("reacting"); row.dataset.reached = ""; }, CONFIG.durations.ballMove);
 }
 
-// page 6: cats leave one by one, 0.6 s apart, each ~1.2 s; left-walkers use the back lane
 function catsLeave() {
   if (state.catsGone) return;
   state.catsGone = true;
@@ -310,14 +305,14 @@ function catsLeave() {
           { duration: 600, easing: "ease-in-out" }
         );
       }
-      if (s.dir === -1) el.classList.add("back-lane"); // slightly higher, scaled 0.9, behind the pile
+      if (s.dir === -1) el.classList.add("back-lane");
       const walkMs = s.yawn ? CONFIG.durations.catLeaveWalk + 500 : CONFIG.durations.catLeaveWalk;
       setTimeout(() => {
         if (REDUCED) { el.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: "forwards" }); return; }
         el.animate(
           [
-            { transform: s.dir === -1 ? "translate(0, -14px) scale(0.9)" : "translateX(0)", opacity: 1 },
-            { transform: s.dir === -1 ? `translate(${s.dir * 260}px, -14px) scale(0.9)` : `translateX(${s.dir * 260}px)`, opacity: 0.2 },
+            { transform: s.dir === -1 ? "translate(-50%, -14px) scale(0.9)" : "translateX(-50%)", opacity: 1 },
+            { transform: s.dir === -1 ? `translate(calc(-50% + ${s.dir * 260}px), -14px) scale(0.9)` : `translateX(calc(-50% + ${s.dir * 260}px))`, opacity: 0.2 },
           ],
           { duration: walkMs, easing: "ease-in", fill: "forwards" }
         );
@@ -326,7 +321,7 @@ function catsLeave() {
   }
 }
 
-/* ================= front page: drag the loose thread OR press Unravel ================= */
+/* ================= front page ================= */
 
 let pullStart = null;
 
@@ -352,6 +347,7 @@ document.addEventListener("pointerup", () => {
 });
 
 $("link-form").addEventListener("submit", (e) => { e.preventDefault(); startUnravel(); });
+
 $("btn-paste-go").addEventListener("click", () => {
   const tracks = $("paste-tracks").value.split("\n")
     .map((l) => l.trim()).filter(Boolean)
@@ -359,54 +355,71 @@ $("btn-paste-go").addEventListener("click", () => {
       const parts = l.split(/\s+[–-]\s+/);
       return parts.length >= 2 ? { artist: parts[0].trim(), title: parts.slice(1).join(" – ").trim() } : { artist: "", title: l };
     })
-    .filter((t) => t.title);
+    .filter((x) => x.title);
   if (tracks.length) runAnalysis(tracks, null);
-  else $("front-error").textContent = "paste at least one track: Artist – Title";
+  else $("front-error").textContent = t("invalidLink");
 });
-document.querySelectorAll(".demo-btn").forEach((b) => {
-  b.addEventListener("click", () => runAnalysis(DEMO_PLAYLISTS[b.dataset.demo], "demo playlist"));
+
+$("btn-retry").addEventListener("click", () => {
+  $("btn-retry").classList.add("hidden");
+  $("front-error").textContent = t("loading");
+  if (state.lastTracks) runAnalysis(state.lastTracks, state.playlistTitle);
+  else if (state.lastUrl) startUnravel();
 });
 
 async function startUnravel() {
   const url = $("link-input").value;
+  state.lastUrl = url;
   $("front-error").textContent = "";
-  if (!url.trim()) { $("front-error").textContent = "paste a spotify playlist link first"; return; }
-  $("front-error").textContent = "reading the playlist…";
+  $("btn-retry").classList.add("hidden");
+  if (!/open\.spotify\.com\/playlist\/|spotify:playlist:/.test(url.trim())) {
+    $("front-error").textContent = t("invalidLink");
+    return;
+  }
+  $("front-error").textContent = t("loading");
   try {
     const r = await fetch("/api/playlist", {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
     const j = await r.json();
-    if (j.ok && j.tracks && j.tracks.length >= 5) runAnalysis(j.tracks, j.playlistTitle);
-    else {
+    if (j.ok && j.tracks && j.tracks.length >= 5) {
+      state.lastTracks = j.tracks;
+      runAnalysis(j.tracks, j.playlistTitle);
+    } else {
       $("paste-fallback").classList.remove("hidden");
-      $("front-error").textContent = "couldn't read that playlist automatically — paste the tracks below, or try a demo";
+      $("front-error").textContent = t("manual");
     }
   } catch {
     $("paste-fallback").classList.remove("hidden");
-    $("front-error").textContent = "couldn't reach the playlist — paste the tracks below, or try a demo";
+    $("front-error").textContent = t("error");
+    $("btn-retry").classList.remove("hidden");
   }
 }
 
 async function runAnalysis(tracks, playlistTitle) {
-  $("front-error").textContent = "analyzing the mood…";
-  const r = await fetch("/api/analyze", {
-    method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ tracks }),
-  });
-  const j = await r.json();
-  if (!j.ok) { $("front-error").textContent = j.error || "analysis failed"; return; }
-  state.analysis = j.analysis;
-  state.tracks = tracks;
-  state.playlistTitle = playlistTitle;
-  state.catsGone = false;
-  $("demo-note").classList.toggle("hidden", !j.demo);
-  state.quote = null;
-  fetchQuote(j.analysis.quote_candidates);
-  renderAllPages();
-  showPage(1);
-  $("front-error").textContent = "";
+  state.lastTracks = tracks;
+  $("front-error").textContent = t("loading");
+  try {
+    const r = await fetch("/api/analyze", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tracks, lang }),
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "analysis failed");
+    state.analysis = j.analysis;
+    state.tracks = tracks;
+    state.playlistTitle = playlistTitle;
+    state.catsGone = false;
+    state.quote = null;
+    fetchQuote(j.analysis.quote_candidates);
+    renderAllPages();
+    showPage(1);
+    $("front-error").textContent = "";
+  } catch {
+    $("front-error").textContent = t("error");
+    $("btn-retry").classList.remove("hidden");
+  }
 }
 
 async function fetchQuote(candidates) {
@@ -445,41 +458,42 @@ function renderAllPages() {
   const svg1 = renderScene(a.scene, pal);
   if (svg1) $("art-1").innerHTML = svg1;
   $("panel-1").innerHTML = `
-    <p class="kicker">page 1 · the scenery</p>
+    <p class="kicker">${t("pageScenery")}</p>
     <h2>${esc(a.scene_title)}</h2>
     <div id="quote-block"></div>`;
   renderQuote();
 
   $("panel-2").innerHTML = `
-    <p class="kicker">page 2 · the era</p>
-    <div class="big-icon" id="era-icon">${renderIcon(a.era.icon, pal.accent)}</div>
+    <p class="kicker">${t("pageEra")}</p>
+    <div class="big-icon">${renderIcon(a.era.icon, pal.accent)}</div>
     <h2>${esc(a.era.name)}, ${esc(a.era.season)}</h2>
     <p class="feel">${esc(a.era.feel)}</p>`;
   $("panel-2").style.background = pal.dark + "d9";
 
   $("panel-3").innerHTML = `
-    <p class="kicker">page 3 · the character</p>
+    <p class="kicker">${t("pageCharacter")}</p>
     <div class="art-slot">${renderCharacter(a.character, pal)}</div>
     <h2>${esc(a.character.name)}</h2>
-    <p class="from-line">from “${esc(a.character.source)}”</p>
+    <p class="from-line">${esc(a.character.source)}</p>
     <p class="feel">${esc(a.character.why)}</p>`;
 
   $("panel-4").innerHTML = `
-    <p class="kicker">page 4 · the movie</p>
+    <p class="kicker">${t("pageMovie")}</p>
     <div class="art-slot">${renderMovie(a.movie, pal)}</div>
     <h2>${esc(a.movie.title)} (${a.movie.year})</h2>
     <p class="feel">${esc(a.movie.why)}</p>`;
 
-  // page 5 content is filled in Stage 2 (analysis JSON gains "activity")
   $("panel-5").innerHTML = `
-    <p class="kicker">page 5 · overall impression</p>
-    <h2>…</h2>`;
+    <p class="kicker">${t("pageImpression")}</p>
+    <div class="art-slot">${renderActivity(a.activity.scene_id, pal)}</div>
+    <h2>${esc(a.activity.title)}</h2>
+    <p class="feel">${esc(a.activity.why)}</p>`;
 
   $("panel-6").innerHTML = `
     <p class="kicker">unravelled</p>
-    <h2>The thread lies in a pile.</h2>
+    <h2>${t("finale")}</h2>
     <p class="feel">${esc(a.summary)}</p>
-    <button id="btn-again" type="button">Unravel another playlist</button>`;
+    <button id="btn-again" type="button">${t("another")}</button>`;
   $("btn-again").addEventListener("click", resetToFront);
 }
 
@@ -488,25 +502,26 @@ function resetToFront() {
   state.threadLen = 150; state.catsAppeared = 0; state.catsGone = false;
   $("link-input").value = "";
   $("paste-fallback").classList.add("hidden");
-  CONFIG.cats.order.forEach((id) => catEl(id) && catEl(id).classList.add("hidden"));
+  $("btn-retry").classList.add("hidden");
+  CONFIG.cats.order.forEach((id) => { const el = catEl(id); if (el) el.classList.add("hidden"); });
   showPage(0);
   setBall(0, true);
   drawThread(0, true);
 }
 
 function showPage(i) {
-  const prev = state.step;
   state.step = i;
   PAGE_IDS.forEach((id, k) => $(id).classList.toggle("active", k === i));
   document.querySelectorAll("#dots .dot").forEach((d, k) => d.classList.toggle("on", k === i - 1));
   $("btn-back").disabled = i === 0;
-  $("btn-next").textContent = i === 0 ? "Unravel" : i === N_PAGES ? "Done" : "Next";
+  $("btn-back").textContent = t("back");
+  $("btn-next").textContent = i === 0 ? t("unravel") : i === N_PAGES ? "Done" : t("next");
   $("btn-next").disabled = i === N_PAGES;
+  $("lang-wrap").classList.toggle("hidden", i !== 0); // language switch on the front page only
   setBall(i, true);
-  drawThread(Math.max(0, Math.min(5, i)), true); // page N -> thread reaches cat N
+  drawThread(Math.max(0, Math.min(5, i)), true);
   if (i >= 1 && i <= 5) syncCatsForPage(i);
   if (i === N_PAGES) catsLeave();
-  if (i !== prev && i > 0 && i < N_PAGES) { /* thread-reach reaction handled in syncCatsForPage */ }
 }
 
 $("btn-back").addEventListener("click", () => { if (state.step > 0) showPage(state.step - 1); });
@@ -526,5 +541,6 @@ $("btn-next").addEventListener("click", () => {
   buildBallStrands();
   buildPile();
   buildCats();
+  applyLang();
   showPage(0);
 })();
