@@ -124,65 +124,62 @@ export function renderCharacter(character, palette) {
   const arch = ARCHETYPES.includes(character.archetype) ? character.archetype : "wanderer";
   const rng = rngFor((character.name || "x") + arch + p.dark);
 
-  // muted flat palette for the figure — skin is a real warm tone, never the palette's green
+  // palette roles: bg dark, backdrop mid, shirt ALWAYS contrasts with both
   const bg = p.dark;
   const backdrop = p.mid;
   const SKINS = ["#eccfae", "#e0b98f", "#d9a878", "#b07a52", "#8a5f42", "#f2d8b8"];
   const skin = SKINS[Math.floor(rng() * SKINS.length)];
-  const skinShade = shade(skin, 0.82);
-  const hair = shade(p.dark, 1.6);
-  const shirt = p.mid;
-  const shirtShade = shade(p.mid, 0.8);
+  const skinShade = shade(skin, 0.8);
+  const hair = shade(p.dark, 1.7);
   const accent = p.accent;
-  const ink = shade(p.dark, 0.6);
+  const ink = shade(p.dark, 0.55);
+  const shirtCol = [shade(p.light, 0.72), accent, shade(p.mid, 1.5)][Math.floor(rng() * 3)];
+  const shirtShade = shade(shirtCol, 0.78);
 
-  // seeded variation: head size, position, shirt colour, backdrop shape
-  const rx = 62 + rng() * 10, ry = 66 + rng() * 8;
-  const cx = 200 + (rng() - 0.5) * 20, cy = 225 + (rng() - 0.5) * 12;
-  const top = cy - ry;
-  const shirtCol = rng() > 0.5 ? shirt : shade(shirt, 0.85);
-  const sw = 96 + rng() * 16; // shoulder half-width
+  // simple, fixed, correct geometry
+  const cx = 200 + (rng() - 0.5) * 14;
+  const cy = 218 + (rng() - 0.5) * 8;
+  const r = 64 + rng() * 8;            // head radius
+  const headBottom = cy + r;
+  const shoulderY = headBottom + 46;    // coat top
+  const sw = 100 + rng() * 14;          // shoulder half width
 
-  // signature look of a known character; otherwise a seeded varied combination,
-  // so every one of the 100 bank characters looks different
   const feat = featureFor(character.name);
-  const hairKind = feat && feat.hair && feat.hair !== "mustache"
-    ? feat.hair
-    : HAIR_KINDS[Math.floor(rng() * HAIR_KINDS.length)];
-  const hatKind = feat && feat.hat ? feat.hat
-    : (rng() < 0.45 ? HAT_KINDS[Math.floor(rng() * HAT_KINDS.length)] : (ARCH_HAT[arch] || null));
-  const glassesKind = feat && feat.glasses ? feat.glasses : (rng() < 0.22 ? (rng() < 0.5 ? "round" : "sun") : null);
+  const hairKind = feat && feat.hair && feat.hair !== "mustache" ? feat.hair : HAIR_KINDS[Math.floor(rng() * HAIR_KINDS.length)];
+  const hatKind = feat && feat.hat ? feat.hat : (rng() < 0.4 ? HAT_KINDS[Math.floor(rng() * HAT_KINDS.length)] : (ARCH_HAT[arch] || null));
+  const glassesKind = feat && feat.glasses ? feat.glasses : (rng() < 0.2 ? (rng() < 0.5 ? "round" : "sun") : null);
   const mustache = feat && feat.hair === "mustache" ? true : rng() < 0.08;
-  const beard = feat && feat.beard ? true : rng() < 0.1;
+  const beard = (feat && feat.beard) || rng() < 0.1;
   const robe = feat && feat.robe;
   const pierce = feat && feat.pierce ? true : rng() < 0.08;
   const eyepatch = feat && feat.eyepatch;
-  const hairDraw = mustache ? "" : hairShape(hairKind, cx, top, rx, hair);
-  const glassesDraw = glasses(glassesKind, cx, cy, ink, p.highlight);
-  const mustacheDraw = (mustache || beard) ? `<path d="M ${cx - 16} ${cy + 28} Q ${cx} ${cy + 18} ${cx + 16} ${cy + 28} Q ${cx} ${cy + 40} ${cx - 16} ${cy + 28} Z" fill="${hair}"/>` : "";
-  const robeCol = robe ? p.highlight : shirtCol;
+
+  const neck = `<rect x="${cx - 16}" y="${headBottom - 22}" width="32" height="${shoulderY + 26 - (headBottom - 22)}" fill="${skin}"/>`;
+  const coat = `<path d="M ${cx - sw} 500 L ${cx - sw} ${shoulderY + 40} Q ${cx - sw} ${shoulderY} ${cx} ${shoulderY} Q ${cx + sw} ${shoulderY} ${cx + sw} ${shoulderY + 40} L ${cx + sw} 500 Z" fill="${robe ? p.highlight : shirtCol}"/>
+    <path d="M ${cx - 24} ${shoulderY + 2} L ${cx} ${shoulderY + 30} L ${cx + 24} ${shoulderY + 2} L ${cx + 16} ${shoulderY + 14} L ${cx} ${shoulderY + 36} L ${cx - 16} ${shoulderY + 14} Z" fill="${shirtShade}"/>`;
+  const head = `<circle cx="${cx - r - 3}" cy="${cy + 6}" r="11" fill="${skin}"/><circle cx="${cx + r + 3}" cy="${cy + 6}" r="11" fill="${skin}"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="${skin}"/>
+    <circle cx="${cx - 22}" cy="${cy - 8}" r="7" fill="${ink}"/><circle cx="${cx + 22}" cy="${cy - 8}" r="7" fill="${ink}"/>
+    <circle cx="${cx - 24}" cy="${cy - 11}" r="2.4" fill="#ffffff" opacity="0.9"/><circle cx="${cx + 20}" cy="${cy - 11}" r="2.4" fill="#ffffff" opacity="0.9"/>
+    <path d="M ${cx - 30} ${cy - 26} Q ${cx - 22} ${cy - 30} ${cx - 14} ${cy - 27} M ${cx + 14} ${cy - 27} Q ${cx + 22} ${cy - 30} ${cx + 30} ${cy - 26}" stroke="${ink}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    <path d="M ${cx} ${cy + 2} Q ${cx + 5} ${cy + 14} ${cx - 1} ${cy + 19} Q ${cx - 7} ${cy + 13} ${cx} ${cy + 2} Z" fill="${skinShade}"/>
+    <path d="M ${cx - 14} ${cy + 34} Q ${cx} ${cy + 41} ${cx + 14} ${cy + 34}" stroke="${ink}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  const extras = `
+    ${glassesKind ? glasses(glassesKind, cx, cy, ink, p.highlight) : ""}
+    ${mustache || beard ? `<path d="M ${cx - 17} ${cy + 27} Q ${cx} ${cy + 17} ${cx + 17} ${cy + 27} Q ${cx} ${cy + 40} ${cx - 17} ${cy + 27} Z" fill="${hair}"/>` : ""}
+    ${pierce ? `<circle cx="${cx - r - 3}" cy="${cy + 20}" r="3.5" fill="${accent}"/>` : ""}
+    ${eyepatch ? `<rect x="${cx - 34}" y="${cy - 16}" width="30" height="15" rx="4" fill="${ink}"/><line x1="${cx - 30}" y1="${cy - 13}" x2="${cx + r}" y2="${cy - 28}" stroke="${ink}" stroke-width="4"/>` : ""}`;
+  const hairDraw = mustache ? "" : hairShape(hairKind, cx, cy - r, r, hair);
 
   return `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${character.name || "character"}">
     <rect width="400" height="500" fill="${bg}"/>
-    <circle cx="${cx}" cy="${cy + 40}" r="150" fill="${backdrop}"/>
-    <rect x="${cx - 17}" y="${cy + ry - 26}" width="34" height="${cy + ry + 80 - (cy + ry - 26)}" fill="${skin}"/>
-    <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} Q ${cx + sw} ${cy + ry + 58} ${cx + sw} 420 L ${cx + sw} 500 Z" fill="${robeCol}"/>
-    <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} L ${cx} 500 Z" fill="${shirtShade}" opacity="0.55"/>
-    <path d="M ${cx - 26} ${cy + ry - 12} Q ${cx} ${cy + ry + 8} ${cx + 26} ${cy + ry - 12} L ${cx + 20} ${cy + ry + 30} Q ${cx} ${cy + ry + 44} ${cx - 20} ${cy + ry + 30} Z" fill="${shirtShade}"/>
-    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${skin}"/>
-    <path d="M ${cx + rx * 0.25} ${cy - ry * 0.7} A ${rx} ${ry} 0 0 1 ${cx + rx * 0.9} ${cy + ry * 0.4} L ${cx + rx * 0.55} ${cy + ry * 0.1} A ${rx * 0.62} ${ry * 0.62} 0 0 0 ${cx + rx * 0.18} ${cy - ry * 0.45} Z" fill="${skinShade}" opacity="0.7"/>
-    <circle cx="${cx - rx - 4}" cy="${cy + 4}" r="10" fill="${skin}"/><circle cx="${cx + rx + 4}" cy="${cy + 4}" r="10" fill="${skin}"/>
-    <circle cx="${cx - 20}" cy="${cy - 6}" r="6.5" fill="${ink}"/><circle cx="${cx + 20}" cy="${cy - 6}" r="6.5" fill="${ink}"/>
-    <circle cx="${cx - 22}" cy="${cy - 8}" r="2" fill="${p.highlight}"/><circle cx="${cx + 18}" cy="${cy - 8}" r="2" fill="${p.highlight}"/>
-    ${glassesDraw}
-    <path d="M ${cx - 26} ${cy - 22} Q ${cx - 20} ${cy - 26} ${cx - 14} ${cy - 23} M ${cx + 14} ${cy - 23} Q ${cx + 20} ${cy - 26} ${cx + 26} ${cy - 22}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>
-    <path d="M ${cx} ${cy + 2} Q ${cx + 6} ${cy + 16} ${cx - 2} ${cy + 22} Q ${cx - 8} ${cy + 16} ${cx} ${cy + 2} Z" fill="${skinShade}"/>
-    ${mustacheDraw}
-    <path d="M ${cx - 13} ${cy + 36} Q ${cx} ${cy + 42} ${cx + 13} ${cy + 36}" stroke="${ink}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-    ${pierce ? `<circle cx="${cx - rx - 4}" cy="${cy + 18}" r="3.5" fill="${accent}"/>` : ""}
-    ${eyepatch ? `<path d="M ${cx - 30} ${cy - 12} L ${cx - 2} ${cy - 12} L ${cx - 2} ${cy + 2} L ${cx - 30} ${cy + 2} Z" fill="${ink}"/><line x1="${cx - 28}" y1="${cy - 10}" x2="${cx + rx}" y2="${cy - 24}" stroke="${ink}" stroke-width="4"/>` : ""}
+    <circle cx="${cx}" cy="${cy + 60}" r="165" fill="${backdrop}"/>
+    ${neck}
+    ${coat}
+    ${head}
+    ${extras}
     ${hairDraw}
-    ${hatKind ? hat(hatKind, cx, top, rx, hair, accent, p.highlight) : ""}
+    ${hatKind ? hat(hatKind, cx, cy - r, r, hair, accent, p.highlight) : ""}
   </svg>`;
 }
 
