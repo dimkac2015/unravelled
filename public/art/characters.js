@@ -1,8 +1,7 @@
-// Character & movie art in the style of "This Is the Police" (Stage 3/4):
-// flat 2D vector, noir chiaroscuro — no thin outlines, shapes defined by hard-edged
-// shadows, angular geometric faces with minimal features, long hard shadows, dark base
-// colours with ONE warm accent, figure partly in shadow, simple dark background with
-// one light source. Reusable parts parametrised by archetype.
+// Character & movie art. Characters are drawn in the style of the video game
+// "This Is the Police" (the original brief): flat 2D vector, big rounded head,
+// simple dot eyes and nose, muted flat colours, hat/clothes per archetype,
+// soft shade on one side (no noir split-face). Movie posters: poster-style flat scene.
 
 import { PALETTES } from "./scenes.js";
 
@@ -22,110 +21,72 @@ function rngFor(seed) {
   };
 }
 
-/* archetype → hat / headgear, anchored to the actual head (cx, cy, headRx, headRy) */
-function headgear(arch, p, cx, cy, headRx, headRy) {
-  const d = p.dark, a = p.accent, h = p.highlight;
-  const top = cy - headRy, brimY = cy - headRy * 0.55;
-  switch (arch) {
-    case "detective": return `<rect x="${cx - headRx - 14}" y="${brimY - 6}" width="${(headRx + 14) * 2}" height="12" rx="6" fill="${d}"/><rect x="${cx - 36}" y="${top - 46}" width="72" height="52" rx="6" fill="${d}"/><rect x="${cx - 36}" y="${brimY - 16}" width="72" height="10" fill="${a}"/>`;
-    case "cowboy": return `<ellipse cx="${cx}" cy="${brimY}" rx="${headRx + 26}" ry="12" fill="${d}"/><path d="M ${cx - 32} ${brimY - 2} L ${cx - 24} ${top - 52} L ${cx + 24} ${top - 52} L ${cx + 32} ${brimY - 2} Z" fill="${d}"/><path d="M ${cx - 26} ${brimY - 24} L ${cx + 26} ${brimY - 24}" stroke="${a}" stroke-width="7"/>`;
-    case "witch": return `<path d="M ${cx} ${top - 110} L ${cx - headRx - 6} ${brimY + 8} L ${cx + headRx + 6} ${brimY + 8} Z" fill="${d}"/><ellipse cx="${cx}" cy="${brimY + 8}" rx="${headRx + 14}" ry="10" fill="${d}"/><path d="M ${cx - headRx + 8} ${brimY - 6} L ${cx + headRx - 8} ${brimY - 6}" stroke="${a}" stroke-width="7"/>`;
-    case "soldier": return `<path d="M ${cx - headRx + 2} ${brimY} L ${cx - headRx + 6} ${top - 40} L ${cx + headRx - 6} ${top - 40} L ${cx + headRx - 2} ${brimY} Z" fill="${d}"/><rect x="${cx - headRx - 12}" y="${brimY - 4}" width="${(headRx + 12) * 2}" height="10" rx="5" fill="${d}"/><circle cx="${cx}" cy="${top - 26}" r="7" fill="${a}"/>`;
-    case "rebel": return `<path d="M ${cx - headRx - 4} ${cy - headRy * 0.35} Q ${cx} ${cy - headRy * 0.75} ${cx + headRx + 4} ${cy - headRy * 0.35} L ${cx + headRx + 4} ${cy - headRy * 0.1} Q ${cx} ${cy - headRy * 0.5} ${cx - headRx - 4} ${cy - headRy * 0.1} Z" fill="${a}"/>`;
-    case "clown": return `<path d="M ${cx} ${top - 56} L ${cx + 14} ${brimY - 10} L ${cx - 14} ${brimY - 10} Z" fill="${a}"/><circle cx="${cx}" cy="${top - 58}" r="8" fill="${h}"/>`;
-    case "scientist": return `<circle cx="${cx - 18}" cy="${cy - headRy * 0.25}" r="13" fill="none" stroke="${h}" stroke-width="5"/><circle cx="${cx + 18}" cy="${cy - headRy * 0.25}" r="13" fill="none" stroke="${h}" stroke-width="5"/><line x1="${cx - 5}" y1="${cy - headRy * 0.25}" x2="${cx + 5}" y2="${cy - headRy * 0.25}" stroke="${h}" stroke-width="5"/><path d="M ${cx - headRx + 4} ${top + 18} Q ${cx} ${top - 8} ${cx + headRx - 4} ${top + 18} L ${cx + headRx - 4} ${top + 6} Q ${cx} ${top - 18} ${cx - headRx + 4} ${top + 6} Z" fill="${d}"/>`;
-    case "noble": return `<path d="M ${cx - headRx + 2} ${brimY} L ${cx - headRx + 2} ${top - 30} L ${cx - headRx / 2} ${top - 12} L ${cx} ${top - 42} L ${cx + headRx / 2} ${top - 12} L ${cx + headRx - 2} ${top - 30} L ${cx + headRx - 2} ${brimY} Z" fill="${a}"/>`;
-    case "wanderer": return `<path d="M ${cx} ${top - 60} Q ${cx - headRx - 16} ${top + 10} ${cx - headRx - 6} ${cy + headRy * 0.6} L ${cx - headRx + 12} ${cy + headRy * 0.6} Q ${cx - headRx + 4} ${top + 40} ${cx} ${top + 26} Q ${cx + headRx - 4} ${top + 40} ${cx + headRx + 6} ${cy + headRy * 0.6} L ${cx + headRx + 6} ${cy + headRy * 0.6} Q ${cx + headRx + 16} ${top + 10} ${cx} ${top - 60} Z" fill="${d}"/>`;
-    default: return "";
-  }
+function shade(hex, f) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, Math.round(((n >> 16) & 255) * f));
+  const g = Math.min(255, Math.round(((n >> 8) & 255) * f));
+  const b = Math.min(255, Math.round((n & 255) * f));
+  return `rgb(${r},${g},${b})`;
 }
 
-// per-archetype clothing / accessory so every character reads differently
-const COATS = {
-  detective: (p, rng) => `<path d="M 104 500 L 104 408 Q 104 344 200 344 Q 296 344 296 408 L 296 500 Z" fill="${p.mid}"/>
-    <path d="M 200 344 L 168 500 L 200 500 Z" fill="${p.dark}"/><path d="M 200 344 L 232 500 L 200 500 Z" fill="${p.dark}" opacity="0.7"/>
-    <polygon points="200,352 188,392 200,430 212,392" fill="${p.accent}"/>`, // tie
-  wanderer: (p, rng) => `<path d="M 96 500 L 110 400 Q 118 340 200 338 Q 282 340 290 400 L 304 500 Z" fill="${p.dark}"/>
-    <path d="M 150 360 Q 200 386 250 360 L 244 396 Q 200 416 156 396 Z" fill="${p.mid}"/>`, // scarf
-  rebel: (p, rng) => `<path d="M 108 500 L 108 410 Q 108 348 200 346 Q 292 348 292 410 L 292 500 Z" fill="${p.mid}"/>
-    <line x1="150" y1="380" x2="250" y2="440" stroke="${p.accent}" stroke-width="10"/>`, // strap
-  dreamer: (p, rng) => `<path d="M 100 500 L 100 412 Q 100 346 200 344 Q 300 346 300 412 L 300 500 Z" fill="${p.light}" opacity="0.9"/>
-    <path d="M 200 344 L 176 500 L 200 500 Z" fill="${p.mid}" opacity="0.6"/>`,
-  soldier: (p, rng) => `<path d="M 100 500 L 100 406 Q 100 342 200 340 Q 300 342 300 406 L 300 500 Z" fill="${p.dark}"/>
-    <rect x="128" y="380" width="144" height="12" fill="${p.mid}"/><rect x="128" y="404" width="144" height="12" fill="${p.mid}"/>
-    <circle cx="200" cy="392" r="8" fill="${p.accent}"/>`, // belt + badge
-  witch: (p, rng) => `<path d="M 92 500 L 118 400 Q 130 336 200 334 Q 270 336 282 400 L 308 500 Z" fill="${p.dark}"/>
-    <path d="M 200 340 L 200 500" stroke="${p.mid}" stroke-width="6"/>
-    <circle cx="200" cy="430" r="10" fill="${p.accent}"/>`, // cape clasp
-  clown: (p, rng) => `<path d="M 104 500 L 104 410 Q 104 346 200 344 Q 296 346 296 410 L 296 500 Z" fill="${p.light}"/>
-    ${[150, 170, 190, 210, 230, 250].map(x => `<circle cx="${x}" cy="352" r="10" fill="${p.accent}"/>`).join("")}`, // ruff
-  scientist: (p, rng) => `<path d="M 102 500 L 102 408 Q 102 344 200 342 Q 298 344 298 408 L 298 500 Z" fill="#e8e2d2"/>
-    <line x1="200" y1="342" x2="200" y2="500" stroke="${p.mid}" stroke-width="5"/>
-    <rect x="160" y="380" width="80" height="50" fill="none" stroke="${p.mid}" stroke-width="5"/>`, // pocket + glasses later
-  cowboy: (p, rng) => `<path d="M 106 500 L 106 410 Q 106 348 200 346 Q 294 348 294 410 L 294 500 Z" fill="${p.mid}"/>
-    <path d="M 200 346 L 186 500 L 200 500 Z" fill="${p.dark}"/>
-    <rect x="192" y="360" width="16" height="10" fill="${p.accent}"/>`, // belt buckle
-  noble: (p, rng) => `<path d="M 98 500 L 98 408 Q 98 342 200 340 Q 302 342 302 408 L 302 500 Z" fill="${p.dark}"/>
-    <path d="M 160 360 L 200 420 L 240 360 L 240 500 L 160 500 Z" fill="${p.mid}"/>
-    <circle cx="200" cy="440" r="9" fill="${p.accent}"/>`, // sash + medal
-};
+/* archetype → hat, anchored to the head (cx, top, rx) */
+function hat(arch, cx, top, rx, hair, accent, hi) {
+  switch (arch) {
+    case "detective": return `<rect x="${cx - rx - 10}" y="${top + 6}" width="${(rx + 10) * 2}" height="13" rx="6" fill="${hair}"/><path d="M ${cx - 34} ${top + 8} L ${cx - 28} ${top - 44} L ${cx + 28} ${top - 44} L ${cx + 34} ${top + 8} Z" fill="${hair}"/><rect x="${cx - 30}" y="${top - 6}" width="60" height="9" fill="${accent}"/>`;
+    case "cowboy": return `<ellipse cx="${cx}" cy="${top + 10}" rx="${rx + 24}" ry="11" fill="${hair}"/><path d="M ${cx - 30} ${top + 8} Q ${cx - 26} ${top - 34} ${cx} ${top - 36} Q ${cx + 26} ${top - 34} ${cx + 30} ${top + 8} Z" fill="${hair}"/><path d="M ${cx - 26} ${top - 12} L ${cx + 26} ${top - 12}" stroke="${accent}" stroke-width="7"/>`;
+    case "witch": return `<path d="M ${cx} ${top - 96} Q ${cx + 8} ${top - 30} ${cx + rx + 4} ${top + 10} L ${cx - rx - 4} ${top + 10} Q ${cx - 8} ${top - 30} ${cx} ${top - 96} Z" fill="${hair}"/><ellipse cx="${cx}" cy="${top + 10}" rx="${rx + 12}" ry="9" fill="${hair}"/><path d="M ${cx - rx + 10} ${top - 2} L ${cx + rx - 10} ${top - 2}" stroke="${accent}" stroke-width="7"/>`;
+    case "soldier": return `<path d="M ${cx - rx + 4} ${top + 10} L ${cx - rx + 10} ${top - 30} L ${cx + rx - 10} ${top - 30} L ${cx + rx - 4} ${top + 10} Z" fill="${hair}"/><rect x="${cx - rx - 8}" y="${top + 6}" width="${(rx + 8) * 2}" height="9" rx="4" fill="${hair}"/><circle cx="${cx}" cy="${top - 16}" r="6" fill="${accent}"/>`;
+    case "rebel": return `<path d="M ${cx - rx - 2} ${top + 26} Q ${cx} ${top - 6} ${cx + rx + 2} ${top + 26} L ${cx + rx + 2} ${top + 40} Q ${cx} ${top + 12} ${cx - rx - 2} ${top + 40} Z" fill="${accent}"/>`;
+    case "clown": return `<path d="M ${cx} ${top - 48} L ${cx + 13} ${top + 2} L ${cx - 13} ${top + 2} Z" fill="${accent}"/><circle cx="${cx}" cy="${top - 50}" r="7" fill="${hi}"/>`;
+    case "scientist": return `<path d="M ${cx - rx} ${top + 14} Q ${cx} ${top - 14} ${cx + rx} ${top + 14} L ${cx + rx} ${top + 26} Q ${cx} ${top} ${cx - rx} ${top + 26} Z" fill="${hair}"/><circle cx="${cx - 17}" cy="${top + 34}" r="12" fill="none" stroke="${hi}" stroke-width="5"/><circle cx="${cx + 17}" cy="${top + 34}" r="12" fill="none" stroke="${hi}" stroke-width="5"/><line x1="${cx - 5}" y1="${top + 34}" x2="${cx + 5}" y2="${top + 34}" stroke="${hi}" stroke-width="5"/>`;
+    case "noble": return `<path d="M ${cx - rx + 6} ${top + 12} L ${cx - rx + 6} ${top - 18} L ${cx - rx / 2} ${top} L ${cx} ${top - 28} L ${cx + rx / 2} ${top} L ${cx + rx - 6} ${top - 18} L ${cx + rx - 6} ${top + 12} Z" fill="${accent}"/>`;
+    case "wanderer": return `<path d="M ${cx} ${top - 52} Q ${cx - rx - 14} ${top + 8} ${cx - rx - 4} ${top + 90} L ${cx - rx + 14} ${top + 90} Q ${cx - rx + 6} ${top + 30} ${cx} ${top + 16} Q ${cx + rx - 6} ${top + 30} ${cx + rx + 4} ${top + 90} L ${cx + rx + 4} ${top + 90} Q ${cx + rx + 14} ${top + 8} ${cx} ${top - 52} Z" fill="${hair}"/>`;
+    default: return `<path d="M ${cx - rx} ${top + 16} Q ${cx - rx + 4} ${top - 12} ${cx} ${top - 14} Q ${cx + rx - 4} ${top - 12} ${cx + rx} ${top + 16} Q ${cx} ${top + 2} ${cx - rx} ${top + 16} Z" fill="${hair}"/>`;
+  }
+}
 
 export function renderCharacter(character, palette) {
   const p = palette || PALETTES.midnight_blue;
   const arch = ARCHETYPES.includes(character.archetype) ? character.archetype : "wanderer";
-  const rng = rngFor((character.name || "x") + arch + (palette ? palette.dark : ""));
-  const d = p.dark, m = p.mid, l = p.light, a = p.accent, h = p.highlight;
+  const rng = rngFor((character.name || "x") + arch + p.dark);
 
-  // seeded variation so no two characters look the same
-  const headRx = 58 + rng() * 12, headRy = 64 + rng() * 10;
-  const cx = 200 + (rng() - 0.5) * 16, cy = 232 + (rng() - 0.5) * 10;
-  const lean = (rng() - 0.5) * 16;
-  const flip = rng() > 0.5; // light from the right instead of the left
-  const skin = rng() > 0.5 ? l : h;
-  const coat = (COATS[arch] || COATS.wanderer)(p, rng);
+  // muted flat palette for the figure
+  const bg = p.dark;
+  const backdrop = p.mid;
+  const skin = p.light;
+  const skinShade = shade(p.light, 0.82);
+  const hair = shade(p.light, 0.45);
+  const shirt = p.mid;
+  const shirtShade = shade(p.mid, 0.8);
+  const accent = p.accent;
+  const ink = shade(p.dark, 0.6);
 
-  // angular head: lit plane + hard-shadow plane (side depends on `flip`)
-  const lit = flip ? `${cx},${cy - headRy} ${cx + headRx},${cy - headRy * 0.7} ${cx + headRx * 0.9},${cy + headRy * 0.5} ${cx},${cy + headRy}` : `${cx - headRx},${cy - headRy * 0.7} ${cx},${cy - headRy} ${cx},${cy + headRy} ${cx - headRx * 0.9},${cy + headRy * 0.5}`;
-  const shadow = flip ? `${cx - headRx},${cy - headRy * 0.7} ${cx},${cy - headRy} ${cx},${cy + headRy} ${cx - headRx * 0.9},${cy + headRy * 0.5}` : `${cx},${cy - headRy} ${cx + headRx},${cy - headRy * 0.7} ${cx + headRx * 0.9},${cy + headRy * 0.5} ${cx},${cy + headRy}`;
-  const eyeY = cy - 4, noseY = cy + 22, mouthY = cy + headRy * 0.62;
-  const head = `
-    <polygon points="${lit}" fill="${skin}"/>
-    <polygon points="${shadow}" fill="${d}"/>
-    <polygon points="${cx},${cy + 8} ${cx + 8},${noseY} ${cx - 8},${noseY}" fill="${m}"/>
-    <rect x="${cx - 28}" y="${eyeY}" width="16" height="5" fill="${d}"/>
-    <rect x="${cx + 12}" y="${eyeY}" width="16" height="5" fill="${d}" opacity="0.85"/>
-    <path d="M ${cx - 30} ${eyeY - 9} L ${cx - 12} ${eyeY - 6} M ${cx + 30} ${eyeY - 9} L ${cx + 12} ${eyeY - 6}" stroke="${d}" stroke-width="4" stroke-linecap="round"/>
-    <rect x="${cx - 14}" y="${mouthY}" width="28" height="5" fill="${d}"/>`;
-
-  // hair for the hatless archetypes
-  const hair = (arch === "dreamer" || arch === "rebel" || arch === "clown")
-    ? `<path d="M ${cx - headRx} ${cy - headRy * 0.6} Q ${cx} ${cy - headRy * 1.25} ${cx + headRx} ${cy - headRy * 0.6} L ${cx + headRx * 0.8} ${cy - headRy * 0.1} Q ${cx} ${cy - headRy * 0.75} ${cx - headRx * 0.8} ${cy - headRy * 0.1} Z" fill="${d}"/>`
-    : "";
-
-  const lightPoly = flip
-    ? `<polygon points="400,0 150,0 360,500 400,500" fill="${h}" opacity="0.07"/><rect x="256" y="30" width="120" height="150" fill="${h}" opacity="0.10"/>`
-    : `<polygon points="0,0 250,0 40,500 0,500" fill="${h}" opacity="0.07"/><rect x="24" y="30" width="120" height="150" fill="${h}" opacity="0.10"/>`;
-  const shadowPoly = flip
-    ? `<polygon points="280,500 0,500 0,408 164,462" fill="${d}" opacity="0.9"/>`
-    : `<polygon points="120,500 400,500 400,408 236,462" fill="${d}" opacity="0.9"/>`;
+  // seeded variation: head size, position, shirt colour, backdrop shape
+  const rx = 62 + rng() * 10, ry = 66 + rng() * 8;
+  const cx = 200 + (rng() - 0.5) * 20, cy = 225 + (rng() - 0.5) * 12;
+  const top = cy - ry;
+  const shirtCol = rng() > 0.5 ? shirt : shade(shirt, 0.85);
+  const sw = 96 + rng() * 16; // shoulder half-width
 
   return `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${character.name || "character"}">
-    <rect width="400" height="500" fill="${d}"/>
-    ${lightPoly}
-    ${shadowPoly}
-    <g transform="translate(${lean},0)">
-      <rect x="${cx - 16}" y="${cy + headRy - 26}" width="32" height="${390 - (cy + headRy - 26)}" fill="${skin}"/>
-      ${coat}
-      <polygon points="${cx - 22},${cy + headRy + 2} ${cx + 22},${cy + headRy + 2} ${cx},${cy + headRy + 26}" fill="${d}"/>
-      ${head}
-      ${hair}
-      ${headgear(arch, p, cx, cy, headRx, headRy)}
-      <polyline points="${flip ? cx + headRx * 0.9 : cx - headRx * 0.9},${cy + headRy * 0.5} ${cx + (flip ? -40 : 40)},${cy + headRy + 60} ${cx + (flip ? 96 : -96)},${cy + headRy + 150}" fill="none" stroke="${a}" stroke-width="4" opacity="0.9"/>
-    </g>
+    <rect width="400" height="500" fill="${bg}"/>
+    <circle cx="${cx}" cy="${cy + 40}" r="150" fill="${backdrop}"/>
+    <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} Q ${cx + sw} ${cy + ry + 58} ${cx + sw} 420 L ${cx + sw} 500 Z" fill="${shirtCol}"/>
+    <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} L ${cx} 500 Z" fill="${shirtShade}" opacity="0.55"/>
+    <path d="M ${cx - 26} ${cy + ry - 12} Q ${cx} ${cy + ry + 8} ${cx + 26} ${cy + ry - 12} L ${cx + 20} ${cy + ry + 30} Q ${cx} ${cy + ry + 44} ${cx - 20} ${cy + ry + 30} Z" fill="${shirtShade}"/>
+    <rect x="${cx - 17}" y="${cy + ry - 26}" width="34" height="40" fill="${skin}"/>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${skin}"/>
+    <path d="M ${cx + rx * 0.25} ${cy - ry * 0.7} A ${rx} ${ry} 0 0 1 ${cx + rx * 0.9} ${cy + ry * 0.4} L ${cx + rx * 0.55} ${cy + ry * 0.1} A ${rx * 0.62} ${ry * 0.62} 0 0 0 ${cx + rx * 0.18} ${cy - ry * 0.45} Z" fill="${skinShade}" opacity="0.7"/>
+    <circle cx="${cx - rx - 4}" cy="${cy + 4}" r="10" fill="${skin}"/><circle cx="${cx + rx + 4}" cy="${cy + 4}" r="10" fill="${skin}"/>
+    <circle cx="${cx - 20}" cy="${cy - 6}" r="5.5" fill="${ink}"/><circle cx="${cx + 20}" cy="${cy - 6}" r="5.5" fill="${ink}"/>
+    <path d="M ${cx - 26} ${cy - 22} Q ${cx - 20} ${cy - 26} ${cx - 14} ${cy - 23} M ${cx + 14} ${cy - 23} Q ${cx + 20} ${cy - 26} ${cx + 26} ${cy - 22}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <path d="M ${cx} ${cy + 2} Q ${cx + 6} ${cy + 16} ${cx - 2} ${cy + 22} Q ${cx - 8} ${cy + 16} ${cx} ${cy + 2} Z" fill="${skinShade}"/>
+    <path d="M ${cx - 13} ${cy + 36} Q ${cx} ${cy + 42} ${cx + 13} ${cy + 36}" stroke="${ink}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+    ${hat(arch, cx, top, rx, hair, accent, p.highlight)}
   </svg>`;
 }
 
-/* ---------------- movie poster, same noir style (Stage 4) ---------------- */
+/* ---------------- movie poster: flat poster-style scene ---------------- */
 
 const MOTIFS = ["building", "car", "mountain", "ship", "planet", "tree"];
 
@@ -165,9 +126,7 @@ export function renderMovie(movie, palette) {
   const year = movie.year || "";
   return `<svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${movie.title || "movie"} poster">
     <rect width="400" height="560" fill="${p.dark}"/>
-    <polygon points="0,0 260,0 60,560 0,560" fill="${p.highlight}" opacity="0.08"/>
-    <rect x="30" y="36" width="110" height="130" fill="${p.highlight}" opacity="0.10"/>
-    <polygon points="110,560 400,560 400,470 240,520" fill="${p.dark}" opacity="0.9"/>
+    <circle cx="200" cy="290" r="170" fill="${p.mid}" opacity="0.6"/>
     ${motif(m, p, rng)}
     <rect x="0" y="470" width="400" height="90" fill="${p.dark}"/>
     <text x="200" y="512" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="${title.length > 18 ? 19 : 24}" fill="${p.highlight}" letter-spacing="1.5">${title}</text>

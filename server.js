@@ -35,6 +35,20 @@ const ACTIVITIES = [
 ];
 const TEMPOS = ["slow", "mid", "fast", "mixed"];
 const LANGS = ["en", "ru", "be", "fr"];
+const CHARACTER_BANK = [
+  "Wednesday Addams (The Addams Family)", "Amélie Poulain (Amélie)",
+  "Lisbeth Salander (The Girl with the Dragon Tattoo)", "The Dude (The Big Lebowski)",
+  "Mia (La La Land)", "Eleven (Stranger Things)", "Forrest Gump (Forrest Gump)",
+  "Napoleon Dynamite (Napoleon Dynamite)", "Paddington (Paddington)",
+  "Walter Mitty (The Secret Life of Walter Mitty)", "Ron Swanson (Parks and Recreation)",
+  "Chihiro (Spirited Away)",
+];
+const FILM_BANK = [
+  "Amélie (2001)", "La La Land (2016)", "Drive (2011)", "Guardians of the Galaxy (2014)",
+  "Into the Wild (2007)", "500 Days of Summer (2009)", "Spirited Away (2001)",
+  "Forrest Gump (1994)", "Interstellar (2014)", "Pulp Fiction (1994)",
+  "The Grand Budapest Hotel (2014)", "The Secret Life of Walter Mitty (2013)",
+];
 
 const LANGUAGE_RULES = {
   en: "Write all human-readable text fields in English.",
@@ -54,6 +68,7 @@ function systemPrompt(lang) {
  "era": {"name": "...", "season": "...", "feel": "one sentence", "icon": one id from ICONS},
  "character": {"name": "...", "source": "movie/cartoon title", "why": "max 20 words", "archetype": one id from ARCHETYPES},
  "movie": {"title": "...", "year": 0, "why": "max 20 words"},
+ "note": "character MUST be one entry of CHARACTER_BANK (name and source exactly as listed, in the requested language for the name if a localized form exists); movie MUST be one entry of FILM_BANK (title and year exactly as listed)",
  "activity": {"title": "short activity name, e.g. 'A night drive with the windows down'", "why": "one sentence, max 20 words", "scene_id": one id from ACTIVITIES},
  "quote_candidates": [3 songs FROM THE GIVEN PLAYLIST that fit the mood: {"song": "...", "artist": "..."}],
  "summary": "one line"
@@ -63,7 +78,9 @@ PALETTES: ${PALETTES.join(", ")}
 ICONS: ${ICONS.join(", ")}
 ARCHETYPES: ${ARCHETYPES.join(", ")}
 ACTIVITIES: ${ACTIVITIES.join(", ")}
-Rules: character must be a real character from an existing movie or cartoon and the connection to the playlist must feel natural, not far-fetched. Movie must be a real existing film whose soundtrack could plausibly be this playlist. Era is a real historical period plus season, or a believable future setting. Activity must be one of the ACTIVITIES ids with a fitting title. Mood-to-scene guidance: aggressive/metal -> volcano or thunderstorm in reds and black; fast+happy/nostalgic -> meadow_summer or river in warm yellows and sky blue; lush orchestral folk-gothic (e.g. Hozier) -> forest or autumn_woods in deep greens, moss, amber, mist; slow and sad -> night_city or snowfield in blues and violets; epic and wide -> ocean_ship or mountains; electronic -> space or night_city in neon; dry warm bluesy -> desert. quote_candidates must be copied exactly (song + artist) from the provided track list.
+CHARACTER_BANK: ${CHARACTER_BANK.join(" | ")}
+FILM_BANK: ${FILM_BANK.join(" | ")}
+Rules: pick the character ONLY from CHARACTER_BANK and the movie ONLY from FILM_BANK, copying name/source/title/year exactly (localize the displayed name only if an established translation exists in the requested language). The connection to the playlist must feel natural, not far-fetched. The movie's soundtrack must plausibly be this playlist. Era is a real historical period plus season, or a believable future setting. Activity must be one of the ACTIVITIES ids with a fitting title. The era name must NOT repeat the season word (e.g. never "1970s autumn, autumn" — if the name already contains the season, leave season as is). Mood-to-scene guidance: aggressive/metal -> volcano or thunderstorm in reds and black; fast+happy/nostalgic -> meadow_summer or river in warm yellows and sky blue; lush orchestral folk-gothic (e.g. Hozier) -> forest or autumn_woods in deep greens, moss, amber, mist; slow and sad -> night_city or snowfield in blues and violets; epic and wide -> ocean_ship or mountains; electronic -> space or night_city in neon; dry warm bluesy -> desert. quote_candidates must be copied exactly (song + artist) from the provided track list.
 LANGUAGE: ${LANGUAGE_RULES[lang] || LANGUAGE_RULES.en} Keep ALL id fields (scene, palette, icon, archetype, scene_id) in English exactly as listed. Song titles, artist names and lyrics are NEVER translated.`;
 }
 
