@@ -63,9 +63,14 @@
       <div class="panel text-panel center" id="panel-4"></div>
     </section>
 
-    <!-- FINALE -->
+    <!-- PAGE 5 · OVERALL IMPRESSION -->
     <section class="page" id="page-5">
       <div class="panel text-panel center" id="panel-5"></div>
+    </section>
+
+    <!-- PAGE 6 · FINALE -->
+    <section class="page" id="page-6">
+      <div class="panel text-panel center" id="panel-6"></div>
     </section>
 
   </main>
@@ -75,19 +80,20 @@
     <button id="btn-next" type="button">Next</button>
   </div>
 
-  <!-- DOCK: yarn ball, thread and cats live only here -->
+  <!-- DOCK: ball + thread + cats live only here. Ball at the left end. -->
   <div id="dock">
-    <div id="cats-row"></div>
     <svg id="dock-svg" viewBox="0 0 1000 200" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
       <path id="dock-thread" fill="none"/>
-      <g id="ball-group">
+      <g id="ball-pos">
         <g id="ball-spin">
-          <circle id="ball-body" cx="130" cy="120" r="62"/>
+          <circle id="ball-body" cx="95" cy="138" r="62"/>
           <g id="ball-strands" fill="none"></g>
         </g>
       </g>
-      <g id="pile-group" class="hidden"></g>
     </svg>
+    <div id="cats-row"></div>
+    <div id="pile-wrap" class="hidden"></div>
+    <div id="cat-tip" class="hidden"></div>
   </div>
 
 </div>

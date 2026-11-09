@@ -7,7 +7,6 @@
   --cream: #f4efe3;
   --accent: #e8b64c;
   --panel: rgba(6, 30, 22, 0.82);
-  --ball-scale: 1;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -141,7 +140,7 @@ button:hover { filter: brightness(1.08); }
 #controls button { min-width: 110px; }
 #controls button:disabled { opacity: 0.4; cursor: default; }
 
-/* ---- dock: ball + thread + cats, never covers controls ---- */
+/* ---- dock: ball (left end) + thread + cats, never covers controls ---- */
 #dock {
   z-index: 30;
   position: relative;
@@ -155,20 +154,50 @@ button:hover { filter: brightness(1.08); }
 #dock-thread { stroke: var(--cream); stroke-width: 4; stroke-linecap: round; }
 #pull-hit { stroke: rgba(0, 0, 0, 0); stroke-width: 34; fill: none; pointer-events: stroke; cursor: grab; touch-action: none; }
 
-#cats-row {
+/* outer wrapper: position+scale, origin at bottom-centre (stays on the dock baseline) */
+#ball-pos { transform-box: fill-box; transform-origin: 50% 100%; }
+/* inner group: rotation only, around the exact centre of the ball */
+#ball-spin { transform-box: fill-box; transform-origin: 50% 50%; }
+
+#cats-row { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; pointer-events: none; }
+.cat {
   position: absolute;
-  left: 0; right: 0; bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 2px;
+  bottom: 0;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  cursor: pointer;
+}
+.cat svg { width: clamp(44px, 9vw, 78px); height: auto; display: block; }
+
+/* thread pile sits IN FRONT of the cats (they walk behind it) */
+#pile-wrap {
+  position: absolute;
+  left: 2.5%;
+  bottom: 0;
+  width: 14%;
+  max-width: 150px;
+  z-index: 5;
   pointer-events: none;
 }
-#cats-row svg { display: block; }
+#pile-wrap svg { width: 100%; height: auto; display: block; }
+
+/* small name label on hover/tap only */
+#cat-tip {
+  position: absolute;
+  z-index: 6;
+  background: rgba(6, 30, 22, 0.92);
+  border: 1px solid rgba(244, 239, 227, 0.4);
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* back lane for cats walking left: higher and slightly smaller, behind the pile */
+.cat.back-lane { z-index: 1; }
 
 /* ---- cats: flat silhouettes, own tail-swish speed each ---- */
-.cat { flex: 0 0 auto; }
-.cat svg { width: clamp(44px, 9vw, 78px); height: auto; }
 .cat .tail {
   transform-box: fill-box;
   transform-origin: 15% 90%;
@@ -178,19 +207,15 @@ button:hover { filter: brightness(1.08); }
   0%, 100% { transform: rotate(-7deg); }
   50% { transform: rotate(9deg); }
 }
-/* ball is rolling: fluffy bats it, grey leans forward, ginger only lifts its head */
-#cats-row.reacting .cat-black_fluffy .paw { animation: bat 0.9s ease-in-out; }
-@keyframes bat { 0%,100% { transform: translate(0,0); } 40% { transform: translate(10px,-16px) rotate(-14deg); } }
-#cats-row.reacting .cat-grey .head { animation: lean 0.9s ease-in-out; }
-@keyframes lean { 0%,100% { transform: translateX(0); } 40% { transform: translateX(8px); } }
-#cats-row.reacting .cat-ginger .head { animation: lift 0.9s ease-in-out; }
-@keyframes lift { 0%,100% { transform: rotate(0deg); } 40% { transform: rotate(-6deg); } }
 .cat .head, .cat .paw { transform-box: fill-box; transform-origin: 50% 80%; }
 
-@media (prefers-reduced-motion: reduce) {
-  .cat .tail, #cats-row.reacting .cat-black_fluffy .paw,
-  #cats-row.reacting .cat-grey .head, #cats-row.reacting .cat-ginger .head { animation: none; }
-}
+/* the cat the thread just reached reacts: Chernika bats, Mysh leans, Ryzhik lifts head */
+#cats-row.reacting[data-reached="chernika"] .cat-chernika .paw { animation: bat 0.9s ease-in-out; }
+@keyframes bat { 0%,100% { transform: translate(0,0); } 40% { transform: translate(10px,-16px) rotate(-14deg); } }
+#cats-row.reacting[data-reached="mysh"] .cat-mysh .head { animation: lean 0.9s ease-in-out; }
+@keyframes lean { 0%,100% { transform: translateX(0); } 40% { transform: translateX(8px); } }
+#cats-row.reacting[data-reached="ryzhik"] .cat-ryzhik .head { animation: lift 0.9s ease-in-out; }
+@keyframes lift { 0%,100% { transform: rotate(0deg); } 40% { transform: rotate(-6deg); } }
 
 /* ---- responsive: keep every element inside its own layer ---- */
 @media (max-width: 500px) {
@@ -209,4 +234,8 @@ button:hover { filter: brightness(1.08); }
 @media (prefers-reduced-motion: reduce) {
   .page.active { animation: fade-only 300ms ease both; }
   @keyframes fade-only { from { opacity: 0; } to { opacity: 1; } }
+  .cat .tail,
+  #cats-row.reacting[data-reached="chernika"] .cat-chernika .paw,
+  #cats-row.reacting[data-reached="mysh"] .cat-mysh .head,
+  #cats-row.reacting[data-reached="ryzhik"] .cat-ryzhik .head { animation: none; }
 }
