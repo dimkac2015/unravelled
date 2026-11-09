@@ -33,7 +33,7 @@ function shade(hex, f) {
    recognizable: hair shape + hat + glasses */
 const FEATURES = [
   { match: "wednesday", hair: "braids" },
-  { match: "amelie", hair: "bob", amelie: true },
+  { match: "amelie", hair: "bob" },
   { match: "lisbeth", hair: "mohawk", pierce: true },
   { match: "dude", hair: "long", glasses: "sun", robe: true },
   { match: "mia", hair: "bun" },
@@ -44,7 +44,31 @@ const FEATURES = [
   { match: "walter", hair: "sidepart", hat: "beanie", glasses: "round" },
   { match: "ron", hair: "mustache" },
   { match: "chihiro", hair: "ponytail", hat: "ribbon" },
+  { match: "jack sparrow", hair: "long", hat: "bandana", beard: true },
+  { match: "neo", glasses: "sun", hair: "buzz" },
+  { match: "trinity", glasses: "sun", hair: "long" },
+  { match: "indiana", hat: "cap", hair: "sidepart", beard: true },
+  { match: "doc brown", hair: "wild" },
+  { match: "marty", hat: "cap", hair: "curly" },
+  { match: "ash", hat: "cap", hair: "spiky" },
+  { match: "goku", hair: "spiky" },
+  { match: "luffy", hat: "redhat", hair: "curly" },
+  { match: "naruto", hair: "spiky", hat: "bandana" },
+  { match: "spongebob", hair: "flat" },
+  { match: "lisa", hair: "spiky" },
+  { match: "bart", hair: "spiky" },
+  { match: "homer", hair: "buzz", beard: true },
+  { match: "rick sanchez", hair: "wild", glasses: "round" },
+  { match: "spike", hair: "curly", glasses: "round" },
+  { match: "guts", hair: "long", eyepatch: true },
+  { match: "shrek", hair: "buzz" },
+  { match: "puss", hat: "cap", hair: "sidepart", beard: true },
+  { match: "walle", hair: "flat" },
+  { match: "joy", hair: "bob" },
+  { match: "sadness", hair: "bun", glasses: "round" },
 ];
+const HAIR_KINDS = ["braids", "bob", "mohawk", "long", "bun", "buzz", "flat", "curly", "ponytail", "sidepart", "spiky", "wild", "default"];
+const HAT_KINDS = [null, "cap", "beanie", "hood", "redhat", "ribbon", "bandana"];
 
 function featureFor(name) {
   const n = String(name || "").toLowerCase();
@@ -67,6 +91,8 @@ function hairShape(kind, cx, top, rx, color) {
     case "curly": return `<g fill="${color}">${[-0.7, -0.35, 0, 0.35, 0.7].map(o => `<circle cx="${cx + o * rx}" cy="${top + 2 - Math.abs(o) * -8}" r="15"/>`).join("")}</g><path d="M ${cx - rx} ${top + 18} Q ${cx} ${top - 6} ${cx + rx} ${top + 18} L ${cx + rx} ${top + 30} Q ${cx} ${top + 8} ${cx - rx} ${top + 30} Z" fill="${color}"/>`;
     case "ponytail": return `<path d="M ${cx - rx} ${top + 16} Q ${cx} ${top - 14} ${cx + rx} ${top + 16} L ${cx + rx} ${top + 32} Q ${cx} ${top + 4} ${cx - rx} ${top + 32} Z" fill="${color}"/><path d="M ${cx + rx - 6} ${top + 10} Q ${cx + rx + 26} ${top + 60} ${cx + rx + 8} ${top + 120} Q ${cx + rx - 6} ${top + 112} ${cx + rx + 2} ${top + 60} Q ${cx + rx - 2} ${top + 34} ${cx + rx - 10} ${top + 18} Z" fill="${color}"/>`;
     case "sidepart": return `<path d="M ${cx - rx} ${top + 14} Q ${cx - rx + 6} ${top - 12} ${cx} ${top - 14} Q ${cx + rx - 4} ${top - 12} ${cx + rx} ${top + 20} L ${cx + rx - 12} ${top + 16} Q ${cx + rx - 14} ${top - 2} ${cx - 8} ${top + 2} Q ${cx - rx + 6} ${top + 4} ${cx - rx + 12} ${top + 22} Z" fill="${color}"/>`;
+    case "spiky": return `<g fill="${color}">${[-0.75, -0.4, -0.05, 0.3, 0.65].map(o => `<path d="M ${cx + o * rx} ${top + 12} L ${cx + o * rx + 8} ${top - 26 - Math.abs(o) * -14} L ${cx + o * rx + 18} ${top + 14} Z"/>`).join("")}</g><path d="M ${cx - rx} ${top + 16} Q ${cx} ${top - 6} ${cx + rx} ${top + 16} L ${cx + rx} ${top + 28} Q ${cx} ${top + 6} ${cx - rx} ${top + 28} Z" fill="${color}"/>`;
+    case "wild": return `<g fill="${color}">${[-0.8, -0.5, -0.2, 0.1, 0.4, 0.7].map((o, i) => `<circle cx="${cx + o * rx}" cy="${top - 6 - (i % 3) * 14}" r="${16 - (i % 2) * 5}"/>`).join("")}</g>`;
     default: return `<path d="M ${cx - rx} ${top + 16} Q ${cx} ${top - 14} ${cx + rx} ${top + 16} L ${cx + rx} ${top + 32} Q ${cx} ${top + 2} ${cx - rx} ${top + 32} Z" fill="${color}"/>`;
   }
 }
@@ -80,6 +106,7 @@ function hat(kind, cx, top, rx, hair, accent, hi) {
     case "beanie": return `<path d="M ${cx - rx + 4} ${brimY} Q ${cx - rx + 8} ${top - 30} ${cx} ${top - 32} Q ${cx + rx - 8} ${top - 30} ${cx + rx - 4} ${brimY} Z" fill="${hair}"/><rect x="${cx - rx - 2}" y="${brimY - 8}" width="${(rx + 2) * 2}" height="12" rx="6" fill="${hair}"/>`;
     case "hood": return `<path d="M ${cx} ${top - 46} Q ${cx - rx - 14} ${top + 4} ${cx - rx - 4} ${top + 100} L ${cx - rx + 14} ${top + 100} Q ${cx - rx + 6} ${top + 34} ${cx} ${top + 20} Q ${cx + rx - 6} ${top + 34} ${cx + rx + 4} ${top + 100} L ${cx + rx + 4} ${top + 100} Q ${cx + rx + 14} ${top + 4} ${cx} ${top - 46} Z" fill="${hair}"/>`;
     case "ribbon": return `<path d="M ${cx - 12} ${top - 6} L ${cx} ${top - 20} L ${cx + 12} ${top - 6} L ${cx + 5} ${top + 4} L ${cx - 5} ${top + 4} Z" fill="${accent}"/>`;
+    case "bandana": return `<path d="M ${cx - rx - 2} ${top + 8} Q ${cx} ${top - 10} ${cx + rx + 2} ${top + 8} L ${cx + rx + 2} ${top + 22} Q ${cx} ${top + 4} ${cx - rx - 2} ${top + 22} Z" fill="${accent}"/><circle cx="${cx + rx - 2}" cy="${top + 24}" r="6" fill="${accent}"/>`;
     default: return "";
   }
 }
@@ -115,17 +142,23 @@ export function renderCharacter(character, palette) {
   const shirtCol = rng() > 0.5 ? shirt : shade(shirt, 0.85);
   const sw = 96 + rng() * 16; // shoulder half-width
 
-  // signature look of a known character, else archetype hat
+  // signature look of a known character; otherwise a seeded varied combination,
+  // so every one of the 100 bank characters looks different
   const feat = featureFor(character.name);
-  const hairKind = feat && feat.hair && feat.hair !== "mustache" ? feat.hair : "default";
-  const hatKind = feat && feat.hat ? feat.hat : (ARCH_HAT[arch] || null);
-  const glassesKind = feat && feat.glasses ? feat.glasses : null;
-  const mustache = feat && feat.hair === "mustache";
+  const hairKind = feat && feat.hair && feat.hair !== "mustache"
+    ? feat.hair
+    : HAIR_KINDS[Math.floor(rng() * HAIR_KINDS.length)];
+  const hatKind = feat && feat.hat ? feat.hat
+    : (rng() < 0.45 ? HAT_KINDS[Math.floor(rng() * HAT_KINDS.length)] : (ARCH_HAT[arch] || null));
+  const glassesKind = feat && feat.glasses ? feat.glasses : (rng() < 0.22 ? (rng() < 0.5 ? "round" : "sun") : null);
+  const mustache = feat && feat.hair === "mustache" ? true : rng() < 0.08;
+  const beard = feat && feat.beard ? true : rng() < 0.1;
   const robe = feat && feat.robe;
-  const pierce = feat && feat.pierce;
+  const pierce = feat && feat.pierce ? true : rng() < 0.08;
+  const eyepatch = feat && feat.eyepatch;
   const hairDraw = mustache ? "" : hairShape(hairKind, cx, top, rx, hair);
   const glassesDraw = glasses(glassesKind, cx, cy, ink, p.highlight);
-  const mustacheDraw = mustache ? `<path d="M ${cx - 16} ${cy + 28} Q ${cx} ${cy + 18} ${cx + 16} ${cy + 28} Q ${cx} ${cy + 38} ${cx - 16} ${cy + 28} Z" fill="${hair}"/>` : "";
+  const mustacheDraw = (mustache || beard) ? `<path d="M ${cx - 16} ${cy + 28} Q ${cx} ${cy + 18} ${cx + 16} ${cy + 28} Q ${cx} ${cy + 40} ${cx - 16} ${cy + 28} Z" fill="${hair}"/>` : "";
   const robeCol = robe ? p.highlight : shirtCol;
 
   return `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${character.name || "character"}">
@@ -146,6 +179,7 @@ export function renderCharacter(character, palette) {
     ${mustacheDraw}
     <path d="M ${cx - 13} ${cy + 36} Q ${cx} ${cy + 42} ${cx + 13} ${cy + 36}" stroke="${ink}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
     ${pierce ? `<circle cx="${cx - rx - 4}" cy="${cy + 18}" r="3.5" fill="${accent}"/>` : ""}
+    ${eyepatch ? `<path d="M ${cx - 30} ${cy - 12} L ${cx - 2} ${cy - 12} L ${cx - 2} ${cy + 2} L ${cx - 30} ${cy + 2} Z" fill="${ink}"/><line x1="${cx - 28}" y1="${cy - 10}" x2="${cx + rx}" y2="${cy - 24}" stroke="${ink}" stroke-width="4"/>` : ""}
     ${hairDraw}
     ${hatKind ? hat(hatKind, cx, top, rx, hair, accent, p.highlight) : ""}
   </svg>`;
