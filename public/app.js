@@ -88,7 +88,7 @@ let state = {
 
 /* ================= dock geometry ================= */
 const BALL = { cx: 95, cy: 138, r: 62 };
-const CAT_X = [250, 395, 540, 685, 830];
+let CAT_X = [250, 395, 540, 685, 830];
 
 // the ball, drawn properly: radial-shaded sphere, many organic winding strands
 // clipped to the sphere, a specular highlight, and a soft contact shadow (not rotating)
@@ -245,7 +245,8 @@ function drawThreadVisible(px, animate) {
 }
 
 function drawThread(upto, animate) {
-  drawThreadVisible(threadLenFor(upto), animate);
+  lastThreadPx = threadLenFor(upto);
+  drawThreadVisible(lastThreadPx, animate);
 }
 
 /* ================= cats ================= */
@@ -265,7 +266,7 @@ function buildCats() {
     const d = document.createElement("div");
     d.className = "cat cat-" + id + " hidden";
     d.dataset.id = id;
-    d.style.left = (CAT_X[i] / 1000 * 100) + "%";
+    d.style.left = (CAT_X[i] / 1000 * 100) + "%"; d.dataset.slot = i;
     d.innerHTML = renderCat(id);
     d.addEventListener("mouseenter", () => showCatTip(d, id));
     d.addEventListener("mouseleave", hideCatTip);
@@ -596,12 +597,23 @@ $("btn-next").addEventListener("click", () => {
 
 /* dock layout: the SVG uses xMinYMax meet, so 1000 viewBox units = 5 x dock height
    in px — size the cats row and pile to the same space so thread loops land on cats */
+let lastThreadPx = 150;
 function layoutDock() {
-  const h = $("dock").clientHeight || 150;
-  $("cats-row").style.width = h * 5 + "px";
+  const dock = $("dock");
+  const w = dock.clientWidth || 800, h = dock.clientHeight || 150;
+  // adapt the viewBox width to the real screen so ball + thread + all 5 cats always fit
+  const Wv = Math.max(560, Math.min(1000, (w / h) * 200));
+  $("dock-svg").setAttribute("viewBox", `0 0 ${Wv} 200`);
+  CAT_X = [0, 1, 2, 3, 4].map((i) => 215 + i * ((Wv - 290) / 4));
+  $("cats-row").style.width = (Wv / 200 * h) + "px";
+  CONFIG.cats.order.forEach((id, i) => {
+    const el = catEl(id);
+    if (el) el.style.left = (CAT_X[i] / Wv * 100) + "%";
+  });
   const pile = $("pile-wrap");
   pile.style.left = (BALL.cx - 70) / 200 * h + "px";
   pile.style.width = 140 / 200 * h + "px";
+  drawThreadVisible(lastThreadPx, false);
 }
 window.addEventListener("resize", layoutDock);
 

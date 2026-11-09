@@ -88,9 +88,10 @@ body {
 /* ---- stage scrolls internally; art is absolute z-0, text is flow z-10 ---- */
 #stage {
   position: relative;
-  overflow: hidden; /* pages fit the grid; no scrollbar on the right */
+  overflow-y: auto; /* tall content scrolls inside the stage on phones… */
+  overflow-x: hidden;
   z-index: 0;
-  scrollbar-width: none;
+  scrollbar-width: none; /* …but the scrollbar itself stays invisible */
 }
 #stage::-webkit-scrollbar { display: none; }
 
@@ -183,7 +184,7 @@ button:active { transform: scale(0.98); }
   border-radius: 999px; padding: 3px 11px; font-size: 12px; color: var(--ink);
 }
 .big-icon svg { width: clamp(96px, 20vw, 150px); height: auto; }
-.art-slot svg { width: clamp(200px, 40vw, 300px); height: auto; }
+.art-slot svg { width: clamp(170px, 52vw, 300px); height: auto; }
 
 /* ---- controls row: buttons live only here ---- */
 #controls {
