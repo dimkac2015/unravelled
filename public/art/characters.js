@@ -124,12 +124,13 @@ export function renderCharacter(character, palette) {
   const arch = ARCHETYPES.includes(character.archetype) ? character.archetype : "wanderer";
   const rng = rngFor((character.name || "x") + arch + p.dark);
 
-  // muted flat palette for the figure
+  // muted flat palette for the figure — skin is a real warm tone, never the palette's green
   const bg = p.dark;
   const backdrop = p.mid;
-  const skin = p.light;
-  const skinShade = shade(p.light, 0.82);
-  const hair = shade(p.light, 0.45);
+  const SKINS = ["#eccfae", "#e0b98f", "#d9a878", "#b07a52", "#8a5f42", "#f2d8b8"];
+  const skin = SKINS[Math.floor(rng() * SKINS.length)];
+  const skinShade = shade(skin, 0.82);
+  const hair = shade(p.dark, 1.6);
   const shirt = p.mid;
   const shirtShade = shade(p.mid, 0.8);
   const accent = p.accent;
@@ -164,10 +165,10 @@ export function renderCharacter(character, palette) {
   return `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${character.name || "character"}">
     <rect width="400" height="500" fill="${bg}"/>
     <circle cx="${cx}" cy="${cy + 40}" r="150" fill="${backdrop}"/>
+    <rect x="${cx - 17}" y="${cy + ry - 26}" width="34" height="${cy + ry + 80 - (cy + ry - 26)}" fill="${skin}"/>
     <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} Q ${cx + sw} ${cy + ry + 58} ${cx + sw} 420 L ${cx + sw} 500 Z" fill="${robeCol}"/>
     <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} L ${cx} 500 Z" fill="${shirtShade}" opacity="0.55"/>
     <path d="M ${cx - 26} ${cy + ry - 12} Q ${cx} ${cy + ry + 8} ${cx + 26} ${cy + ry - 12} L ${cx + 20} ${cy + ry + 30} Q ${cx} ${cy + ry + 44} ${cx - 20} ${cy + ry + 30} Z" fill="${shirtShade}"/>
-    <rect x="${cx - 17}" y="${cy + ry - 26}" width="34" height="40" fill="${skin}"/>
     <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${skin}"/>
     <path d="M ${cx + rx * 0.25} ${cy - ry * 0.7} A ${rx} ${ry} 0 0 1 ${cx + rx * 0.9} ${cy + ry * 0.4} L ${cx + rx * 0.55} ${cy + ry * 0.1} A ${rx * 0.62} ${ry * 0.62} 0 0 0 ${cx + rx * 0.18} ${cy - ry * 0.45} Z" fill="${skinShade}" opacity="0.7"/>
     <circle cx="${cx - rx - 4}" cy="${cy + 4}" r="10" fill="${skin}"/><circle cx="${cx + rx + 4}" cy="${cy + 4}" r="10" fill="${skin}"/>

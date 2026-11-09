@@ -249,7 +249,18 @@ const LANGUAGE_RULES = {
   be: "Write all human-readable text fields in natural literary Belarusian in the current official orthography, with real Belarusian words and Belarusian spelling (і, ў, ё/я/е/а per the akanne rules, ч/ц per pronunciation, etc.). Do NOT produce Russian text with Belarusian letters swapped in, and do not invent words — if unsure about a word, use a simpler real Belarusian word. Titles of films and characters: use the established Belarusian title if one exists, otherwise the original title.",
 };
 
-function systemPrompt(lang) {
+function shuffled(arr, seedStr) {
+  let a = 2166136261 >>> 0;
+  for (const c of String(seedStr)) { a ^= c.charCodeAt(0); a = Math.imul(a, 16777619); }
+  const r = () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [copy[i], copy[j]] = [copy[j], copy[i]]; }
+  return copy;
+}
+
+function systemPrompt(lang, seedStr) {
+  const characterBank = shuffled(CHARACTER_BANK, seedStr);
+  const filmBank = shuffled(FILM_BANK, seedStr);
   return `You analyze a Spotify playlist's track list (titles + artists only; no audio features are available, infer mood from artists and titles) and answer with STRICT JSON only, no markdown, matching exactly this schema:
 {
  "energy": 0-1, "valence": 0-1, "darkness": 0-1, "aggression": 0-1,
@@ -271,9 +282,9 @@ PALETTES: ${PALETTES.join(", ")}
 ICONS: ${ICONS.join(", ")}
 ARCHETYPES: ${ARCHETYPES.join(", ")}
 ACTIVITIES: ${ACTIVITIES.join(", ")}
-CHARACTER_BANK: ${CHARACTER_BANK.join(" | ")}
-FILM_BANK: ${FILM_BANK.join(" | ")}
-Rules: pick the character ONLY from CHARACTER_BANK and the movie ONLY from FILM_BANK, copying name/source/title/year exactly (localize the displayed name only if an established translation exists in the requested language). The connection to the playlist must feel natural, not far-fetched. The movie's soundtrack must plausibly be this playlist. Era is a real historical period plus season, or a believable future setting. Activity must be one of the ACTIVITIES ids with a fitting title. The era name must NOT repeat the season word (e.g. never "1970s autumn, autumn" — if the name already contains the season, leave season as is). Mood-to-scene guidance: aggressive/metal -> volcano or thunderstorm in reds and black; fast+happy/nostalgic -> meadow_summer or river in warm yellows and sky blue; lush orchestral folk-gothic (e.g. Hozier) -> forest or autumn_woods in deep greens, moss, amber, mist; slow and sad -> night_city or snowfield in blues and violets; epic and wide -> ocean_ship or mountains; electronic -> space or night_city in neon; dry warm bluesy -> desert. quote_candidates must be copied exactly (song + artist) from the provided track list.
+CHARACTER_BANK: ${characterBank.join(" | ")}
+FILM_BANK: ${filmBank.join(" | ")}
+Rules: pick the character ONLY from CHARACTER_BANK and the movie ONLY from FILM_BANK, copying name/source/title/year exactly (localize the displayed name only if an established translation exists in the requested language). The connection to the playlist must feel natural, not far-fetched. Pick the LEAST OBVIOUS fitting entry — never default to the first names in the list; different playlists should get different characters and films. The movie's soundtrack must plausibly be this playlist. Era is a real historical period plus season, or a believable future setting. Activity must be one of the ACTIVITIES ids with a fitting title. The era name must NOT repeat the season word (e.g. never "1970s autumn, autumn" — if the name already contains the season, leave season as is). Mood-to-scene guidance: aggressive/metal -> volcano or thunderstorm in reds and black; fast+happy/nostalgic -> meadow_summer or river in warm yellows and sky blue; lush orchestral folk-gothic (e.g. Hozier) -> forest or autumn_woods in deep greens, moss, amber, mist; slow and sad -> night_city or snowfield in blues and violets; epic and wide -> ocean_ship or mountains; electronic -> space or night_city in neon; dry warm bluesy -> desert. quote_candidates must be copied exactly (song + artist) from the provided track list.
 LANGUAGE: ${LANGUAGE_RULES[lang] || LANGUAGE_RULES.en} Keep ALL id fields (scene, palette, icon, archetype, scene_id) in English exactly as listed. Song titles, artist names and lyrics are NEVER translated.
 TONE (important): write like a quiet poet, in the style of a warm illustrated demo — scene_title poetic and evocative (e.g. "The Last Ferry Home", "Valley of Unsent Messages"); era.feel one vivid, human sentence; character.why and movie.why short, warm, specific (max 20 words); activity.title short and evocative; mood_words exactly 3 single lowercase mood words; summary one gentle, personal one-liner.`;
 }
@@ -416,7 +427,7 @@ app.post("/api/analyze", async (req, res) => {
         model: MISTRAL_MODEL,
         response_format: { type: "json_object" },
         messages: [
-          { role: "system", content: systemPrompt(lang) },
+          { role: "system", content: systemPrompt(lang, tracks.map((t) => t.title + t.artist).join("|")) },
           { role: "user", content: JSON.stringify({ lang, tracks }) },
         ],
       }),
