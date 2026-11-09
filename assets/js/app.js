@@ -1,73 +1,133 @@
-// unravelled — flow: landing (tap the ball) → analyze → 4 panels → finale
+// unravelled — flow: landing (grab the thread on the ball, or press unravel)
+// → analyze → 4 panels → finale
 
 import { parseSpotifyUrl, buildReading } from "./mood.js";
 import { clientAnalyze } from "./spotify.js";
 import { renderScene, SCENE_FAMILIES } from "./scenes.js";
 import { renderPortrait, renderPoster, renderEraIcon } from "./portraits.js";
 import { yarnBallSvg, threadPileSvg, catSvg } from "./yarn.js";
-import { makeRng } from "./rng.js";
+import { makeRng, escapeXml } from "./rng.js";
 
 const $ = (id) => document.getElementById(id);
 const LOADING_LINES = ["reading the playlist…", "counting the songs…", "feeling the tempo…", "finding a lyric…", "pulling the thread…"];
 
+/* pull-the-thread geometry (pull-layer viewBox is 280x280, ball is centred) */
+const ANCHOR = { x: 206, y: 118 };          // where the thread leaves the ball
+const CURL_END = { x: 238, y: 182 };          // resting tip of the loose thread
+const CURL = `M ${ANCHOR.x} ${ANCHOR.y} Q 246 128 248 164 Q 249 180 238 182`;
+const PULL_DIST = 150;                        // how far you must pull to trigger
+
 let reading = null;
+let dragging = false, finishing = false, pendingParsed = null, currentTip = { ...CURL_END };
 
 /* ---------- landing ---------- */
 $("landing-ball-svg").innerHTML = yarnBallSvg(190);
+setThread(currentTip);
 
-$("link-form").addEventListener("submit", (e) => {
-  e.preventDefault();
-  startUnravel();
-});
-$("landing-ball").addEventListener("click", startUnravel);
+function setThread(tip) {
+  currentTip = tip;
+  const d = threadPath(tip);
+  $("pull-thread").setAttribute("d", d);
+  $("pull-thread-hit").setAttribute("d", d);
+}
 
-function startUnravel() {
+function threadPath(tip) {
+  const mx = (ANCHOR.x + tip.x) / 2, my = (ANCHOR.y + tip.y) / 2;
+  const dist = Math.hypot(tip.x - ANCHOR.x, tip.y - ANCHOR.y);
+  if (dist > 200) {
+    // long pull: add a loop so it reads as yarn unwinding
+    return `M ${ANCHOR.x} ${ANCHOR.y} C ${ANCHOR.x + 60} ${ANCHOR.y - 40}, ${mx - 70} ${my - 60}, ${mx} ${my - 20} ` +
+           `C ${mx + 55} ${my + 30}, ${tip.x - 40} ${tip.y + 40}, ${tip.x} ${tip.y}`;
+  }
+  return `M ${ANCHOR.x} ${ANCHOR.y} C ${ANCHOR.x + 45} ${ANCHOR.y - 25}, ${mx - 35} ${my + 25}, ${mx} ${my} S ${tip.x - 15} ${tip.y + 8}, ${tip.x} ${tip.y}`;
+}
+
+function layerPoint(e) {
+  const rect = $("pull-layer").getBoundingClientRect();
+  return {
+    x: (e.clientX - rect.left) * (280 / rect.width),
+    y: (e.clientY - rect.top) * (280 / rect.height),
+  };
+}
+
+function animateThreadTo(target, ms, done) {
+  const from = { ...currentTip };
+  const t0 = performance.now();
+  (function step(now) {
+    const k = Math.min(1, (now - t0) / ms);
+    const e = 1 - Math.pow(1 - k, 3);
+    setThread({ x: from.x + (target.x - from.x) * e, y: from.y + (target.y - from.y) * e });
+    if (k < 1) requestAnimationFrame(step);
+    else if (done) done();
+  })(t0);
+}
+
+function validParsed() {
   const parsed = parseSpotifyUrl($("playlist-input").value);
   if (!parsed) {
     $("landing-error").textContent = "paste a spotify playlist link first — https://open.spotify.com/playlist/…";
-    return;
+    return null;
   }
   $("landing-error").textContent = "";
-  unravel(parsed);
+  return parsed;
 }
 
-/* thread unwinds out of the ball while the ball spins and shrinks */
-function playUnravelFx() {
-  return new Promise((resolve) => {
-    const ball = $("landing-ball");
-    const fx = $("unravel-fx");
-    const path = $("unravel-thread");
-    const w = window.innerWidth, h = window.innerHeight;
-    const x0 = w / 2;
-    const ballSize = Math.min(190, w * 0.5);
-    const y0 = h - Math.max(h * 0.045, 20) - ballSize / 2;
-    const loops = 5;
-    const up = (y0 - 60) / loops;
-    let d = `M ${x0} ${y0}`;
-    let x = x0, y = y0;
-    for (let i = 0; i < loops; i++) {
-      const nx = x0 + (i % 2 ? -1 : 1) * (50 + i * 16);
-      d += ` C ${x + 90} ${y - up * 0.4}, ${nx - 90} ${y - up * 0.75}, ${nx} ${y - up}`;
-      x = nx; y -= up;
-    }
-    d += ` C ${x + 50} ${y - 30}, ${x0 - 30} ${y - 70}, ${x0} 30`;
-    path.setAttribute("d", d);
-    const len = path.getTotalLength();
-    path.style.transition = "none";
-    path.style.strokeDasharray = String(len);
-    path.style.strokeDashoffset = String(len);
-    fx.classList.remove("hidden");
-    ball.classList.add("spin");
-    void path.getBoundingClientRect();
-    path.style.transition = "stroke-dashoffset 1.15s ease-in";
-    path.style.strokeDashoffset = "0";
-    ball.classList.add("shrink");
-    setTimeout(() => {
-      fx.classList.add("hidden");
-      ball.classList.remove("spin", "shrink");
-      resolve();
-    }, 1350);
-  });
+/* grab the thread on the ball and pull it */
+$("pull-thread-hit").addEventListener("pointerdown", (e) => {
+  const parsed = validParsed();
+  if (!parsed || finishing) return;
+  pendingParsed = parsed;
+  dragging = true;
+  finishing = false;
+  $("landing-ball").classList.add("spin-slow");
+  $("pull-layer").setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+
+$("pull-layer").addEventListener("pointermove", (e) => {
+  if (!dragging || finishing) return;
+  const pt = layerPoint(e);
+  setThread(pt);
+  const dist = Math.hypot(pt.x - ANCHOR.x, pt.y - ANCHOR.y);
+  if (dist > PULL_DIST) finishPull();
+});
+
+function endDrag(e) {
+  if (!dragging || finishing) return;
+  dragging = false;
+  $("landing-ball").classList.remove("spin-slow");
+  animateThreadTo(CURL_END, 350); // spring back
+  setThread(CURL_END);
+}
+$("pull-layer").addEventListener("pointerup", endDrag);
+$("pull-layer").addEventListener("pointercancel", endDrag);
+
+/* the unravel button pulls the thread for you */
+$("link-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const parsed = validParsed();
+  if (!parsed || finishing) return;
+  pendingParsed = parsed;
+  $("landing-ball").classList.add("spin-slow");
+  animateThreadTo({ x: ANCHOR.x - 30, y: -90 }, 1300, finishPull);
+});
+
+/* enough thread pulled: ball unwinds and shrinks, thread flies off, then we read */
+function finishPull() {
+  if (finishing) return;
+  finishing = true;
+  dragging = false;
+  const ball = $("landing-ball");
+  ball.classList.add("shrink");
+  animateThreadTo({ x: ANCHOR.x + 10, y: -140 }, 900, () => setThread({ x: ANCHOR.x + 10, y: -140 }));
+  setTimeout(() => {
+    const parsed = pendingParsed;
+    pendingParsed = null;
+    ball.classList.remove("spin-slow", "shrink");
+    setThread(CURL_END);
+    finishing = false;
+    if (parsed) unravel(parsed);
+  }, 1250);
 }
 
 /* ---------- analyze: server API first, then client-side reading ---------- */
@@ -104,7 +164,6 @@ async function getAnalysis(parsed) {
 }
 
 async function unravel(parsed) {
-  await playUnravelFx();
   showLoading();
   const api = await getAnalysis(parsed);
   const seed = parsed.id + "|" + (api.playlist && api.playlist.name ? api.playlist.name : "");
@@ -146,7 +205,8 @@ function renderJourney(r) {
   $("scene-art").innerHTML = scene.svg;
   $("scene-title").textContent = scene.name;
   $("quote-text").textContent = "“" + r.quote.text + "”";
-  $("quote-cite").textContent = "— “" + r.quote.song + "”" + (r.quote.artist && !r.quote.artist.includes("fallback") ? " · " + r.quote.artist : "");
+  const artist = r.quote.artist && !r.quote.artist.includes("fallback") ? r.quote.artist : "";
+  $("quote-cite").innerHTML = `— <strong>“${escapeXml(r.quote.song)}”</strong>` + (artist ? ` · ${escapeXml(artist)}` : "");
 
   $("era-icon").innerHTML = renderEraIcon(r.era.icon);
   $("era-name").textContent = r.era.name;
@@ -217,4 +277,5 @@ $("btn-again").addEventListener("click", () => {
   $("playlist-input").value = "";
   $("scroller").scrollTo({ top: 0 });
   setStep("landing");
+  setThread(CURL_END);
 });
