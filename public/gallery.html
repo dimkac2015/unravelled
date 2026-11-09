@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>unravelled — art gallery (localhost only)</title>
+<style>
+  body { background: #0b2118; color: #f4f1e8; font-family: -apple-system, Segoe UI, sans-serif; margin: 0; padding: 24px; }
+  h1 { font-family: Georgia, serif; font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin-top: 18px; }
+  .card { background: #10321f; border: 1px solid rgba(244,241,232,.09); border-radius: 14px; padding: 12px; }
+  .card img { width: 100%; border-radius: 8px; display: block; }
+  .meta { font-size: 11px; color: #93b3a2; margin-top: 8px; word-break: break-word; }
+  .score { color: #9fd9b8; font-weight: 700; }
+  button { margin-top: 8px; background: #e8dfc8; color: #0b2118; border: none; border-radius: 8px; padding: 8px 12px; cursor: pointer; min-height: 36px; }
+  .empty { color: #93b3a2; }
+</style>
+</head>
+<body>
+<h1>art gallery <span style="color:#9fd9b8">.</span></h1>
+<p style="color:#93b3a2;font-size:13px">localhost only · everything generated is cached under /cache</p>
+<div class="grid" id="grid"><p class="empty">loading…</p></div>
+<script>
+(async () => {
+  const grid = document.getElementById("grid");
+  try {
+    const r = await fetch("/api/gallery-data");
+    if (!r.ok) { grid.innerHTML = '<p class="empty">gallery unavailable (localhost only): ' + r.status + '</p>'; return; }
+    const items = await r.json();
+    if (!items.length) { grid.innerHTML = '<p class="empty">cache is empty — run a playlist or npm run arttest</p>'; return; }
+    grid.innerHTML = "";
+    for (const it of items) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<img src="${it.url}" alt="${it.page}">
+        <div class="meta"><b>${it.page}</b> · ${it.title || it.playlistId} · <span class="score">score ${it.score ?? "?"}</span></div>
+        <div class="meta">prompt: ${it.prompt}</div>
+        ${it.fix_notes ? `<div class="meta">fix: ${it.fix_notes}</div>` : ""}
+        <button data-id="${it.playlistId}" data-page="${it.page}">Regenerate</button>`;
+      grid.appendChild(card);
+    }
+    grid.querySelectorAll("button").forEach((b) => b.addEventListener("click", async () => {
+      b.disabled = true; b.textContent = "regenerating…";
+      try {
+        await fetch("/api/art/regenerate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ playlistId: b.dataset.id, page: b.dataset.page }) });
+        location.reload();
+      } catch (e) { b.textContent = "failed: " + e.message; }
+    }));
+  } catch (e) {
+    grid.innerHTML = '<p class="empty">error: ' + e.message + '</p>';
+  }
+})();
+</script>
+</body>
+</html>

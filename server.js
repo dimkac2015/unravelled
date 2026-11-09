@@ -1,6 +1,9 @@
 import express from "express";
+import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { startImageJobs, getJob, regeneratePage, galleryData, CONFIG as ART_CONFIG } from "./art/pipeline.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -275,6 +278,7 @@ function systemPrompt(lang, seedStr) {
  "activity": {"title": "short activity name, e.g. 'A night drive with the windows down'", "why": "one sentence, max 20 words", "scene_id": one id from ACTIVITIES},
  "quote_candidates": [3 songs FROM THE GIVEN PLAYLIST that fit the mood: {"song": "...", "artist": "..."}],
  "mood_words": ["one word", "one word", "one word"],
+ "art_briefs": {"scenery": "1-3 sentences of CONCRETE VISUAL description in English", "era": "...", "character": "...", "movie": "...", "activity": "..."},
  "summary": "one line"
 }
 SCENES: ${SCENES.join(", ")}
@@ -286,6 +290,7 @@ CHARACTER_BANK: ${characterBank.join(" | ")}
 FILM_BANK: ${filmBank.join(" | ")}
 Rules: pick the character ONLY from CHARACTER_BANK and the movie ONLY from FILM_BANK, copying name/source/title/year exactly (localize the displayed name only if an established translation exists in the requested language). The connection to the playlist must feel natural, not far-fetched. Pick the LEAST OBVIOUS fitting entry — never default to the first names in the list; different playlists should get different characters and films. The movie's soundtrack must plausibly be this playlist. Era is a real historical period plus season, or a believable future setting. Activity must be one of the ACTIVITIES ids with a fitting title. The era name must NOT repeat the season word (e.g. never "1970s autumn, autumn" — if the name already contains the season, leave season as is). Mood-to-scene guidance: aggressive/metal -> volcano or thunderstorm in reds and black; fast+happy/nostalgic -> meadow_summer or river in warm yellows and sky blue; lush orchestral folk-gothic (e.g. Hozier) -> forest or autumn_woods in deep greens, moss, amber, mist; slow and sad -> night_city or snowfield in blues and violets; epic and wide -> ocean_ship or mountains; electronic -> space or night_city in neon; dry warm bluesy -> desert. quote_candidates must be copied exactly (song + artist) from the provided track list.
 LANGUAGE: ${LANGUAGE_RULES[lang] || LANGUAGE_RULES.en} Keep ALL id fields (scene, palette, icon, archetype, scene_id) in English exactly as listed. Song titles, artist names and lyrics are NEVER translated.
+ART_BRIEFS rules: each art_brief is 1-3 sentences of CONCRETE VISUAL description in English — subject, setting, pose, key props, time of day, weather, mood. NEVER name films, characters, actors, artists, brands or games; describe looks, not names (e.g. "a lanky detective in a rumpled trench coat and fedora, tired eyes, rain on the shoulders"). The picture must be an original illustration inspired by the mood, never a copy of a poster or a real person's likeness.
 TONE (important): write like a quiet poet, in the style of a warm illustrated demo — scene_title poetic and evocative (e.g. "The Last Ferry Home", "Valley of Unsent Messages"); era.feel one vivid, human sentence; character.why and movie.why short, warm, specific (max 20 words); activity.title short and evocative; mood_words exactly 3 single lowercase mood words; summary one gentle, personal one-liner.`;
 }
 
@@ -408,40 +413,135 @@ function sanitizeAnalysis(a, tracks) {
     },
     quote_candidates: candidates.length ? candidates : tracks.slice(0, 3).map((t) => ({ song: t.title, artist: t.artist })),
     mood_words: Array.isArray(a && a.mood_words) ? a.mood_words.filter((w) => typeof w === "string").slice(0, 3) : ["quiet", "warm", "late"],
+    art_briefs: (() => {
+      const d = { scenery: "a calm landscape matching the mood", era: "objects and architecture of the era, still life", character: "a noir portrait of a fitting figure", movie: "a poster-like scene with strong silhouettes", activity: "a person doing the activity, noir light" };
+      const ab = a && typeof a.art_briefs === "object" ? a.art_briefs : {};
+      for (const k of Object.keys(d)) if (typeof ab[k] === "string" && ab[k]) d[k] = ab[k].slice(0, 400);
+      return d;
+    })(),
     summary: typeof (a && a.summary) === "string" ? a.summary : "This playlist has a mood of its own.",
   };
 }
 
+/* ---------------- /api/analyze — English analysis (cached) + localization + image jobs ---------------- */
+
+function playlistIdFor(body, tracks) {
+  const fromUrl = extractPlaylistId(body && (body.url || body.playlistId));
+  if (fromUrl) return fromUrl;
+  if (body && body.playlistId) return String(body.playlistId).slice(0, 64);
+  return crypto.createHash("sha1").update(tracks.map((t) => t.title + "|" + t.artist).join("\n")).digest("hex").slice(0, 16);
+}
+
+const LOC_FIELDS = ["scene_title", "era", "character.why", "movie.why", "activity", "summary"];
+
+async function mistralChat(model, system, user, timeoutMs = 25000) {
+  const r = await fetch("https://api.mistral.ai/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${MISTRAL_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model, response_format: { type: "json_object" }, messages: [{ role: "system", content: system }, { role: "user", content: user }] }),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  if (!r.ok) throw new Error("mistral HTTP " + r.status);
+  const j = await r.json();
+  return (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "";
+}
+
+async function localizeAnalysis(enAnalysis, lang) {
+  if (lang === "en") return enAnalysis;
+  const sys = `Localize ONLY the human-readable text fields of this playlist reading into ${lang}. Return STRICT JSON with the same structure, changing only: scene_title, era.name, era.season, era.feel, character.why, movie.why, activity.title, activity.why, summary. ${LANGUAGE_RULES[lang] || LANGUAGE_RULES.en} Keep ALL ids (scene, palette, icon, archetype, scene_id, art_briefs) and quote_candidates and mood_words EXACTLY unchanged. character.name/movie.title: use the established ${lang} title if one exists, otherwise keep the original. Song titles/artists/lyrics never change.`;
+  const content = await mistralChat(ART_CONFIG.textModel, sys, JSON.stringify(enAnalysis));
+  const parsed = JSON.parse(content);
+  const out = { ...enAnalysis };
+  for (const f of ["scene_title", "summary"]) if (typeof parsed[f] === "string") out[f] = parsed[f];
+  for (const f of ["era", "activity"]) if (parsed[f] && typeof parsed[f] === "object") out[f] = { ...out[f], ...parsed[f] };
+  if (parsed.character) out.character = { ...out.character, name: String(parsed.character.name || out.character.name), why: String(parsed.character.why || out.character.why) };
+  if (parsed.movie) out.movie = { ...out.movie, title: String(parsed.movie.title || out.movie.title), why: String(parsed.movie.why || out.movie.why) };
+  return out;
+}
+
 app.post("/api/analyze", async (req, res) => {
-  const tracks = Array.isArray(req.body && req.body.tracks)
-    ? req.body.tracks.filter((t) => t && t.title && t.artist).slice(0, 100)
-    : [];
-  if (!tracks.length) return res.status(400).json({ ok: false, error: "no tracks" });
-  if (!MISTRAL_KEY) return res.status(503).json({ ok: false, error: "MISTRAL_API_KEY is not configured" });
-  const lang = LANGS.includes(req.body && req.body.lang) ? req.body.lang : "en";
   try {
-    const r = await fetch("https://api.mistral.ai/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${MISTRAL_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: MISTRAL_MODEL,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: systemPrompt(lang, tracks.map((t) => t.title + t.artist).join("|")) },
-          { role: "user", content: JSON.stringify({ lang, tracks }) },
-        ],
-      }),
-      signal: AbortSignal.timeout(25000),
-    });
-    if (!r.ok) throw new Error("mistral HTTP " + r.status);
-    const j = await r.json();
-    const content = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "";
-    const parsed = JSON.parse(content);
-    res.json({ ok: true, analysis: sanitizeAnalysis(parsed, tracks) });
+    const tracks = Array.isArray(req.body && req.body.tracks)
+      ? req.body.tracks.filter((t) => t && t.title && t.artist).slice(0, 100)
+      : [];
+    if (!tracks.length) return res.status(400).json({ ok: false, error: "no tracks" });
+    if (!MISTRAL_KEY) return res.status(503).json({ ok: false, error: "MISTRAL_API_KEY is not configured" });
+    const lang = LANGS.includes(req.body && req.body.lang) ? req.body.lang : "en";
+    const playlistId = playlistIdFor(req.body, tracks);
+    const cacheDir = path.join(ART_CONFIG.cacheDir, playlistId);
+    fs.mkdirSync(cacheDir, { recursive: true });
+
+    // 1) main analysis in English, cached forever per playlist
+    const enFile = path.join(cacheDir, "analysis.json");
+    let enAnalysis = readJsonFile(enFile);
+    if (!enAnalysis) {
+      const content = await mistralChat(MISTRAL_MODEL, systemPrompt("en", tracks.map((t) => t.title + t.artist).join("|")), JSON.stringify({ lang: "en", tracks }));
+      enAnalysis = sanitizeAnalysis(JSON.parse(content), tracks);
+      writeJsonFile(enFile, enAnalysis);
+      console.log("[ART] cached English analysis for", playlistId);
+    }
+
+    // 2) localized texts, cached per language
+    let analysis = enAnalysis;
+    if (lang !== "en") {
+      const locFile = path.join(cacheDir, `analysis.${lang}.json`);
+      const cached = readJsonFile(locFile);
+      if (cached) analysis = cached;
+      else {
+        try {
+          analysis = await localizeAnalysis(enAnalysis, lang);
+          writeJsonFile(locFile, analysis);
+        } catch (e) {
+          console.log("[ART] localization failed, falling back to English:", e.message);
+          analysis = enAnalysis;
+        }
+      }
+    }
+
+    // 3) image jobs in the background, page order; never block the response
+    const jobId = startImageJobs(playlistId, enAnalysis);
+
+    res.json({ ok: true, analysis, jobId, playlistId });
   } catch (e) {
     res.status(502).json({ ok: false, error: String((e && e.message) || e) });
   }
 });
+
+function readJsonFile(f) { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } }
+function writeJsonFile(f, v) { fs.writeFileSync(f, JSON.stringify(v, null, 2)); }
+
+/* ---------------- art job status / regenerate / gallery / cache ---------------- */
+
+app.get("/api/art/:jobId", (req, res) => {
+  const job = getJob(req.params.jobId);
+  if (!job) return res.status(404).json({ ok: false, error: "unknown job" });
+  res.json({ ok: true, ...job });
+});
+
+const isLocal = (req) => req.ip === "127.0.0.1" || req.ip === "::1" || req.ip === "::ffff:127.0.0.1";
+
+app.post("/api/art/regenerate", async (req, res) => {
+  if (!isLocal(req)) return res.status(403).json({ ok: false, error: "localhost only" });
+  try {
+    const { playlistId, page } = req.body || {};
+    const result = await regeneratePage(String(playlistId), String(page));
+    res.json({ ok: true, result });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String((e && e.message) || e) });
+  }
+});
+
+app.get("/gallery", (req, res) => {
+  if (!isLocal(req)) return res.status(403).send("localhost only");
+  res.sendFile(path.join(__dirname, "public", "gallery.html"));
+});
+
+app.get("/api/gallery-data", (req, res) => {
+  if (!isLocal(req)) return res.status(403).json({ ok: false, error: "localhost only" });
+  res.json(galleryData());
+});
+
+app.use("/cache", express.static(ART_CONFIG.cacheDir, { maxAge: "30d", setHeaders: (res) => res.setHeader("Cache-Control", "public, max-age=2592000, immutable") }));
 
 /* ---------------- /api/quote — one short line via keyless lyrics.ovh ---------------- */
 
