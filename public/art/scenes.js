@@ -274,7 +274,26 @@ export function renderScene(sceneId, palette) {
   const p = palette || PALETTES.golden_hour;
   const fn = SCENE_FNS[sceneId] || SCENE_FNS.meadow_summer;
   const rng = makeRng(sceneId + "|" + JSON.stringify(p));
-  return fn(p, rng, Math.abs([...sceneId].reduce((a, c) => a + c.charCodeAt(0), 0)) % 9999);
+  let svg = fn(p, rng, Math.abs([...sceneId].reduce((a, c) => a + c.charCodeAt(0), 0)) % 9999);
+  // extra detail pass on every scene: more birds, foreground tufts/texture, drifting motes
+  let extra = "";
+  if (!["space", "night_city", "thunderstorm"].includes(sceneId)) {
+    extra += birds(p, rng, 2 + Math.floor(rng() * 3));
+  }
+  if (["space", "night_city"].includes(sceneId)) {
+    for (let i = 0; i < 12; i++) extra += `<circle cx="${rng() * 800}" cy="${rng() * 900}" r="${1 + rng() * 1.8}" fill="${p.highlight}" opacity="${0.3 + rng() * 0.5}"/>`;
+  }
+  for (let i = 0; i < 16; i++) {
+    const x = rng() * 800, y = 930 + rng() * 60;
+    extra += `<path d="M ${x} ${y} q 3 -12 6 0 M ${x + 8} ${y} q 3 -9 5 0" stroke="${p.dark}" stroke-width="3" fill="none" opacity="0.6" stroke-linecap="round"/>`;
+  }
+  if (["meadow_summer", "lavender_fields", "autumn_woods", "forest"].includes(sceneId)) {
+    for (let i = 0; i < 22; i++) extra += `<circle cx="${rng() * 800}" cy="${840 + rng() * 140}" r="${2.5 + rng() * 3.5}" fill="${p.accent}" opacity="0.75"/>`;
+  }
+  if (sceneId === "thunderstorm") {
+    for (let i = 0; i < 24; i++) extra += `<line x1="${rng() * 800}" y1="${rng() * 500}" x2="${rng() * 800 - 24}" y2="${300 + rng() * 600}" stroke="${p.light}" stroke-width="2" opacity="0.4"/>`;
+  }
+  return svg.replace("</svg>", extra + "</svg>");
 }
 
 /* ---------------- era icons (Stage 3): 12 simple line icons ---------------- */

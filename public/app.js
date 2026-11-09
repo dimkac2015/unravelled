@@ -232,11 +232,16 @@ function drawThreadVisible(px, animate) {
     hit.setAttribute("id", "pull-hit");
     $("dock-svg").appendChild(hit);
     hit.addEventListener("pointerdown", onPullStart);
+    hit.addEventListener("click", () => {
+      if (state.step === 0) startUnravel();
+      else if (state.step < N_PAGES) showPage(state.step + 1);
+    });
   }
   const a = ballAttach();
   const endX = Math.min(985, a.x + Math.max(px, 60));
   hit.setAttribute("d", `M ${a.x} ${a.y} Q ${a.x + (endX - a.x) / 2} ${a.y + 26} ${endX} 188`);
-  hit.classList.toggle("hidden", state.step !== 0);
+  // the thread is clickable on EVERY page (front: start; pages: next)
+  hit.classList.remove("hidden");
 }
 
 function drawThread(upto, animate) {
@@ -388,9 +393,12 @@ document.addEventListener("pointerup", (e) => {
     state.threadLen = 150;
     drawThreadVisible(150, true);
   }
-  if (ballTap && state.step === 0) {
+  if (ballTap) {
     const moved = Math.hypot(e.clientX - ballTap.x, e.clientY - ballTap.y);
-    if (moved < 14 && performance.now() - ballTap.t < 600) startUnravel();
+    if (moved < 14 && performance.now() - ballTap.t < 600) {
+      if (state.step === 0) startUnravel();
+      else if (state.step < N_PAGES) showPage(state.step + 1); // ball click advances on every page
+    }
   }
   ballTap = null;
 });
@@ -512,10 +520,16 @@ function renderAllPages() {
     <div id="quote-block"></div>`;
   renderQuote();
 
+  // never print the season twice: "1970s autumn, autumn" must not happen
+  const eraName = String(a.era.name || "");
+  const eraSeason = String(a.era.season || "");
+  const eraHeading = eraSeason && eraName.toLowerCase().includes(eraSeason.toLowerCase())
+    ? eraName
+    : (eraName ? `${eraName}, ${eraSeason}` : eraSeason);
   $("panel-2").innerHTML = `
     <p class="kicker">${t("pageEra")}</p>
     <div class="big-icon">${renderIcon(a.era.icon, pal.accent)}</div>
-    <h2>${esc(a.era.name)}, ${esc(a.era.season)}</h2>
+    <h2>${esc(eraHeading)}</h2>
     <p class="feel">${esc(a.era.feel)}</p>`;
   $("panel-2").style.background = pal.dark + "d9";
 
