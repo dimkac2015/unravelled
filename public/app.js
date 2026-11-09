@@ -171,9 +171,9 @@ function buildPile() {
   let s = `<svg viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">`;
   for (let i = 0; i < 8; i++) {
     const rx = 58 - i * 6, ry = 19 - i * 2, rot = (i * 47) % 60 - 30;
-    s += `<ellipse cx="70" cy="${118 - i * 3}" rx="${rx}" ry="${ry}" transform="rotate(${rot} 70 ${118 - i * 3})" fill="none" stroke="#f4efe3" stroke-width="4" stroke-linecap="round"/>`;
+    s += `<ellipse cx="70" cy="${118 - i * 3}" rx="${rx}" ry="${ry}" transform="rotate(${rot} 70 ${118 - i * 3})" fill="none" stroke="#e8dfc8" stroke-width="4" stroke-linecap="round"/>`;
   }
-  s += `<path d="M 118 84 Q 136 78 138 96" fill="none" stroke="#f4efe3" stroke-width="4" stroke-linecap="round"/></svg>`;
+  s += `<path d="M 118 84 Q 136 78 138 96" fill="none" stroke="#e8dfc8" stroke-width="4" stroke-linecap="round"/></svg>`;
   $("pile-wrap").innerHTML = s;
 }
 
@@ -517,6 +517,7 @@ function renderAllPages() {
   $("panel-1").innerHTML = `
     <p class="kicker">${t("pageScenery")}</p>
     <h2>${esc(a.scene_title)}</h2>
+    <div class="words">${(a.mood_words || []).map((w) => `<span>${esc(w)}</span>`).join("")}</div>
     <div id="quote-block"></div>`;
   renderQuote();
 

@@ -263,6 +263,7 @@ function systemPrompt(lang) {
  "note": "character MUST be one entry of CHARACTER_BANK (name and source exactly as listed, in the requested language for the name if a localized form exists); movie MUST be one entry of FILM_BANK (title and year exactly as listed)",
  "activity": {"title": "short activity name, e.g. 'A night drive with the windows down'", "why": "one sentence, max 20 words", "scene_id": one id from ACTIVITIES},
  "quote_candidates": [3 songs FROM THE GIVEN PLAYLIST that fit the mood: {"song": "...", "artist": "..."}],
+ "mood_words": ["one word", "one word", "one word"],
  "summary": "one line"
 }
 SCENES: ${SCENES.join(", ")}
@@ -273,7 +274,8 @@ ACTIVITIES: ${ACTIVITIES.join(", ")}
 CHARACTER_BANK: ${CHARACTER_BANK.join(" | ")}
 FILM_BANK: ${FILM_BANK.join(" | ")}
 Rules: pick the character ONLY from CHARACTER_BANK and the movie ONLY from FILM_BANK, copying name/source/title/year exactly (localize the displayed name only if an established translation exists in the requested language). The connection to the playlist must feel natural, not far-fetched. The movie's soundtrack must plausibly be this playlist. Era is a real historical period plus season, or a believable future setting. Activity must be one of the ACTIVITIES ids with a fitting title. The era name must NOT repeat the season word (e.g. never "1970s autumn, autumn" — if the name already contains the season, leave season as is). Mood-to-scene guidance: aggressive/metal -> volcano or thunderstorm in reds and black; fast+happy/nostalgic -> meadow_summer or river in warm yellows and sky blue; lush orchestral folk-gothic (e.g. Hozier) -> forest or autumn_woods in deep greens, moss, amber, mist; slow and sad -> night_city or snowfield in blues and violets; epic and wide -> ocean_ship or mountains; electronic -> space or night_city in neon; dry warm bluesy -> desert. quote_candidates must be copied exactly (song + artist) from the provided track list.
-LANGUAGE: ${LANGUAGE_RULES[lang] || LANGUAGE_RULES.en} Keep ALL id fields (scene, palette, icon, archetype, scene_id) in English exactly as listed. Song titles, artist names and lyrics are NEVER translated.`;
+LANGUAGE: ${LANGUAGE_RULES[lang] || LANGUAGE_RULES.en} Keep ALL id fields (scene, palette, icon, archetype, scene_id) in English exactly as listed. Song titles, artist names and lyrics are NEVER translated.
+TONE (important): write like a quiet poet, in the style of a warm illustrated demo — scene_title poetic and evocative (e.g. "The Last Ferry Home", "Valley of Unsent Messages"); era.feel one vivid, human sentence; character.why and movie.why short, warm, specific (max 20 words); activity.title short and evocative; mood_words exactly 3 single lowercase mood words; summary one gentle, personal one-liner.`;
 }
 
 /* ---------------- /api/playlist — read track list without any Spotify keys ---------------- */
@@ -394,6 +396,7 @@ function sanitizeAnalysis(a, tracks) {
       scene_id: ACTIVITIES.includes(activity.scene_id) ? activity.scene_id : "working_late",
     },
     quote_candidates: candidates.length ? candidates : tracks.slice(0, 3).map((t) => ({ song: t.title, artist: t.artist })),
+    mood_words: Array.isArray(a && a.mood_words) ? a.mood_words.filter((w) => typeof w === "string").slice(0, 3) : ["quiet", "warm", "late"],
     summary: typeof (a && a.summary) === "string" ? a.summary : "This playlist has a mood of its own.",
   };
 }

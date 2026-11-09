@@ -44,15 +44,22 @@ function wrap(inner) {
 }
 
 function skyGrad(p, uid, horizon = 0.62) {
-  return `<defs><linearGradient id="sky${uid}" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="${p.dark}"/><stop offset="${horizon}" stop-color="${p.mid}"/>
-    <stop offset="${horizon}" stop-color="${p.light}"/><stop offset="1" stop-color="${p.light}"/>
-  </linearGradient></defs><rect width="800" height="1000" fill="url(#sky${uid})"/>`;
+  // soft demo-style gradient: dark -> mid -> horizon glow band
+  return `<defs>
+    <linearGradient id="sky${uid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${p.dark}"/><stop offset="${horizon * 0.85}" stop-color="${p.mid}"/>
+      <stop offset="${horizon}" stop-color="${p.light}"/><stop offset="1" stop-color="${p.light}"/>
+    </linearGradient>
+    <radialGradient id="glowS" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="${p.accent}" stop-opacity="0.5"/><stop offset="100%" stop-color="${p.accent}" stop-opacity="0"/>
+    </radialGradient>
+  </defs><rect width="800" height="1000" fill="url(#sky${uid})"/>`;
 }
 
-function sun(p, rng, x, y, r, color) {
-  return `<circle cx="${x ?? rng() * 800}" cy="${y ?? 180 + rng() * 160}" r="${r ?? 46 + rng() * 22}" fill="${color || p.accent}"/>
-          <circle cx="${x ?? 0}" cy="${y ?? 0}" r="0" fill="none"/>`;
+function sun(p, rng, x, y, r, color, uid = "") {
+  const cx = x ?? rng() * 800, cy = y ?? 180 + rng() * 160, rr = r ?? 46 + rng() * 22;
+  return `<circle cx="${cx}" cy="${cy}" r="${rr * 2.6}" fill="url(#glowS)"/>
+          <circle cx="${cx}" cy="${cy}" r="${rr}" fill="${color || p.accent}"/>`;
 }
 
 function moon(p, rng, x, y, r) {
