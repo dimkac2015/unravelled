@@ -199,7 +199,7 @@ button:hover { filter: brightness(1.08); }
 /* inner group: rotation only, around the exact centre of the ball */
 #ball-spin { transform-box: fill-box; transform-origin: 50% 50%; }
 
-#cats-row { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; pointer-events: none; }
+#cats-row { position: absolute; left: 0; bottom: 0; height: 100%; pointer-events: none; } /* width set in JS to match dock-svg coordinate space */
 .cat {
   position: absolute;
   bottom: 0;
@@ -216,13 +216,10 @@ button:hover { filter: brightness(1.08); }
 /* thread pile sits IN FRONT of the cats (they walk behind it) */
 #pile-wrap {
   position: absolute;
-  left: 2.5%;
   bottom: 0;
-  width: 14%;
-  max-width: 150px;
   z-index: 5;
   pointer-events: none;
-}
+} /* left/width set in JS to match the ball's spot in dock-svg coords */
 #pile-wrap svg { width: 100%; height: auto; display: block; }
 
 /* small name label on hover/tap only */

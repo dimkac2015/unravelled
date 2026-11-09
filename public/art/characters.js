@@ -29,20 +29,67 @@ function shade(hex, f) {
   return `rgb(${r},${g},${b})`;
 }
 
-/* archetype → hat, anchored to the head (cx, top, rx) */
-function hat(arch, cx, top, rx, hair, accent, hi) {
-  switch (arch) {
-    case "detective": return `<rect x="${cx - rx - 10}" y="${top + 6}" width="${(rx + 10) * 2}" height="13" rx="6" fill="${hair}"/><path d="M ${cx - 34} ${top + 8} L ${cx - 28} ${top - 44} L ${cx + 28} ${top - 44} L ${cx + 34} ${top + 8} Z" fill="${hair}"/><rect x="${cx - 30}" y="${top - 6}" width="60" height="9" fill="${accent}"/>`;
-    case "cowboy": return `<ellipse cx="${cx}" cy="${top + 10}" rx="${rx + 24}" ry="11" fill="${hair}"/><path d="M ${cx - 30} ${top + 8} Q ${cx - 26} ${top - 34} ${cx} ${top - 36} Q ${cx + 26} ${top - 34} ${cx + 30} ${top + 8} Z" fill="${hair}"/><path d="M ${cx - 26} ${top - 12} L ${cx + 26} ${top - 12}" stroke="${accent}" stroke-width="7"/>`;
-    case "witch": return `<path d="M ${cx} ${top - 96} Q ${cx + 8} ${top - 30} ${cx + rx + 4} ${top + 10} L ${cx - rx - 4} ${top + 10} Q ${cx - 8} ${top - 30} ${cx} ${top - 96} Z" fill="${hair}"/><ellipse cx="${cx}" cy="${top + 10}" rx="${rx + 12}" ry="9" fill="${hair}"/><path d="M ${cx - rx + 10} ${top - 2} L ${cx + rx - 10} ${top - 2}" stroke="${accent}" stroke-width="7"/>`;
-    case "soldier": return `<path d="M ${cx - rx + 4} ${top + 10} L ${cx - rx + 10} ${top - 30} L ${cx + rx - 10} ${top - 30} L ${cx + rx - 4} ${top + 10} Z" fill="${hair}"/><rect x="${cx - rx - 8}" y="${top + 6}" width="${(rx + 8) * 2}" height="9" rx="4" fill="${hair}"/><circle cx="${cx}" cy="${top - 16}" r="6" fill="${accent}"/>`;
-    case "rebel": return `<path d="M ${cx - rx - 2} ${top + 26} Q ${cx} ${top - 6} ${cx + rx + 2} ${top + 26} L ${cx + rx + 2} ${top + 40} Q ${cx} ${top + 12} ${cx - rx - 2} ${top + 40} Z" fill="${accent}"/>`;
-    case "clown": return `<path d="M ${cx} ${top - 48} L ${cx + 13} ${top + 2} L ${cx - 13} ${top + 2} Z" fill="${accent}"/><circle cx="${cx}" cy="${top - 50}" r="7" fill="${hi}"/>`;
-    case "scientist": return `<path d="M ${cx - rx} ${top + 14} Q ${cx} ${top - 14} ${cx + rx} ${top + 14} L ${cx + rx} ${top + 26} Q ${cx} ${top} ${cx - rx} ${top + 26} Z" fill="${hair}"/><circle cx="${cx - 17}" cy="${top + 34}" r="12" fill="none" stroke="${hi}" stroke-width="5"/><circle cx="${cx + 17}" cy="${top + 34}" r="12" fill="none" stroke="${hi}" stroke-width="5"/><line x1="${cx - 5}" y1="${top + 34}" x2="${cx + 5}" y2="${top + 34}" stroke="${hi}" stroke-width="5"/>`;
-    case "noble": return `<path d="M ${cx - rx + 6} ${top + 12} L ${cx - rx + 6} ${top - 18} L ${cx - rx / 2} ${top} L ${cx} ${top - 28} L ${cx + rx / 2} ${top} L ${cx + rx - 6} ${top - 18} L ${cx + rx - 6} ${top + 12} Z" fill="${accent}"/>`;
-    case "wanderer": return `<path d="M ${cx} ${top - 52} Q ${cx - rx - 14} ${top + 8} ${cx - rx - 4} ${top + 90} L ${cx - rx + 14} ${top + 90} Q ${cx - rx + 6} ${top + 30} ${cx} ${top + 16} Q ${cx + rx - 6} ${top + 30} ${cx + rx + 4} ${top + 90} L ${cx + rx + 4} ${top + 90} Q ${cx + rx + 14} ${top + 8} ${cx} ${top - 52} Z" fill="${hair}"/>`;
-    default: return `<path d="M ${cx - rx} ${top + 16} Q ${cx - rx + 4} ${top - 12} ${cx} ${top - 14} Q ${cx + rx - 4} ${top - 12} ${cx + rx} ${top + 16} Q ${cx} ${top + 2} ${cx - rx} ${top + 16} Z" fill="${hair}"/>`;
+/* signature look per well-known character (matched by name), so each one is
+   recognizable: hair shape + hat + glasses */
+const FEATURES = [
+  { match: "wednesday", hair: "braids" },
+  { match: "amelie", hair: "bob", amelie: true },
+  { match: "lisbeth", hair: "mohawk", pierce: true },
+  { match: "dude", hair: "long", glasses: "sun", robe: true },
+  { match: "mia", hair: "bun" },
+  { match: "eleven", hair: "buzz", hat: "hood" },
+  { match: "forrest", hair: "flat", hat: "cap" },
+  { match: "napoleon", hair: "curly", hat: "cap", glasses: "round" },
+  { match: "paddington", hat: "redhat" },
+  { match: "walter", hair: "sidepart", hat: "beanie", glasses: "round" },
+  { match: "ron", hair: "mustache" },
+  { match: "chihiro", hair: "ponytail", hat: "ribbon" },
+];
+
+function featureFor(name) {
+  const n = String(name || "").toLowerCase();
+  return FEATURES.find((f) => n.includes(f.match)) || null;
+}
+
+/* hair shapes anchored to the head (cx, top, rx) */
+function hairShape(kind, cx, top, rx, color) {
+  switch (kind) {
+    case "braids": return `<path d="M ${cx - rx} ${top + 20} Q ${cx - rx - 8} ${top + 90} ${cx - rx + 14} ${top + 130} L ${cx - rx + 30} ${top + 126} Q ${cx - rx + 12} ${top + 86} ${cx - rx + 16} ${top + 26} Z" fill="${color}"/>
+      <path d="M ${cx + rx} ${top + 20} Q ${cx + rx + 8} ${top + 90} ${cx + rx - 14} ${top + 130} L ${cx + rx - 30} ${top + 126} Q ${cx + rx - 12} ${top + 86} ${cx + rx - 16} ${top + 26} Z" fill="${color}"/>
+      <path d="M ${cx - rx} ${top + 18} Q ${cx} ${top - 16} ${cx + rx} ${top + 18} L ${cx + rx} ${top + 40} Q ${cx} ${top + 6} ${cx - rx} ${top + 40} Z" fill="${color}"/>`;
+    case "bob": return `<path d="M ${cx - rx - 4} ${top + 60} Q ${cx - rx - 8} ${top - 10} ${cx} ${top - 14} Q ${cx + rx + 8} ${top - 10} ${cx + rx + 4} ${top + 60} L ${cx + rx - 14} ${top + 58} Q ${cx + rx - 8} ${top + 10} ${cx} ${top + 6} Q ${cx - rx + 8} ${top + 10} ${cx - rx + 14} ${top + 58} Z" fill="${color}"/>`;
+    case "mohawk": return `<path d="M ${cx - 14} ${top - 34} L ${cx} ${top - 52} L ${cx + 14} ${top - 34} L ${cx + 12} ${top + 6} Q ${cx} ${top - 12} ${cx - 12} ${top + 6} Z" fill="${color}"/>
+      <path d="M ${cx - rx} ${top + 14} Q ${cx} ${top - 14} ${cx + rx} ${top + 14} L ${cx + rx} ${top + 30} Q ${cx} ${top + 2} ${cx - rx} ${top + 30} Z" fill="${color}"/>`;
+    case "long": return `<path d="M ${cx - rx} ${top + 16} Q ${cx - rx - 6} ${top + 120} ${cx - rx + 16} ${top + 150} L ${cx - rx + 34} ${top + 146} Q ${cx - rx + 18} ${top + 110} ${cx - rx + 12} ${top + 30} Q ${cx} ${top} ${cx + rx - 12} ${top + 30} Q ${cx + rx - 18} ${top + 110} ${cx + rx - 34} ${top + 146} L ${cx + rx - 16} ${top + 150} Q ${cx + rx + 6} ${top + 120} ${cx + rx} ${top + 16} Q ${cx} ${top - 14} ${cx - rx} ${top + 16} Z" fill="${color}"/>`;
+    case "bun": return `<circle cx="${cx}" cy="${top - 16}" r="16" fill="${color}"/><path d="M ${cx - rx} ${top + 16} Q ${cx} ${top - 14} ${cx + rx} ${top + 16} L ${cx + rx} ${top + 34} Q ${cx} ${top + 4} ${cx - rx} ${top + 34} Z" fill="${color}"/>`;
+    case "buzz": return `<path d="M ${cx - rx + 4} ${top + 10} Q ${cx} ${top - 18} ${cx + rx - 4} ${top + 10} L ${cx + rx - 4} ${top + 22} Q ${cx} ${top} ${cx - rx + 4} ${top + 22} Z" fill="${color}"/>`;
+    case "flat": return `<path d="M ${cx - rx} ${top + 12} L ${cx + rx} ${top + 12} L ${cx + rx - 6} ${top - 8} Q ${cx} ${top - 18} ${cx - rx + 6} ${top - 8} Z" fill="${color}"/>`;
+    case "curly": return `<g fill="${color}">${[-0.7, -0.35, 0, 0.35, 0.7].map(o => `<circle cx="${cx + o * rx}" cy="${top + 2 - Math.abs(o) * -8}" r="15"/>`).join("")}</g><path d="M ${cx - rx} ${top + 18} Q ${cx} ${top - 6} ${cx + rx} ${top + 18} L ${cx + rx} ${top + 30} Q ${cx} ${top + 8} ${cx - rx} ${top + 30} Z" fill="${color}"/>`;
+    case "ponytail": return `<path d="M ${cx - rx} ${top + 16} Q ${cx} ${top - 14} ${cx + rx} ${top + 16} L ${cx + rx} ${top + 32} Q ${cx} ${top + 4} ${cx - rx} ${top + 32} Z" fill="${color}"/><path d="M ${cx + rx - 6} ${top + 10} Q ${cx + rx + 26} ${top + 60} ${cx + rx + 8} ${top + 120} Q ${cx + rx - 6} ${top + 112} ${cx + rx + 2} ${top + 60} Q ${cx + rx - 2} ${top + 34} ${cx + rx - 10} ${top + 18} Z" fill="${color}"/>`;
+    case "sidepart": return `<path d="M ${cx - rx} ${top + 14} Q ${cx - rx + 6} ${top - 12} ${cx} ${top - 14} Q ${cx + rx - 4} ${top - 12} ${cx + rx} ${top + 20} L ${cx + rx - 12} ${top + 16} Q ${cx + rx - 14} ${top - 2} ${cx - 8} ${top + 2} Q ${cx - rx + 6} ${top + 4} ${cx - rx + 12} ${top + 22} Z" fill="${color}"/>`;
+    default: return `<path d="M ${cx - rx} ${top + 16} Q ${cx} ${top - 14} ${cx + rx} ${top + 16} L ${cx + rx} ${top + 32} Q ${cx} ${top + 2} ${cx - rx} ${top + 32} Z" fill="${color}"/>`;
   }
+}
+
+/* hats anchored to the head (cx, top, rx) */
+function hat(kind, cx, top, rx, hair, accent, hi) {
+  const brimY = top + 12;
+  switch (kind) {
+    case "cap": return `<ellipse cx="${cx}" cy="${brimY}" rx="${rx + 18}" ry="9" fill="${hair}"/><path d="M ${cx - 30} ${brimY - 2} Q ${cx - 26} ${top - 34} ${cx} ${top - 36} Q ${cx + 26} ${top - 34} ${cx + 30} ${brimY - 2} Z" fill="${hair}"/><rect x="${cx + 18}" y="${brimY - 4}" width="28" height="8" rx="4" fill="${hair}"/>`;
+    case "redhat": return `<path d="M ${cx - 30} ${brimY - 2} Q ${cx - 26} ${top - 40} ${cx} ${top - 42} Q ${cx + 26} ${top - 40} ${cx + 30} ${brimY - 2} Z" fill="${accent}"/><rect x="${cx - rx - 12}" y="${brimY - 4}" width="${(rx + 12) * 2}" height="10" rx="5" fill="${accent}"/><circle cx="${cx}" cy="${top - 44}" r="7" fill="${hi}"/>`;
+    case "beanie": return `<path d="M ${cx - rx + 4} ${brimY} Q ${cx - rx + 8} ${top - 30} ${cx} ${top - 32} Q ${cx + rx - 8} ${top - 30} ${cx + rx - 4} ${brimY} Z" fill="${hair}"/><rect x="${cx - rx - 2}" y="${brimY - 8}" width="${(rx + 2) * 2}" height="12" rx="6" fill="${hair}"/>`;
+    case "hood": return `<path d="M ${cx} ${top - 46} Q ${cx - rx - 14} ${top + 4} ${cx - rx - 4} ${top + 100} L ${cx - rx + 14} ${top + 100} Q ${cx - rx + 6} ${top + 34} ${cx} ${top + 20} Q ${cx + rx - 6} ${top + 34} ${cx + rx + 4} ${top + 100} L ${cx + rx + 4} ${top + 100} Q ${cx + rx + 14} ${top + 4} ${cx} ${top - 46} Z" fill="${hair}"/>`;
+    case "ribbon": return `<path d="M ${cx - 12} ${top - 6} L ${cx} ${top - 20} L ${cx + 12} ${top - 6} L ${cx + 5} ${top + 4} L ${cx - 5} ${top + 4} Z" fill="${accent}"/>`;
+    default: return "";
+  }
+}
+
+const ARCH_HAT = { detective: "cap", soldier: "cap", cowboy: "cap", noble: "ribbon", wanderer: "hood" };
+
+function glasses(kind, cx, cy, ink, hi) {
+  if (kind === "sun") return `<g><rect x="${cx - 34}" y="${cy - 14}" width="26" height="16" rx="6" fill="${ink}"/><rect x="${cx + 8}" y="${cy - 14}" width="26" height="16" rx="6" fill="${ink}"/><line x1="${cx - 8}" y1="${cy - 8}" x2="${cx + 8}" y2="${cy - 8}" stroke="${ink}" stroke-width="4"/><line x1="${cx - 34}" y1="${cy - 10}" x2="${cx - 44}" y2="${cy - 14}" stroke="${ink}" stroke-width="4"/><line x1="${cx + 34}" y1="${cy - 10}" x2="${cx + 44}" y2="${cy - 14}" stroke="${ink}" stroke-width="4"/></g>`;
+  if (kind === "round") return `<g fill="none" stroke="${ink}" stroke-width="4"><circle cx="${cx - 20}" cy="${cy - 6}" r="13"/><circle cx="${cx + 20}" cy="${cy - 6}" r="13"/><line x1="${cx - 7}" y1="${cy - 6}" x2="${cx + 7}" y2="${cy - 6}"/></g><circle cx="${cx - 20}" cy="${cy - 6}" r="4" fill="${ink}"/><circle cx="${cx + 20}" cy="${cy - 6}" r="4" fill="${ink}"/>`;
+  return "";
 }
 
 export function renderCharacter(character, palette) {
@@ -68,21 +115,39 @@ export function renderCharacter(character, palette) {
   const shirtCol = rng() > 0.5 ? shirt : shade(shirt, 0.85);
   const sw = 96 + rng() * 16; // shoulder half-width
 
+  // signature look of a known character, else archetype hat
+  const feat = featureFor(character.name);
+  const hairKind = feat && feat.hair && feat.hair !== "mustache" ? feat.hair : "default";
+  const hatKind = feat && feat.hat ? feat.hat : (ARCH_HAT[arch] || null);
+  const glassesKind = feat && feat.glasses ? feat.glasses : null;
+  const mustache = feat && feat.hair === "mustache";
+  const robe = feat && feat.robe;
+  const pierce = feat && feat.pierce;
+  const hairDraw = mustache ? "" : hairShape(hairKind, cx, top, rx, hair);
+  const glassesDraw = glasses(glassesKind, cx, cy, ink, p.highlight);
+  const mustacheDraw = mustache ? `<path d="M ${cx - 16} ${cy + 28} Q ${cx} ${cy + 18} ${cx + 16} ${cy + 28} Q ${cx} ${cy + 38} ${cx - 16} ${cy + 28} Z" fill="${hair}"/>` : "";
+  const robeCol = robe ? p.highlight : shirtCol;
+
   return `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${character.name || "character"}">
     <rect width="400" height="500" fill="${bg}"/>
     <circle cx="${cx}" cy="${cy + 40}" r="150" fill="${backdrop}"/>
-    <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} Q ${cx + sw} ${cy + ry + 58} ${cx + sw} 420 L ${cx + sw} 500 Z" fill="${shirtCol}"/>
+    <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} Q ${cx + sw} ${cy + ry + 58} ${cx + sw} 420 L ${cx + sw} 500 Z" fill="${robeCol}"/>
     <path d="M ${cx - sw} 500 L ${cx - sw} 420 Q ${cx - sw} ${cy + ry + 58} ${cx} ${cy + ry + 58} L ${cx} 500 Z" fill="${shirtShade}" opacity="0.55"/>
     <path d="M ${cx - 26} ${cy + ry - 12} Q ${cx} ${cy + ry + 8} ${cx + 26} ${cy + ry - 12} L ${cx + 20} ${cy + ry + 30} Q ${cx} ${cy + ry + 44} ${cx - 20} ${cy + ry + 30} Z" fill="${shirtShade}"/>
     <rect x="${cx - 17}" y="${cy + ry - 26}" width="34" height="40" fill="${skin}"/>
     <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${skin}"/>
     <path d="M ${cx + rx * 0.25} ${cy - ry * 0.7} A ${rx} ${ry} 0 0 1 ${cx + rx * 0.9} ${cy + ry * 0.4} L ${cx + rx * 0.55} ${cy + ry * 0.1} A ${rx * 0.62} ${ry * 0.62} 0 0 0 ${cx + rx * 0.18} ${cy - ry * 0.45} Z" fill="${skinShade}" opacity="0.7"/>
     <circle cx="${cx - rx - 4}" cy="${cy + 4}" r="10" fill="${skin}"/><circle cx="${cx + rx + 4}" cy="${cy + 4}" r="10" fill="${skin}"/>
-    <circle cx="${cx - 20}" cy="${cy - 6}" r="5.5" fill="${ink}"/><circle cx="${cx + 20}" cy="${cy - 6}" r="5.5" fill="${ink}"/>
+    <circle cx="${cx - 20}" cy="${cy - 6}" r="6.5" fill="${ink}"/><circle cx="${cx + 20}" cy="${cy - 6}" r="6.5" fill="${ink}"/>
+    <circle cx="${cx - 22}" cy="${cy - 8}" r="2" fill="${p.highlight}"/><circle cx="${cx + 18}" cy="${cy - 8}" r="2" fill="${p.highlight}"/>
+    ${glassesDraw}
     <path d="M ${cx - 26} ${cy - 22} Q ${cx - 20} ${cy - 26} ${cx - 14} ${cy - 23} M ${cx + 14} ${cy - 23} Q ${cx + 20} ${cy - 26} ${cx + 26} ${cy - 22}" stroke="${ink}" stroke-width="4" fill="none" stroke-linecap="round"/>
     <path d="M ${cx} ${cy + 2} Q ${cx + 6} ${cy + 16} ${cx - 2} ${cy + 22} Q ${cx - 8} ${cy + 16} ${cx} ${cy + 2} Z" fill="${skinShade}"/>
+    ${mustacheDraw}
     <path d="M ${cx - 13} ${cy + 36} Q ${cx} ${cy + 42} ${cx + 13} ${cy + 36}" stroke="${ink}" stroke-width="4.5" fill="none" stroke-linecap="round"/>
-    ${hat(arch, cx, top, rx, hair, accent, p.highlight)}
+    ${pierce ? `<circle cx="${cx - rx - 4}" cy="${cy + 18}" r="3.5" fill="${accent}"/>` : ""}
+    ${hairDraw}
+    ${hatKind ? hat(hatKind, cx, top, rx, hair, accent, p.highlight) : ""}
   </svg>`;
 }
 
