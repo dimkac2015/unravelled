@@ -36,7 +36,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     const content = await readFile(file);
-    res.writeHead(200, { "Content-Type": MIME[extname(file)] || "application/octet-stream" });
+    res.writeHead(200, { "Content-Type": MIME[extname(file)] || "application/octet-stream", "Cache-Control": "no-cache" });
     res.end(content);
   } catch (e) {
     res.writeHead(500, { "Content-Type": "application/json" }).end(JSON.stringify({ error: String(e.message || e) }));

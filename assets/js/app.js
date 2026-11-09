@@ -1,12 +1,12 @@
 // unravelled — flow: landing (grab the thread on the ball, or press unravel)
 // → analyze → 4 panels → finale
 
-import { parseSpotifyUrl, buildReading } from "./mood.js";
-import { clientTracks, clientQuote } from "./spotify.js";
-import { renderScene, SCENE_FAMILIES } from "./scenes.js";
-import { renderPortrait, renderPoster, renderEraIcon } from "./portraits.js";
-import { yarnBallSvg, threadPileSvg, catSvg } from "./yarn.js";
-import { makeRng, escapeXml } from "./rng.js";
+import { parseSpotifyUrl, buildReading } from "./mood.js?v=6";
+import { clientTracks, clientQuote } from "./spotify.js?v=6";
+import { renderScene, SCENE_FAMILIES } from "./scenes.js?v=6";
+import { renderPortrait, renderPoster, renderEraIcon } from "./portraits.js?v=6";
+import { yarnBallSvg, threadPileSvg, catSvg } from "./yarn.js?v=6";
+import { makeRng, escapeXml } from "./rng.js?v=6";
 
 const $ = (id) => document.getElementById(id);
 const LOADING_LINES = ["reading the playlist…", "counting the songs…", "feeling the tempo…", "finding a lyric…", "pulling the thread…"];

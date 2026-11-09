@@ -3,7 +3,7 @@
 // embed pages through free CORS relays (all in parallel, hard time caps),
 // and a real lyric line via the keyless lyrics.ovh API
 
-import { MOOD_KEYWORDS } from "./mood.js";
+import { MOOD_KEYWORDS } from "./mood.js?v=6";
 
 const OEMBED = "https://open.spotify.com/oembed?url=";
 const LYRICS = "https://api.lyrics.ovh/v1";
