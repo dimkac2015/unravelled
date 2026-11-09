@@ -97,7 +97,7 @@ const FEATURES = [
   { match: "goku", hair: "wild"},
   { match: "luffy", hair: "curly", hat: "redhat"},
   { match: "light", hair: "sidepart"},
-  { match: " l ", hair: "curly"},
+  { match: "death note", hair: "curly"},
   { match: "edward elric", hair: "braids"},
   { match: "spike", hair: "curly", glasses: "round"},
   { match: "motoko", hair: "sidepart"},
@@ -251,8 +251,9 @@ export function renderCharacter(character, palette) {
   const sw = 100 + rng() * 14;          // shoulder half width
 
   const feat = featureFor(character.name);
-  const hairKind = feat && feat.hair && feat.hair !== "mustache" ? feat.hair : HAIR_KINDS[Math.floor(rng() * HAIR_KINDS.length)];
-  const hatKind = feat && feat.hat ? feat.hat : (rng() < 0.4 ? HAT_KINDS[Math.floor(rng() * HAT_KINDS.length)] : (ARCH_HAT[arch] || null));
+  const featHasHair = !!(feat && feat.hair && feat.hair !== "mustache");
+  const hairKind = featHasHair ? feat.hair : HAIR_KINDS[Math.floor(rng() * HAIR_KINDS.length)];
+  const hatKind = feat && feat.hat ? feat.hat : (featHasHair ? null : (rng() < 0.4 ? HAT_KINDS[Math.floor(rng() * HAT_KINDS.length)] : (ARCH_HAT[arch] || null)));
   const glassesKind = feat && feat.glasses ? feat.glasses : (rng() < 0.2 ? (rng() < 0.5 ? "round" : "sun") : null);
   const mustache = feat && feat.hair === "mustache" ? true : rng() < 0.08;
   const beard = (feat && feat.beard) || rng() < 0.1;
