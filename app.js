@@ -26,6 +26,8 @@ const I18N = {
     compliments: ["Your taste has a quiet confidence to it.", "You curate vibes the way other people curate furniture — carefully, and with love.", "There's a warm, steady rhythm to everything you pick.", "You have the rare gift of making ordinary songs feel like they were made for you.", "Your playlist reads like a diary written in choruses.", "You listen the way other people watch sunsets — fully, and without rushing.", "Somewhere in your tracklist there's a song that secretly describes you.", "You give people songs the way good friends give advice — at exactly the right moment."],
     roasts: ["Though you'd absolutely reorganize a stranger's bookshelf by genre and mood.", "You'd be the friend who says 'actually' at parties — endearingly, though.", "Your 'shuffle' finger is suspiciously well trained.", "You probably hum in public more than you think you do.", "Somewhere, a mixtape is nervously taking notes.", "You'd definitely name a playlist 'untitled 47' and defend it passionately.", "Your 'five more minutes' playlist is 4 hours long. We know.", "You say 'one last song' the way other people say 'one last slice'."],
     readingTemplate: "You seem like {role} — the {scene} of your friend group. {compliment} {roast}",
+    feelsTemplate: "It feels like {feels}.",
+    feels: ["someone who always knows which song plays next before it starts", "a warm kitchen at 11 pm", "the first page of a really good book", "rain on the window while you're inside", "finding money in an old jacket", "Sunday morning with nowhere to be", "a mixtape made just for you", "the quiet hero of your own story", "sunlight through bus windows", "being understood without having to explain"],
     adj: ["Silent", "Golden", "Velvet", "Distant", "Hidden", "Amber", "Pale", "Wild", "Gentle", "Electric", "Moonlit", "Patient", "Lucky", "Quiet", "Brave", "Sunny", "Midnight", "Paper", "Copper", "Soft"],
     typeWord: { ocean: "Tide", forest: "Pines", stars: "Sky", desert: "Dunes", mountains: "Peaks", aurora: "Lights", city: "Avenues", meadow: "Grass", canyon: "Rocks", lake: "Mirror", sakura: "Petals", tundra: "Snow", waterfall: "Falls", lavender: "Bloom", volcano: "Ember", lighthouse: "Beam", balloons: "Drift", wheat: "Field" }
   }
@@ -55,6 +57,8 @@ I18N.ru = {
   compliments: ["В вашем вкусе есть тихая уверенность.", "Вы собираете настроения так же бережно, как другие — мебель.", "Во всём, что вы выбираете, есть тёплый ровный ритм.", "У вас редкий дар: обычные песни кажутся написанными для вас.", "Ваш плейлист читается как дневник, написанный припевами.", "Вы слушаете так, как другие смотрят на закат, — полностью и не торопясь.", "Где-то в вашем треклисте есть песня, которая тайно описывает вас.", "Вы дарите людям песни так же, как хорошие друзья дарят советы, — в нужный момент."],
   roasts: ["Хотя чужую книжную полку вы бы точно разобрали по жанрам и настроению.", "Вы были бы тем другом, который говорит «на самом деле» на вечеринках — мило, впрочем.", "Ваш палец на кнопке shuffle подозрительно натренирован.", "Вы, вероятно, напеваете на людях чаще, чем думаете.", "Где-то микстейп нервно делает пометки.", "Вы наверняка назвали бы плейлист «без названия 47» и страстно бы его отстаивали.", "Ваш плейлист «ещё пять минут» длится 4 часа. Мы знаем.", "Вы говорите «последняя песня» так же, как другие говорят «последний кусочек»."],
   readingTemplate: "Вы похожи на {role} — на {scene} в своей компании друзей. {compliment} {roast}",
+    feelsTemplate: "Это ощущается как {feels}.",
+    feels: ["человек, который знает, какая песня включится следующей, раньше, чем она началась", "тёплая кухня в 23:00", "первая страница очень хорошей книги", "дождь за окном, пока ты дома", "деньги в старой куртке", "воскресное утро без планов", "микстейп, записанный специально для тебя", "тихий герой собственной истории", "солнечный свет в окнах автобуса", "когда тебя понимают без объяснений"],
   adj: ["Тихий", "Золотой", "Бархатный", "Далёкий", "Скрытый", "Янтарный", "Бледный", "Дикий", "Нежный", "Электрический", "Лунный", "Терпеливый", "Удачливый", "Негромкий", "Храбрый", "Солнечный", "Полуночный", "Бумажный", "Медный", "Мягкий"],
   typeWord: { ocean: "Прилив", forest: "Сосны", stars: "Небо", desert: "Дюны", mountains: "Вершины", aurora: "Огни", city: "Проспекты", meadow: "Травы", canyon: "Скалы", lake: "Зеркало", sakura: "Лепестки", tundra: "Снега", waterfall: "Водопад", lavender: "Лаванду", volcano: "Вулкан", lighthouse: "Маяк", balloons: "Шары", wheat: "Поле" }
 };
@@ -83,6 +87,8 @@ I18N.be = {
   compliments: ["У вашым густе ёсць ціхая ўпэўненасць.", "Вы збіраеце настроі так беражліва, як іншыя — мэблю.", "Ва ўсім, што вы выбіраеце, цёплы роўны рытм.", "У вас рэдкі дар: звычайныя песні здаюцца напісанымі для вас.", "Ваш плейліст чытаецца як дзённік, напісаны прыпевамі.", "Вы слухаеце так, як іншыя глядзяць на захад, — цалкам і не спяшаючыся.", "Дзе-то ў вашым трэклісце песня, якая таемна апісвае вас.", "Вы дорыце людзям песні так, як добрыя сябры дораць парады, — у патрэбны момант."],
   roasts: ["Хоць чужую кніжную паліцу вы б дакладна разабралі па жанрах і настроях.", "Вы былі б сябрам, які кажа «на самой справе» на вечарынках — міла, зрэшты.", "Ваш палец на кнопцы shuffle падазрона натренаваны.", "Вы, верагодна, напяваеце на людзях часцей, чым думаеце.", "Недзе мікстэйп нервова робіць нататкі.", "Вы б назвалі плейліст «без назвы 47» і запалена б яго абаранялі.", "Ваш плейліст «яшчэ пяць хвілін» доўжыцца 4 гадзіны. Мы ведаем.", "Вы кажаце «апошняя песня» так, як іншыя кажуць «апошні кавалак»."],
   readingTemplate: "Вы падобныя на {role} — на {scene} ў сваёй кампаніі сяброў. {compliment} {roast}",
+    feelsTemplate: "Гэта адчуваецца як {feels}.",
+    feels: ["чалавек, які ведае, якая песня будзе наступнай, раней, чым яна пачалася", "цёплая кухня а 23:00", "першая старонка вельмі добрай кнігі", "дождж за акном, пакуль ты дома", "грошы ў старой куртцы", "нядзельная раніца без планаў", "мікстейп, запісаны спецыяльна для цябе", "ціхі герой уласнай гісторыі", "сонечнае святло ў вокнах аўтобуса", "калі цябе разумеюць без тлумачэнняў"],
   adj: ["Ціхі", "Залаты", "Бархатны", "Далёкі", "Схаваны", "Янтарны", "Бледны", "Дзікі", "Пяшчотны", "Электрычны", "Месячны", "Цярплівы", "Удачлівы", "Ціхі", "Хрitariasны", "Сонечны", "Паўночны", "Папяровы", "Медны", "Мяккі"],
   typeWord: { ocean: "Прыліў", forest: "Сосны", stars: "Неба", desert: "Дюны", mountains: "Вяршыні", aurora: "Агні", city: "Праспекты", meadow: "Травы", canyon: "Скалы", lake: "Люстра", sakura: "Лепесткі", tundra: "Снегі", waterfall: "Вадаспад", lavender: "Лаванду", volcano: "Вулкан", lighthouse: "Маяк", balloons: "Шары", wheat: "Поле" }
 };
@@ -111,6 +117,8 @@ I18N.fr = {
   compliments: ["Votre goût a une confiance tranquille.", "Vous agencez les ambiances comme d'autres agencent des meubles — avec soin et amour.", "Il y a un rythme chaud et régulier dans tout ce que vous choisissez.", "Vous avez le don rare de rendre les chansons ordinaires écrites pour vous.", "Votre playlist se lit comme un journal écrit en refrains.", "Vous écoutez comme d'autres regardent le coucher de soleil — pleinement, sans précipitation.", "Quelque part dans votre liste se cache une chanson qui vous décrit secrètement.", "Vous offrez des chansons comme les bons amis offrent des conseils — au bon moment."],
   roasts: ["Même si vous réorganiseriez sûrement l'étagère d'un inconnu par genre et par humeur.", "Vous seriez l'ami qui dit « en fait » aux soirées — de façon touchante, cela dit.", "Votre doigt sur le bouton shuffle est bizarrement entraîné.", "Vous fredonnez probablement en public plus que vous ne le pensez.", "Quelque part, une mixtape prend des notes nerveusement.", "Vous appelleriez sûrement une playlist « sans titre 47 » et la défendrez avec passion.", "Votre playlist « cinq minutes de plus » dure 4 heures. On sait.", "Vous dites « dernière chanson » comme les autres disent « dernière part »."],
   readingTemplate: "Vous ressemblez à {role} — au {scene} de votre groupe d'amis. {compliment} {roast}",
+    feelsTemplate: "Ça ressemble à {feels}.",
+    feels: ["quelqu'un qui sait déjà quelle chanson va passer avant qu'elle ne commence", "une cuisine chaude à 23h", "la première page d'un très bon livre", "la pluie sur la vitre quand on est à l'intérieur", "trouver de l'argent dans une vieille veste", "un dimanche matin sans rien à faire", "une mixtape faite rien que pour toi", "le héros discret de ta propre histoire", "le soleil à travers les vitres du bus", "être compris sans avoir à s'expliquer"],
   adj: ["Silencieux", "Doré", "Velouté", "Lointain", "Caché", "Ambré", "Pâle", "Sauvage", "Doux", "Électrique", "Lunaire", "Patient", "Chanceux", "Discret", "Brave", "Ensoleillé", "De minuit", "Papier", "Cuivré", "Doux"],
   typeWord: { ocean: "Marée", forest: "Pins", stars: "Ciel", desert: "Dunes", mountains: "Pics", aurora: "Lumières", city: "Avenues", meadow: "Herbes", canyon: "Rochers", lake: "Miroir", sakura: "Pétales", tundra: "Neiges", waterfall: "Cascade", lavender: "Lavande", volcano: "Volcan", lighthouse: "Phare", balloons: "Ballons", wheat: "Champ" }
 };
@@ -339,7 +347,6 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll("[data-i18n-ph]").forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   document.getElementById("lang-btn").textContent = lang.toUpperCase() + " ▾";
-  document.getElementById("spotify-note").textContent = SPOTIFY_CLIENT_ID ? "" : t("spotifyNote");
   if (state.scene) renderSceneContent();
 }
 
@@ -349,23 +356,53 @@ function showScreen(id) {
 }
 
 function pullThreadAnimation(done) {
-  const path = document.getElementById("thread-path");
+  const layer = document.getElementById("thread-layer");
   const w = window.innerWidth, h = window.innerHeight;
-  const x = w / 2;
-  path.setAttribute("d", `M ${x} ${h * 0.52} C ${x - 24} ${h * 0.66}, ${x + 24} ${h * 0.82}, ${x} ${h * 0.97}`);
+  const cx = w / 2, cy = h * 0.5;
+  const ball = document.getElementById("yarn-ball");
+  if (ball) ball.classList.add("spin");
+  const x0 = cx + 58, y0 = cy + 18;
+  const d = `M ${x0} ${y0} C ${cx + 96} ${cy - 28}, ${cx + 8} ${cy - 58}, ${cx - 28} ${cy + 2} C ${cx - 48} ${cy + 34}, ${cx + 4} ${cy + 46}, ${cx + 10} ${cy + 72} C ${cx + 18} ${cy + 120}, ${cx - 20} ${cy + 180}, ${cx - 8} ${h * 0.97}`;
+  const path = document.getElementById("thread-path");
+  path.setAttribute("d", d);
   const len = path.getTotalLength();
   path.style.transition = "none";
   path.style.opacity = "1";
   path.style.strokeDasharray = len;
   path.style.strokeDashoffset = len;
+  const strands = [];
+  for (let i = 0; i < 2; i++) {
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const off = 15 + i * 11;
+    p.setAttribute("d", `M ${x0 + off} ${y0 + 8} C ${cx + 92 + off} ${cy - 8}, ${cx + 22} ${cy + 42}, ${cx + off} ${cy + 92} C ${cx + off - 12} ${cy + 160}, ${cx - off} ${cy + 240}, ${cx + 4} ${h * 0.97}`);
+    p.setAttribute("fill", "none");
+    p.style.stroke = "#e9dcb8";
+    p.style.strokeWidth = "1.4";
+    p.style.opacity = "0.55";
+    layer.appendChild(p);
+    strands.push(p);
+  }
   path.getBoundingClientRect();
-  path.style.transition = "stroke-dashoffset 0.7s ease-in";
+  strands.forEach((p, i) => {
+    const l = p.getTotalLength();
+    p.style.strokeDasharray = l;
+    p.style.strokeDashoffset = l;
+    p.style.transition = `stroke-dashoffset ${0.9 + i * 0.15}s ease-in ${0.15 + i * 0.1}s`;
+    p.style.strokeDashoffset = "0";
+  });
+  path.style.transition = "stroke-dashoffset 1.15s ease-in-out";
   path.style.strokeDashoffset = "0";
   setTimeout(() => {
-    path.style.transition = "opacity 1.6s ease-out";
+    path.style.transition = "opacity 1.7s ease-out";
     path.style.opacity = "0";
-    setTimeout(() => { path.style.strokeDasharray = ""; done(); }, 1650);
-  }, 750);
+    strands.forEach(p => { p.style.transition = "opacity 1.7s ease-out"; p.style.opacity = "0"; });
+    setTimeout(() => {
+      strands.forEach(p => p.remove());
+      path.style.strokeDasharray = "";
+      if (ball) ball.classList.remove("spin");
+      done();
+    }, 1750);
+  }, 1200);
 }
 
 function spotifyToken() {
@@ -416,7 +453,25 @@ function isDark(hex) {
 
 function skyRect(p, W, H) {
   const overlay = isDark(p.sky) ? "#000000" : "#ffffff";
-  return `<defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.sky}"/><stop offset="1" stop-color="${overlay}" stop-opacity="0.28"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#skyG)"/>`;
+  return `<defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${p.sky}"/><stop offset="0.55" stop-color="${p.sky}"/><stop offset="1" stop-color="${overlay}" stop-opacity="0.32"/></linearGradient></defs><rect width="${W}" height="${H}" fill="url(#skyG)"/>`;
+}
+
+function clouds(rng, color, n) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const x = 60 + rng() * 640, y = 40 + rng() * 120, sc = 0.7 + rng() * 0.8;
+    s += `<g fill="${color}" opacity="0.75" transform="translate(${x.toFixed(0)},${y.toFixed(0)}) scale(${sc.toFixed(2)})"><ellipse cx="0" cy="0" rx="34" ry="12"/><ellipse cx="26" cy="4" rx="24" ry="10"/><ellipse cx="-26" cy="5" rx="22" ry="9"/></g>`;
+  }
+  return s;
+}
+
+function birds(rng, color, n) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const x = 80 + rng() * 600, y = 70 + rng() * 120, sc = 0.6 + rng() * 0.7;
+    s += `<path d="M0 0 q6 -7 12 0 q6 -7 12 0" transform="translate(${x.toFixed(0)},${y.toFixed(0)}) scale(${sc.toFixed(2)})" stroke="${color}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  }
+  return s;
 }
 
 function starsSVG(rng, color, n) {
@@ -511,15 +566,37 @@ function wheatRows(rng, field, row, W, H) {
   return s;
 }
 
+
+function petals(rng, color, n) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const x = rng() * 760, y = 140 + rng() * 260, r = 3 + rng() * 3;
+    s += `<ellipse cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" rx="${r.toFixed(1)}" ry="${(r * 0.6).toFixed(1)}" fill="${color}" opacity="0.7" transform="rotate(${(rng() * 90).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;
+  }
+  return s;
+}
+
+function wheatStalks(rng, color, n) {
+  let s = "";
+  for (let i = 0; i < n; i++) {
+    const x = 20 + rng() * 720, y = 330 + rng() * 80, h = 18 + rng() * 22;
+    s += `<path d="M${x.toFixed(1)} ${y.toFixed(1)} v-${h.toFixed(1)} M${x.toFixed(1)} ${(y - h).toFixed(1)} l-4 -6 M${x.toFixed(1)} ${(y - h).toFixed(1)} l4 -6" stroke="${color}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  }
+  return s;
+}
+
 function sceneSVG(scene, rng) {
   const p = scene.pal;
   let inner = "";
   const W = 760, H = 420;
   const sky = skyRect(p, W, H);
+  const day = !isDark(p.sky);
+  const cl = day ? "#ffffff" : "#d8e2ee";
   switch (scene.type) {
     case "ocean":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${560 + rng() * 80}" cy="${90 + rng() * 40}" r="34" fill="${p.sun}"/>
+        <circle cx="${560 + rng() * 80}" cy="${90 + rng() * 40}" r="46" fill="${p.sun}" opacity="0.25"/>
         <rect y="250" width="${W}" height="${H - 250}" fill="${p.sea}"/>
         <path d="M0 250 Q 190 244 380 250 T 760 250 L 760 262 Q 570 268 380 262 T 0 262 Z" fill="${p.sea}" opacity="0.7"/>
         <g transform="translate(${180 + rng() * 160}, 250)">
@@ -528,21 +605,29 @@ function sceneSVG(scene, rng) {
           <path d="M1 -52 L1 -12 L34 -12 Z" fill="#f4efe2"/>
           <path d="M-1 -46 L-1 -14 L-28 -14 Z" fill="#e9dcb8"/>
         </g>
-        <path d="M0 300 Q 190 294 380 300 T 760 300" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.35"/>
-        <path d="M60 330 Q 200 326 340 330" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.25"/>
-        <path d="M420 350 Q 560 346 700 350" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.25"/>`;
+        <path d="M0 285 Q 190 280 380 285 T 760 285" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.4"/>
+        <path d="M0 310 Q 190 304 380 310 T 760 310" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.3"/>
+        <path d="M0 340 Q 190 334 380 340 T 760 340" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.25"/>
+        <path d="M0 372 Q 190 366 380 372 T 760 372" stroke="${p.sun}" stroke-width="2" fill="none" opacity="0.2"/>
+        <path d="M${560 + rng() * 40} 255 q4 30 -2 60 M${575 + rng() * 40} 255 q-4 35 2 70" stroke="${p.sun}" stroke-width="3" opacity="0.3"/>
+        ${birds(rng, day ? "#3a4a54" : "#cfd8e2", 3)}`;
       break;
     case "forest":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <rect y="300" width="${W}" height="${H - 300}" fill="${p.mist}" opacity="0.5"/>
-        ${treeRow(rng, p.back, 250, 120)}
-        ${treeRow(rng, p.mid, 310, 90)}
-        ${treeRow(rng, p.front, 370, 60)}`;
+        ${treeRow(rng, p.back, 230, 130)}
+        ${treeRow(rng, p.mid, 285, 105)}
+        ${treeRow(rng, p.front, 345, 80)}
+        ${treeRow(rng, p.front, 395, 55)}
+        ${birds(rng, day ? "#2c3a34" : "#9fb0a8", 2)}`;
       break;
     case "stars":
       inner = sky + `
         <ellipse cx="380" cy="120" rx="300" ry="90" fill="${p.glow}" opacity="0.55"/>
-        ${starsSVG(rng, p.star, 90)}
+        <ellipse cx="${150 + rng() * 200}" cy="300" rx="220" ry="60" fill="${p.glow}" opacity="0.3"/>
+        ${starsSVG(rng, p.star, 150)}
+        <path d="M${120 + rng() * 80} 60 l60 14" stroke="${p.star}" stroke-width="2" opacity="0.8" stroke-linecap="round"/>
+        <path d="M${140 + rng() * 80} 52 l-8 18" stroke="${p.star}" stroke-width="1.4" opacity="0.5" stroke-linecap="round"/>
         <circle cx="${560 + rng() * 60}" cy="${80 + rng() * 40}" r="30" fill="${p.star}" opacity="0.9"/>
         <circle cx="${548 + rng() * 60}" cy="${74 + rng() * 40}" r="26" fill="${p.sky}"/>
         <path d="M0 ${H} L120 ${340} L260 ${H} Z" fill="${p.glow}" opacity="0.5"/>
@@ -550,61 +635,84 @@ function sceneSVG(scene, rng) {
         <path d="M560 ${H} L660 ${350} L760 ${H} Z" fill="${p.glow}" opacity="0.5"/>`;
       break;
     case "desert":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${580 + rng() * 60}" cy="${90 + rng() * 30}" r="36" fill="${p.sun}"/>
+        <circle cx="${580 + rng() * 60}" cy="${90 + rng() * 30}" r="52" fill="${p.sun}" opacity="0.25"/>
+        <path d="M0 270 Q 240 250 480 272 T 760 262 L 760 300 Q 480 312 240 295 T 0 305 Z" fill="${p.dune1}" opacity="0.6"/>
         <path d="M0 300 Q 200 270 400 295 T 760 285 L 760 ${H} L 0 ${H} Z" fill="${p.dune1}"/>
         <path d="M0 340 Q 260 310 480 340 T 760 330 L 760 ${H} L 0 ${H} Z" fill="${p.dune2}"/>
         <path d="M0 380 Q 300 355 560 380 T 760 372 L 760 ${H} L 0 ${H} Z" fill="${p.dune3}"/>
+        <path d="M60 315 q60 -8 120 0 M420 325 q70 -9 140 0" stroke="${p.dune3}" stroke-width="3" fill="none" opacity="0.5"/>
         <g transform="translate(${140 + rng() * 80}, 372)" fill="${p.dune3}">
           <path d="M0 0 q6 -26 12 0 q6 -20 12 0 q-12 6 -24 0 Z"/>
-        </g>`;
+        </g>
+        <g transform="translate(${600 + rng() * 60}, 350)" fill="${p.dune2}">
+          <path d="M0 0 v-30 M0 -30 q-10 -4 -12 -14 M0 -30 q10 -4 12 -14" stroke="${p.dune2}" stroke-width="5" fill="none" stroke-linecap="round"/>
+        </g>
+        ${birds(rng, day ? "#5c4a34" : "#c8b8a0", 2)}`;
       break;
     case "mountains":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 3) + `
         <circle cx="${140 + rng() * 60}" cy="${80 + rng() * 30}" r="30" fill="#f6efe2" opacity="0.9"/>
+        <path d="M0 340 L120 220 L220 330 L320 240 L420 340 Z" fill="${p.far}" opacity="0.7"/>
         <path d="M0 ${H} L160 180 L260 300 L380 ${H} Z" fill="${p.far}"/>
         <path d="M160 180 L200 240 L120 240 Z" fill="${p.snow}" opacity="0.9"/>
         <path d="M240 ${H} L430 140 L620 ${H} Z" fill="${p.mid}"/>
         <path d="M430 140 L485 225 L375 225 Z" fill="${p.snow}"/>
+        <path d="M370 260 q30 18 60 10 M470 300 q40 12 80 4" stroke="${p.near}" stroke-width="3" fill="none" opacity="0.5"/>
         <path d="M480 ${H} L640 220 L760 ${H} Z" fill="${p.far}"/>
-        <path d="M0 340 Q 380 320 760 345 L 760 ${H} L 0 ${H} Z" fill="${p.near}"/>`;
+        <path d="M0 340 Q 380 320 760 345 L 760 ${H} L 0 ${H} Z" fill="${p.near}"/>
+        ${birds(rng, day ? "#2e3e4c" : "#aebfd0", 3)}`;
       break;
     case "aurora":
       inner = sky + `
-        ${starsSVG(rng, p.star, 70)}
+        ${starsSVG(rng, p.star, 110)}
         <path d="M-20 200 C 150 60, 320 260, 500 120 S 720 180, 800 90 L 800 40 C 600 140, 420 20, 240 160 S 40 120, -20 180 Z" fill="${p.a1}" opacity="0.55"/>
         <path d="M-20 260 C 180 140, 360 320, 560 180 S 740 240, 800 160 L 800 110 C 620 210, 440 90, 260 220 S 60 190, -20 240 Z" fill="${p.a2}" opacity="0.4"/>
+        <path d="M-20 160 C 200 60, 420 220, 640 100 L 640 70 C 440 190, 220 30, -20 130 Z" fill="${p.a1}" opacity="0.3"/>
         <path d="M0 ${H} L200 330 L420 ${H} Z" fill="#0a1420" opacity="0.8"/>
         <path d="M420 ${H} L600 340 L760 ${H} Z" fill="#0a1420" opacity="0.7"/>`;
       break;
     case "city":
       inner = sky + `
         <circle cx="${600 + rng() * 60}" cy="${70 + rng() * 30}" r="24" fill="#f4efe2" opacity="0.85"/>
-        ${cityRow(rng, p.far, 210, 130, p.win)}
+        <circle cx="${600 + rng() * 60}" cy="${70 + rng() * 30}" r="36" fill="#f4efe2" opacity="0.15"/>
+        ${cityRow(rng, p.far, 190, 110, p.win)}
+        ${cityRow(rng, p.far, 240, 140, p.win)}
         ${cityRow(rng, p.near, 300, 120, p.win)}
-        <rect y="380" width="${W}" height="${H - 380}" fill="#0a0e1a"/>`;
+        <line x1="${120 + rng() * 80}" y1="240" x2="${120 + rng() * 80}" y2="205" stroke="${p.near}" stroke-width="3"/>
+        <circle cx="${120 + rng() * 80}" cy="203" r="3" fill="#e86a5a"/>
+        <rect y="380" width="${W}" height="${H - 380}" fill="#0a0e1a"/>
+        <path d="M0 380 h760" stroke="${p.win}" stroke-width="1.5" opacity="0.4"/>`;
       break;
     case "meadow":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 3) + `
         <circle cx="${150 + rng() * 80}" cy="${80 + rng() * 30}" r="30" fill="#fdf6dd"/>
-        <path d="M0 280 Q 380 230 760 285 L 760 ${H} L 0 ${H} Z" fill="${p.hill}"/>
+        <path d="M0 260 Q 380 215 760 268 L 760 ${H} L 0 ${H} Z" fill="${p.hill}"/>
+        <path d="M0 300 Q 380 268 760 305 L 760 ${H} L 0 ${H} Z" fill="${p.grass}" opacity="0.85"/>
         <path d="M0 330 Q 380 295 760 335 L 760 ${H} L 0 ${H} Z" fill="${p.grass}"/>
-        ${flowers(rng, p.flower, 40)}`;
+        <path d="M330 ${H} Q 360 350 350 320" stroke="#e8d9b0" stroke-width="26" fill="none" opacity="0.35"/>
+        ${flowers(rng, p.flower, 70)}
+        ${birds(rng, "#3a4a3e", 2)}`;
       break;
     case "canyon":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${380 + rng() * 60}" cy="${90}" r="32" fill="#fdf0d8"/>
         <path d="M0 ${H} L0 160 L120 200 L120 ${H} Z" fill="${p.r1}"/>
         <path d="M760 ${H} L760 140 L620 190 L620 ${H} Z" fill="${p.r2}"/>
+        <path d="M0 200 q60 10 120 40 M0 260 q50 12 100 30 M620 230 q70 14 140 10 M640 290 q60 10 120 6" stroke="${p.r3}" stroke-width="4" fill="none" opacity="0.4"/>
         <path d="M120 200 L120 260 L60 ${H} L0 ${H} L0 240 Z" fill="${p.r2}" opacity="0.9"/>
         <path d="M620 190 L620 250 L700 ${H} L760 ${H} L760 230 Z" fill="${p.r1}" opacity="0.9"/>
         <path d="M0 ${H} L 380 330 L 760 ${H} Z" fill="${p.r3}"/>
-        <rect y="${H - 26}" width="${W}" height="26" fill="${p.floor}"/>`;
+        <path d="M200 ${H} q180 -40 360 0" stroke="${p.floor}" stroke-width="8" fill="none" opacity="0.6"/>
+        <rect y="${H - 26}" width="${W}" height="26" fill="${p.floor}"/>
+        ${birds(rng, day ? "#4c3a28" : "#c8b8a8", 2)}`;
       break;
     case "lake":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${560 + rng() * 60}" cy="${80 + rng() * 30}" r="28" fill="${p.refl}"/>
         <path d="M0 240 Q 380 210 760 245 L 760 250 L 0 250 Z" fill="${p.shore}"/>
+        <path d="M0 246 Q 380 228 760 248" stroke="${p.shore}" stroke-width="6" fill="none" opacity="0.6"/>
         <rect y="250" width="${W}" height="${H - 250}" fill="${p.water}"/>
         <g transform="translate(${200 + rng() * 200}, 250)">
           <path d="M-40 0 L40 0 L30 12 L-30 12 Z" fill="#2c2018"/>
@@ -613,56 +721,73 @@ function sceneSVG(scene, rng) {
         <path d="M0 270 Q 190 266 380 270 T 760 270" stroke="${p.refl}" stroke-width="2" fill="none" opacity="0.4"/>
         <path d="M80 310 Q 240 306 400 310" stroke="${p.refl}" stroke-width="2" fill="none" opacity="0.3"/>
         <path d="M460 340 Q 600 336 740 340" stroke="${p.refl}" stroke-width="2" fill="none" opacity="0.3"/>
-        <path d="M0 250 Q 380 244 760 250" stroke="${p.refl}" stroke-width="3" fill="none" opacity="0.6"/>`;
+        <path d="M0 250 Q 380 244 760 250" stroke="${p.refl}" stroke-width="3" fill="none" opacity="0.6"/>
+        <g stroke="${p.shore}" stroke-width="3" stroke-linecap="round">
+          <path d="M60 250 q-3 -18 2 -30 M72 250 q2 -16 -2 -26 M690 250 q3 -18 -2 -30 M702 250 q-2 -16 2 -26" fill="none"/>
+        </g>
+        ${birds(rng, day ? "#2c3a34" : "#a8bcc8", 2)}`;
       break;
     case "sakura":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <path d="M-10 320 Q 200 280 420 315 T 770 300" stroke="${p.branch}" stroke-width="10" fill="none"/>
         <path d="M180 310 Q 240 240 300 210" stroke="${p.branch}" stroke-width="6" fill="none"/>
         <path d="M480 312 Q 540 250 620 225" stroke="${p.branch}" stroke-width="6" fill="none"/>
-        ${blooms(rng, p.bloom, p.bloom2, 26)}`;
+        <path d="M300 210 q30 -14 60 -8 M540 250 q30 -16 58 -12" stroke="${p.branch}" stroke-width="4" fill="none"/>
+        ${blooms(rng, p.bloom, p.bloom2, 34)}
+        ${petals(rng, p.bloom2, 14)}`;
       break;
     case "tundra":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${580 + rng() * 60}" cy="${80 + rng() * 30}" r="24" fill="#f6f2ea" opacity="0.9"/>
-        <path d="M0 300 Q 240 270 480 300 T 760 295 L 760 ${H} L 0 ${H} Z" fill="${p.snow}"/>
+        <path d="M0 280 Q 240 255 480 282 T 760 278 L 760 ${H} L 0 ${H} Z" fill="${p.snow}"/>
         <path d="M0 340 Q 300 315 760 345 L 760 ${H} L 0 ${H} Z" fill="${p.hill}"/>
         <ellipse cx="${180 + rng() * 400}" cy="${360 + rng() * 30}" rx="120" ry="16" fill="${p.ice}" opacity="0.8"/>
+        <ellipse cx="${300 + rng() * 300}" cy="${390}" rx="80" ry="10" fill="${p.ice}" opacity="0.6"/>
         <path d="M${120 + rng() * 60} 300 l10 -34 l10 34 Z" fill="${p.hill}"/>
-        <path d="M${600 + rng() * 60} 295 l8 -26 l8 26 Z" fill="${p.hill}"/>`;
+        <path d="M${600 + rng() * 60} 295 l8 -26 l8 26 Z" fill="${p.hill}"/>
+        <path d="M${400 + rng() * 100} 310 l7 -22 l7 22 Z" fill="${p.hill}"/>`;
       break;
     case "waterfall":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <path d="M0 ${H} L0 60 L150 110 L170 200 L120 ${H} Z" fill="${p.rock}"/>
         <path d="M760 ${H} L760 50 L610 100 L590 190 L640 ${H} Z" fill="${p.rock}"/>
         <path d="M0 120 Q 80 100 150 110 L150 130 Q 70 125 0 145 Z" fill="${p.moss}" opacity="0.8"/>
         <path d="M610 100 Q 690 90 760 80 L760 100 Q 690 110 610 120 Z" fill="${p.moss}" opacity="0.8"/>
+        <path d="M40 90 l30 24 M100 130 l26 20 M660 90 l-28 22 M700 130 l-24 18" stroke="#000000" stroke-width="3" opacity="0.15"/>
         <rect x="330" y="120" width="100" height="260" rx="8" fill="${p.water}" opacity="0.9"/>
-        <path d="M345 130 q10 120 -5 240 M385 125 q-8 130 6 250 M415 135 q6 110 -4 230" stroke="${p.mist}" stroke-width="5" fill="none" opacity="0.7"/>
+        <path d="M345 130 q10 120 -5 240 M365 126 q-6 130 4 248 M385 125 q-8 130 6 250 M408 132 q6 110 -4 228 M425 140 q4 90 -6 200" stroke="${p.mist}" stroke-width="4" fill="none" opacity="0.7"/>
         <ellipse cx="380" cy="385" rx="150" ry="22" fill="${p.mist}" opacity="0.7"/>
-        <path d="M170 200 Q 380 170 590 190 L 590 205 Q 380 185 170 215 Z" fill="${p.moss}" opacity="0.6"/>`;
+        <ellipse cx="380" cy="392" rx="190" ry="18" fill="${p.mist}" opacity="0.4"/>
+        <path d="M170 200 Q 380 170 590 190 L 590 205 Q 380 185 170 215 Z" fill="${p.moss}" opacity="0.6"/>
+        ${birds(rng, "#2c3438", 2)}`;
       break;
     case "lavender":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${620 + rng() * 60}" cy="${80 + rng() * 30}" r="26" fill="#f6e7c1" opacity="0.9"/>
-        <path d="M0 270 Q 380 240 760 275 L 760 ${H} L 0 ${H} Z" fill="${p.hill}"/>
-        ${lavenderRows(rng, [p.row1, p.row2, p.row3], p.dot)}`;
+        <path d="M0 250 Q 380 225 760 258 L 760 ${H} L 0 ${H} Z" fill="${p.hill}"/>
+        ${lavenderRows(rng, [p.row1, p.row2, p.row3], p.dot)}
+        ${birds(rng, "#3a3450", 2)}`;
       break;
     case "volcano":
-      inner = sky + `
+      inner = sky + clouds(rng, isDark(p.sky) ? "#2c2836" : "#b8a89e", 2) + `
         <circle cx="${600 + rng() * 60}" cy="${80 + rng() * 30}" r="30" fill="${p.glow}" opacity="0.8"/>
         <path d="M0 ${H} L300 150 L460 150 L760 ${H} Z" fill="${p.mtn}"/>
         <path d="M300 150 L380 120 L460 150 Z" fill="${p.lava}"/>
         <path d="M355 128 q10 30 -5 60 M395 126 q-6 36 8 66 M375 122 q0 40 0 80" stroke="${p.lava}" stroke-width="7" fill="none" opacity="0.85"/>
+        <path d="M340 160 q-14 40 -8 90 M420 162 q16 44 10 96" stroke="${p.lava}" stroke-width="5" fill="none" opacity="0.6"/>
         <circle cx="380" cy="100" r="10" fill="${p.smoke}" opacity="0.8"/>
         <circle cx="${365 + rng() * 30}" cy="${70 + rng() * 20}" r="14" fill="${p.smoke}" opacity="0.55"/>
         <circle cx="${390 + rng() * 30}" cy="${40 + rng() * 16}" r="18" fill="${p.smoke}" opacity="0.35"/>
+        <circle cx="${350 + rng() * 60}" cy="${110 + rng() * 30}" r="3" fill="${p.lava}"/>
+        <circle cx="${410 + rng() * 40}" cy="${90 + rng() * 30}" r="2.5" fill="${p.lava}"/>
         <path d="M0 360 Q 380 335 760 365 L 760 ${H} L 0 ${H} Z" fill="${p.mtn}" opacity="0.85"/>`;
       break;
     case "lighthouse":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <rect y="300" width="${W}" height="${H - 300}" fill="${p.sea}"/>
         <path d="M0 305 Q 190 299 380 305 T 760 305" stroke="${p.beam}" stroke-width="2" fill="none" opacity="0.3"/>
+        <path d="M0 330 Q 190 324 380 330 T 760 330" stroke="${p.beam}" stroke-width="2" fill="none" opacity="0.2"/>
+        <path d="M0 360 Q 190 354 380 360 T 760 360" stroke="${p.beam}" stroke-width="2" fill="none" opacity="0.15"/>
         <path d="M120 ${H} L260 330 L480 ${H} Z" fill="${p.rock}"/>
         <path d="M340 ${H} L380 180 L420 ${H} Z" fill="${p.beam}" opacity="0.25"/>
         <path d="M356 ${H} L388 210 L360 ${H} Z" fill="${p.tower}"/>
@@ -670,17 +795,23 @@ function sceneSVG(scene, rng) {
         <path d="M368 ${H} L384 300 L364 ${H} Z" fill="${p.stripe}" opacity="0.9"/>
         <rect x="376" y="192" width="28" height="18" rx="3" fill="${p.stripe}"/>
         <rect x="380" y="170" width="20" height="22" rx="2" fill="${p.beam}"/>
-        <path d="M376 170 h28 l-14 -12 Z" fill="${p.stripe}"/>`;
+        <circle cx="390" cy="181" r="5" fill="#fff8dc"/>
+        <path d="M376 170 h28 l-14 -12 Z" fill="${p.stripe}"/>
+        ${birds(rng, "#2c3438", 3)}`;
       break;
     case "balloons":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 3) + `
         ${balloonSky(rng, p)}
-        <path d="M0 340 Q 380 315 760 345 L 760 ${H} L 0 ${H} Z" fill="#7dc47e" opacity="0.85"/>`;
+        <path d="M0 320 Q 380 295 760 328 L 760 ${H} L 0 ${H} Z" fill="#7dc47e" opacity="0.9"/>
+        <path d="M0 350 Q 380 328 760 355 L 760 ${H} L 0 ${H} Z" fill="#5a9e52" opacity="0.9"/>
+        ${birds(rng, "#3a4a54", 2)}`;
       break;
     case "wheat":
-      inner = sky + `
+      inner = sky + clouds(rng, cl, 2) + `
         <circle cx="${140 + rng() * 60}" cy="${85 + rng() * 30}" r="32" fill="${p.sun}"/>
-        ${wheatRows(rng, p.field, p.row, W, H)}`;
+        <circle cx="${140 + rng() * 60}" cy="${85 + rng() * 30}" r="46" fill="${p.sun}" opacity="0.25"/>
+        ${wheatRows(rng, p.field, p.row, W, H)}
+        ${wheatStalks(rng, p.row, 26)}`;
       break;
   }
   return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">${inner}</svg>`;
@@ -749,7 +880,7 @@ function buildReading() {
   document.getElementById("reading-text").innerHTML = "<p>" + html + "</p>";
 }
 
-function startUnravel() {
+function begin() {
   const input = document.getElementById("playlist-input").value.trim();
   const err = document.getElementById("home-error");
   const m = input.match(/open\.spotify\.com\/playlist\/([A-Za-z0-9]+)/);
@@ -763,7 +894,7 @@ function startUnravel() {
   state.track = null;
   state.scene = pickScene(seed);
   state.quote = state.scene.quote;
-  showScreen("screen-yarn");
+  pullThreadAnimation(() => { renderSceneContent(); showScreen("screen-scene"); });
   if (!spotifyToken() && SPOTIFY_CLIENT_ID) {
     requestSpotifyLogin();
     return;
@@ -780,9 +911,10 @@ function startUnravel() {
 function fillCharacter() {
   const rng = mulberry32(state.seed ^ 0x77aa11);
   const idx = Math.floor(rng() * t("roles").length);
+  const feels = t("feels")[Math.floor(rng() * t("feels").length)];
   document.getElementById("character-icon").innerHTML = ROLE_ICONS[idx % ROLE_ICONS.length];
   document.getElementById("character-result").textContent = t("roles")[idx];
-  document.getElementById("character-desc").textContent = t("characterDesc");
+  document.getElementById("character-desc").textContent = t("feelsTemplate").replace("{feels}", feels);
 }
 
 function fillMovie() {
@@ -793,13 +925,11 @@ function fillMovie() {
   document.getElementById("movie-desc").textContent = t("movieDesc");
 }
 
-document.getElementById("btn-unravel").addEventListener("click", startUnravel);
-document.getElementById("playlist-input").addEventListener("keydown", e => { if (e.key === "Enter") startUnravel(); });
+document.getElementById("btn-unravel").addEventListener("click", begin);
+document.getElementById("playlist-input").addEventListener("keydown", e => { if (e.key === "Enter") begin(); });
 
 const yarn = document.getElementById("yarn-ball");
-yarn.addEventListener("click", () => {
-  pullThreadAnimation(() => { renderSceneContent(); showScreen("screen-scene"); });
-});
+yarn.addEventListener("click", begin);
 yarn.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); yarn.click(); } });
 
 document.querySelectorAll("#screen-scene .thread-btn").forEach(b =>
